@@ -1,0 +1,16 @@
+import { z } from "zod"
+
+const optionalPlatform = z.preprocess((value) => {
+  if (typeof value !== "string") return value
+  const trimmed = value.trim().toLowerCase()
+  return trimmed === "" ? undefined : trimmed
+}, z.string().max(50, "Platform maksimal 50 karakter.").optional())
+
+export const registerPushTokenSchema = z.object({
+  token: z.string().trim().min(1, "Token FCM wajib diisi."),
+  platform: optionalPlatform,
+})
+
+export type RegisterPushTokenFormValues = z.infer<
+  typeof registerPushTokenSchema
+>

@@ -13,6 +13,7 @@ import {
   type MapMode,
 } from "@/components/providers/map-mode-provider"
 import { useTheme } from "@/components/providers/theme-provider"
+import { PushNotificationSettings } from "@/components/push/push-notification-settings"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -176,6 +177,19 @@ function SettingsPage() {
               ))}
             </div>
           </section>
+        </div>
+      </div>
+
+      <div className="grid gap-8 md:grid-cols-3">
+        <div className="space-y-1">
+          <h2 className="font-heading text-lg font-medium">Notifications</h2>
+          <p className="text-sm text-muted-foreground">
+            Register this device to receive event alerts.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-8 md:col-span-2">
+          <PushNotificationSettings />
         </div>
       </div>
     </div>
