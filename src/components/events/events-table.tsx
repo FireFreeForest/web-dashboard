@@ -11,6 +11,7 @@ import { TablePagination } from "@/components/data-table/table-pagination"
 import { EventDetailSheet } from "@/components/events/event-detail-sheet"
 import {
   EVENT_TYPE_LABEL,
+  EVENT_TYPE_OPTIONS,
   formatTimestamp,
   SeverityBadge,
   StatusBadge,
@@ -25,12 +26,19 @@ import {
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useMe } from "@/features/auth/queries"
+import { useDevices } from "@/features/devices/queries"
 import { useEvents } from "@/features/events/queries"
-import type { Event, EventStatus, Severity } from "@/features/events/types"
+import type {
+  Event,
+  EventStatus,
+  EventType,
+  Severity,
+} from "@/features/events/types"
 import { paginationTableFeatures } from "@/lib/data-table/features"
 
 export function EventsTable() {
   const { data: user } = useMe()
+  const { data: devicesData } = useDevices({ per_page: 100 })
   const paginationAtom = useCreateAtom<PaginationState>({
     pageIndex: 0,
     pageSize: 20,
@@ -38,13 +46,19 @@ export function EventsTable() {
   const pagination = useSelector(paginationAtom)
   const [severity, setSeverity] = useState<Severity | "all">("all")
   const [status, setStatus] = useState<EventStatus | "all">("all")
+  const [eventType, setEventType] = useState<EventType | "all">("all")
+  const [deviceId, setDeviceId] = useState<string>("all")
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
+
+  const devices = devicesData?.data ?? []
 
   const query = useEvents({
     page: pagination.pageIndex + 1,
     per_page: pagination.pageSize,
     severity: severity === "all" ? undefined : severity,
     status: status === "all" ? undefined : status,
+    event_type: eventType === "all" ? undefined : eventType,
+    device_id: deviceId === "all" ? undefined : deviceId,
   })
 
   const data = query.data?.data ?? []
@@ -141,42 +155,93 @@ export function EventsTable() {
     resetPage()
   }
 
+  const handleEventTypeChange = (value: EventType | "all") => {
+    setEventType(value)
+    resetPage()
+  }
+
+  const handleDeviceIdChange = (value: string) => {
+    setDeviceId(value)
+    resetPage()
+  }
+
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <Select
-          value={severity}
-          onValueChange={(value) =>
-            handleSeverityChange((value ?? "all") as Severity | "all")
-          }
-        >
-          <SelectTrigger size="sm" className="w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Semua severity</SelectItem>
-            <SelectItem value="error">Error</SelectItem>
-            <SelectItem value="warning">Warning</SelectItem>
-            <SelectItem value="critical">Critical</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="flex flex-col gap-2">
+        <p className="text-xs font-medium text-muted-foreground">
+          Filter event
+        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <Select
+            value={severity}
+            onValueChange={(value) =>
+              handleSeverityChange((value ?? "all") as Severity | "all")
+            }
+          >
+            <SelectTrigger size="sm" className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua severity</SelectItem>
+              <SelectItem value="error">Error</SelectItem>
+              <SelectItem value="warning">Warning</SelectItem>
+              <SelectItem value="critical">Critical</SelectItem>
+            </SelectContent>
+          </Select>
 
-        <Select
-          value={status}
-          onValueChange={(value) =>
-            handleStatusChange((value ?? "all") as EventStatus | "all")
-          }
-        >
-          <SelectTrigger size="sm" className="w-44">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Semua status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="acknowledged">Acknowledged</SelectItem>
-            <SelectItem value="resolved">Resolved</SelectItem>
-          </SelectContent>
-        </Select>
+          <Select
+            value={status}
+            onValueChange={(value) =>
+              handleStatusChange((value ?? "all") as EventStatus | "all")
+            }
+          >
+            <SelectTrigger size="sm" className="w-44">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="acknowledged">Acknowledged</SelectItem>
+              <SelectItem value="resolved">Resolved</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={eventType}
+            onValueChange={(value) =>
+              handleEventTypeChange((value ?? "all") as EventType | "all")
+            }
+          >
+            <SelectTrigger size="sm" className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua tipe</SelectItem>
+              {EVENT_TYPE_OPTIONS.map(([value, label]) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={deviceId}
+            onValueChange={(value) => handleDeviceIdChange(value ?? "all")}
+          >
+            <SelectTrigger size="sm" className="w-52">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua device</SelectItem>
+              {devices.map((device) => (
+                <SelectItem key={device.id} value={device.device_id}>
+                  {device.device_id}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {query.isLoading ? (

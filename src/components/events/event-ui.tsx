@@ -24,6 +24,10 @@ export const EVENT_TYPE_LABEL: Record<EventType, string> = {
   SENSOR_ERROR: "Sensor Error",
 }
 
+export const EVENT_TYPE_OPTIONS = Object.entries(EVENT_TYPE_LABEL) as Array<
+  [EventType, string]
+>
+
 const severityMeta: Record<Severity, { label: string; variant: BadgeVariant }> =
   {
     error: { label: "Error", variant: "outline" },
