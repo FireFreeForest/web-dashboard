@@ -8,6 +8,7 @@ import {
 
 import { UpdateDeviceForm } from "@/components/devices/update-device-form"
 import { DeviceStatusPanel } from "@/components/devices/device-status-panel"
+import { CommandHistoryPanel } from "@/components/commands/command-history"
 import { TelemetryHistoryPanel } from "@/components/telemetry/telemetry-history"
 import {
   DeviceStatusPill,
@@ -242,6 +243,7 @@ function DeviceDetailPanel({
       <DeviceDetailContent device={device}>
         <DeviceStatusPanel deviceId={deviceId} />
         <TelemetryHistoryPanel deviceId={deviceId} />
+        <CommandHistoryPanel deviceId={deviceId} />
       </DeviceDetailContent>
       {canEdit ? (
         <SheetFooter className="flex-row">
