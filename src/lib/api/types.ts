@@ -2,6 +2,17 @@ export type ApiEnvelope<T> = {
   data: T
 }
 
+export type PaginationMeta = {
+  page: number
+  per_page: number
+  total: number
+}
+
+export type ListEnvelope<T> = {
+  data: T[]
+  meta: PaginationMeta
+}
+
 export type ApiErrorBody = {
   error: {
     code: string

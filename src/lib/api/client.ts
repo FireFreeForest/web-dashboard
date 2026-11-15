@@ -1,7 +1,12 @@
 import axios, { type AxiosRequestConfig } from "axios"
 
 import { API_BASE_URL } from "./config"
-import { ApiError, type ApiEnvelope, type ApiErrorBody } from "./types"
+import {
+  ApiError,
+  type ApiEnvelope,
+  type ApiErrorBody,
+  type ListEnvelope,
+} from "./types"
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -52,6 +57,17 @@ export async function apiFetch<T>(config: AxiosRequestConfig): Promise<T> {
     }
 
     return response.data.data
+  } catch (error) {
+    throw toApiError(error)
+  }
+}
+
+export async function apiFetchList<T>(
+  config: AxiosRequestConfig
+): Promise<ListEnvelope<T>> {
+  try {
+    const response = await api.request<ListEnvelope<T>>(config)
+    return response.data
   } catch (error) {
     throw toApiError(error)
   }
