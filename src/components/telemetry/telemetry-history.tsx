@@ -166,7 +166,7 @@ function TelemetryPagination({
           }
           disabled={pageIndex <= 0 || isFetching}
         >
-          Sebelumnya
+          Previous
         </Button>
         <Button
           variant="outline"
@@ -179,7 +179,7 @@ function TelemetryPagination({
           }
           disabled={pageIndex + 1 >= pageCount || isFetching}
         >
-          Berikutnya
+          Next
         </Button>
       </div>
     </div>
