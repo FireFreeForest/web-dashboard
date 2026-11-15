@@ -15,6 +15,7 @@ import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppEventsRouteImport } from './routes/_app/events'
 import { Route as AppNodesRouteImport } from './routes/_app/nodes'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
+import { Route as AppUsersRouteImport } from './routes/_app/users'
 
 const AppRouteRoute = AppRouteRouteImport.update({
   id: '/_app',
@@ -45,6 +46,11 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppUsersRoute = AppUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
@@ -52,12 +58,14 @@ export interface FileRoutesByFullPath {
   '/events': typeof AppEventsRoute
   '/nodes': typeof AppNodesRoute
   '/settings': typeof AppSettingsRoute
+  '/users': typeof AppUsersRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/events': typeof AppEventsRoute
   '/nodes': typeof AppNodesRoute
   '/settings': typeof AppSettingsRoute
+  '/users': typeof AppUsersRoute
   '/': typeof AppIndexRoute
 }
 export interface FileRoutesById {
@@ -67,13 +75,14 @@ export interface FileRoutesById {
   '/_app/events': typeof AppEventsRoute
   '/_app/nodes': typeof AppNodesRoute
   '/_app/settings': typeof AppSettingsRoute
+  '/_app/users': typeof AppUsersRoute
   '/_app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/events' | '/nodes' | '/settings'
+  fullPaths: '/' | '/auth' | '/events' | '/nodes' | '/settings' | '/users'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/events' | '/nodes' | '/settings' | '/'
+  to: '/auth' | '/events' | '/nodes' | '/settings' | '/users' | '/'
   id:
     | '__root__'
     | '/_app'
@@ -81,6 +90,7 @@ export interface FileRouteTypes {
     | '/_app/events'
     | '/_app/nodes'
     | '/_app/settings'
+    | '/_app/users'
     | '/_app/'
   fileRoutesById: FileRoutesById
 }
@@ -133,6 +143,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/users': {
+      id: '/_app/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AppUsersRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
   }
 }
 
@@ -140,6 +157,7 @@ interface AppRouteRouteChildren {
   AppEventsRoute: typeof AppEventsRoute
   AppNodesRoute: typeof AppNodesRoute
   AppSettingsRoute: typeof AppSettingsRoute
+  AppUsersRoute: typeof AppUsersRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
@@ -147,6 +165,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppEventsRoute: AppEventsRoute,
   AppNodesRoute: AppNodesRoute,
   AppSettingsRoute: AppSettingsRoute,
+  AppUsersRoute: AppUsersRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
