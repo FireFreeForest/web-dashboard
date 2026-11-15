@@ -7,6 +7,7 @@ import {
 } from "@hugeicons/core-free-icons"
 
 import { UpdateDeviceForm } from "@/components/devices/update-device-form"
+import { DeviceStatusPanel } from "@/components/devices/device-status-panel"
 import {
   DeviceStatusPill,
   formatDateTime,
@@ -53,7 +54,13 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   )
 }
 
-function DeviceDetailContent({ device }: { device: Device }) {
+function DeviceDetailContent({
+  device,
+  children,
+}: {
+  device: Device
+  children?: React.ReactNode
+}) {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-6 pb-6">
       <div className="flex items-start gap-3">
@@ -96,6 +103,8 @@ function DeviceDetailContent({ device }: { device: Device }) {
           value={formatDateTime(device.updated_at)}
         />
       </div>
+
+      {children}
     </div>
   )
 }
@@ -229,7 +238,9 @@ function DeviceDetailPanel({
 
   return (
     <>
-      <DeviceDetailContent device={device} />
+      <DeviceDetailContent device={device}>
+        <DeviceStatusPanel deviceId={deviceId} />
+      </DeviceDetailContent>
       {canEdit ? (
         <SheetFooter className="flex-row">
           <Button onClick={onEdit} className="flex-1">
