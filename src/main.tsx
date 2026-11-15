@@ -6,6 +6,7 @@ import "./index.css"
 import { MapModeProvider } from "@/components/providers/map-mode-provider"
 import { QueryProvider } from "@/components/providers/query-provider"
 import { ThemeProvider } from "@/components/providers/theme-provider"
+import { Toaster } from "@/components/ui/sonner"
 import { installAuthInterceptors } from "@/features/auth/http"
 import { setSessionExpiredHandler } from "@/features/auth/session"
 import { router } from "@/router"
@@ -30,6 +31,7 @@ createRoot(document.getElementById("root")!).render(
       <ThemeProvider>
         <MapModeProvider>
           <RouterProvider router={router} />
+          <Toaster position="top-right" />
         </MapModeProvider>
       </ThemeProvider>
     </QueryProvider>

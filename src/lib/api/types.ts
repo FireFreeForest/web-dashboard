@@ -2,15 +2,15 @@ export type ApiEnvelope<T> = {
   data: T
 }
 
-export type PaginationMeta = {
+export type ListMeta = {
   page: number
   per_page: number
   total: number
 }
 
-export type ListEnvelope<T> = {
+export type ApiListEnvelope<T> = {
   data: T[]
-  meta: PaginationMeta
+  meta: ListMeta
 }
 
 export type ApiErrorBody = {

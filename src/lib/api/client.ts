@@ -5,7 +5,7 @@ import {
   ApiError,
   type ApiEnvelope,
   type ApiErrorBody,
-  type ListEnvelope,
+  type ApiListEnvelope,
 } from "./types"
 
 export const api = axios.create({
@@ -64,10 +64,18 @@ export async function apiFetch<T>(config: AxiosRequestConfig): Promise<T> {
 
 export async function apiFetchList<T>(
   config: AxiosRequestConfig
-): Promise<ListEnvelope<T>> {
+): Promise<ApiListEnvelope<T>> {
   try {
-    const response = await api.request<ListEnvelope<T>>(config)
-    return response.data
+    const response = await api.request<ApiListEnvelope<T>>(config)
+
+    return {
+      data: response.data.data ?? [],
+      meta: response.data.meta ?? {
+        page: 1,
+        per_page: response.data.data?.length ?? 0,
+        total: response.data.data?.length ?? 0,
+      },
+    }
   } catch (error) {
     throw toApiError(error)
   }
