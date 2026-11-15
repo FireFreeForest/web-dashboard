@@ -1,13 +1,28 @@
-import { queryOptions, useQuery } from "@tanstack/react-query"
+import { keepPreviousData, queryOptions, useQuery } from "@tanstack/react-query"
 
-import { apiFetch } from "@/lib/api/client"
+import { apiFetch, apiFetchList } from "@/lib/api/client"
+import type { ApiListEnvelope } from "@/lib/api/types"
 
-import type { LatestTelemetry } from "./types"
+import type {
+  EnvironmentTelemetry,
+  LatestTelemetry,
+  TelemetryListParams,
+} from "./types"
 
 export const telemetryKeys = {
   all: ["telemetry"] as const,
   latest: (deviceId: string) =>
     [...telemetryKeys.all, "latest", deviceId] as const,
+  environment: (deviceId: string, params: TelemetryListParams = {}) =>
+    [
+      ...telemetryKeys.all,
+      "environment",
+      deviceId,
+      params.page,
+      params.per_page,
+      params.from,
+      params.to,
+    ] as const,
 }
 
 export function getLatestTelemetry(deviceId: string): Promise<LatestTelemetry> {
@@ -25,4 +40,32 @@ export function latestTelemetryQueryOptions(deviceId: string) {
 
 export function useLatestTelemetry(deviceId: string) {
   return useQuery(latestTelemetryQueryOptions(deviceId))
+}
+
+export function getEnvironmentTelemetry(
+  deviceId: string,
+  params: TelemetryListParams = {}
+): Promise<ApiListEnvelope<EnvironmentTelemetry>> {
+  return apiFetchList<EnvironmentTelemetry>({
+    url: `/devices/${deviceId}/telemetry/environment`,
+    params,
+  })
+}
+
+export function environmentTelemetryQueryOptions(
+  deviceId: string,
+  params: TelemetryListParams = {}
+) {
+  return queryOptions({
+    queryKey: telemetryKeys.environment(deviceId, params),
+    queryFn: () => getEnvironmentTelemetry(deviceId, params),
+    placeholderData: keepPreviousData,
+  })
+}
+
+export function useEnvironmentTelemetry(
+  deviceId: string,
+  params: TelemetryListParams = {}
+) {
+  return useQuery(environmentTelemetryQueryOptions(deviceId, params))
 }

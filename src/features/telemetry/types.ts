@@ -30,3 +30,10 @@ export type LatestTelemetry = {
   fire: FireTelemetry | null
   risk_level: RiskLevel
 }
+
+export type TelemetryListParams = {
+  page?: number
+  per_page?: number
+  from?: string
+  to?: string
+}

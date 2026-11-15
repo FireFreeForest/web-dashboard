@@ -1,7 +1,7 @@
 import { queryOptions, useQuery } from "@tanstack/react-query"
 
 import { apiFetch, apiFetchList } from "@/lib/api/client"
-import type { ListEnvelope } from "@/lib/api/types"
+import type { ApiListEnvelope } from "@/lib/api/types"
 
 import type { Device, DeviceListParams, DeviceStatusDetail } from "./types"
 
@@ -18,7 +18,7 @@ export const deviceKeys = {
 
 export function listDevices(
   params: DeviceListParams = {}
-): Promise<ListEnvelope<Device>> {
+): Promise<ApiListEnvelope<Device>> {
   return apiFetchList<Device>({
     url: "/devices",
     params,
