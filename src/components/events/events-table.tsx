@@ -24,11 +24,13 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useMe } from "@/features/auth/queries"
 import { useEvents } from "@/features/events/queries"
 import type { Event, EventStatus, Severity } from "@/features/events/types"
 import { paginationTableFeatures } from "@/lib/data-table/features"
 
 export function EventsTable() {
+  const { data: user } = useMe()
   const paginationAtom = useCreateAtom<PaginationState>({
     pageIndex: 0,
     pageSize: 20,
@@ -214,6 +216,7 @@ export function EventsTable() {
       <EventDetailSheet
         eventId={selectedEventId}
         open={selectedEventId !== null}
+        canAcknowledge={user?.role === "admin" || user?.role === "petugas"}
         onOpenChange={(open) => {
           if (!open) {
             setSelectedEventId(null)

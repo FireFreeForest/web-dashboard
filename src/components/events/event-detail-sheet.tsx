@@ -1,5 +1,6 @@
 import { HugeiconsIcon } from "@hugeicons/react"
 import { TimelineEventIcon } from "@hugeicons/core-free-icons"
+import { toast } from "sonner"
 
 import {
   EVENT_TYPE_LABEL,
@@ -21,11 +22,14 @@ import {
   Sheet,
   SheetContent,
   SheetDescription,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
+import { useAcknowledgeEvent } from "@/features/events/mutations"
 import { useEvent } from "@/features/events/queries"
 import type { Event } from "@/features/events/types"
+import { ApiError } from "@/lib/api/types"
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
@@ -36,66 +40,105 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   )
 }
 
-function EventDetailContent({ event }: { event: Event }) {
+function EventDetailContent({
+  event,
+  canAcknowledge,
+}: {
+  event: Event
+  canAcknowledge: boolean
+}) {
+  const acknowledge = useAcknowledgeEvent()
+
+  const handleAcknowledge = async () => {
+    try {
+      await acknowledge.mutateAsync(event.id)
+      toast.success("Event di-acknowledge.")
+    } catch (error) {
+      toast.error(
+        error instanceof ApiError ? error.message : "Terjadi kesalahan."
+      )
+    }
+  }
+
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-6 pb-6">
-      <div className="flex items-start gap-3">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-          <HugeiconsIcon
-            icon={TimelineEventIcon}
-            strokeWidth={2}
-            className="size-5 text-muted-foreground"
-          />
-        </div>
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <p className="font-heading text-base font-semibold">
-            {EVENT_TYPE_LABEL[event.event_type]}
-          </p>
-          <div className="flex items-center gap-2">
-            <SeverityBadge severity={event.severity} />
-            <StatusBadge status={event.status} />
+    <>
+      <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-6 pb-6">
+        <div className="flex items-start gap-3">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+            <HugeiconsIcon
+              icon={TimelineEventIcon}
+              strokeWidth={2}
+              className="size-5 text-muted-foreground"
+            />
+          </div>
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <p className="font-heading text-base font-semibold">
+              {EVENT_TYPE_LABEL[event.event_type]}
+            </p>
+            <div className="flex items-center gap-2">
+              <SeverityBadge severity={event.severity} />
+              <StatusBadge status={event.status} />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="flex flex-col gap-3">
-        <DetailRow label="Pesan" value={event.message} />
-        <DetailRow label="Source" value={event.source || "—"} />
-        <DetailRow label="Device" value={event.device_id} />
-        <DetailRow label="Dibuat" value={formatTimestamp(event.created_at)} />
-      </div>
-
-      <div className="flex flex-col gap-3">
-        <p className="text-xs font-medium text-muted-foreground">Timeline</p>
-        <DetailRow
-          label="Triggered"
-          value={formatTimestamp(event.triggered_at)}
-        />
-        <DetailRow
-          label="Acknowledged"
-          value={
-            event.acknowledged_at ? formatTimestamp(event.acknowledged_at) : "—"
-          }
-        />
-        <DetailRow
-          label="Resolved"
-          value={event.resolved_at ? formatTimestamp(event.resolved_at) : "—"}
-        />
-      </div>
-
-      {event.metadata ? (
-        <div className="flex flex-col gap-2">
-          <p className="text-xs font-medium text-muted-foreground">Metadata</p>
-          <pre className="overflow-x-auto rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
-            {JSON.stringify(event.metadata, null, 2)}
-          </pre>
+        <div className="flex flex-col gap-3">
+          <DetailRow label="Pesan" value={event.message} />
+          <DetailRow label="Source" value={event.source || "—"} />
+          <DetailRow label="Device" value={event.device_id} />
+          <DetailRow label="Dibuat" value={formatTimestamp(event.created_at)} />
         </div>
+
+        <div className="flex flex-col gap-3">
+          <p className="text-xs font-medium text-muted-foreground">Timeline</p>
+          <DetailRow
+            label="Triggered"
+            value={formatTimestamp(event.triggered_at)}
+          />
+          <DetailRow
+            label="Acknowledged"
+            value={
+              event.acknowledged_at
+                ? formatTimestamp(event.acknowledged_at)
+                : "—"
+            }
+          />
+          <DetailRow
+            label="Resolved"
+            value={event.resolved_at ? formatTimestamp(event.resolved_at) : "—"}
+          />
+        </div>
+
+        {event.metadata ? (
+          <div className="flex flex-col gap-2">
+            <p className="text-xs font-medium text-muted-foreground">
+              Metadata
+            </p>
+            <pre className="overflow-x-auto rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
+              {JSON.stringify(event.metadata, null, 2)}
+            </pre>
+          </div>
+        ) : null}
+      </div>
+
+      {canAcknowledge && event.status === "active" ? (
+        <SheetFooter>
+          <Button onClick={handleAcknowledge} disabled={acknowledge.isPending}>
+            {acknowledge.isPending ? "Memproses..." : "Acknowledge"}
+          </Button>
+        </SheetFooter>
       ) : null}
-    </div>
+    </>
   )
 }
 
-function EventDetail({ eventId }: { eventId: string }) {
+function EventDetail({
+  eventId,
+  canAcknowledge,
+}: {
+  eventId: string
+  canAcknowledge: boolean
+}) {
   const { data: event, isPending, isError, error, refetch } = useEvent(eventId)
 
   if (isPending) {
@@ -128,17 +171,19 @@ function EventDetail({ eventId }: { eventId: string }) {
     )
   }
 
-  return <EventDetailContent event={event} />
+  return <EventDetailContent event={event} canAcknowledge={canAcknowledge} />
 }
 
 export function EventDetailSheet({
   eventId,
   open,
   onOpenChange,
+  canAcknowledge,
 }: {
   eventId: string | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  canAcknowledge: boolean
 }) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -147,7 +192,9 @@ export function EventDetailSheet({
           <SheetTitle>Detail Event</SheetTitle>
           <SheetDescription>Informasi lengkap event.</SheetDescription>
         </SheetHeader>
-        {eventId ? <EventDetail eventId={eventId} /> : null}
+        {eventId ? (
+          <EventDetail eventId={eventId} canAcknowledge={canAcknowledge} />
+        ) : null}
       </SheetContent>
     </Sheet>
   )
