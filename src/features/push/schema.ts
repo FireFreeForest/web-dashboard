@@ -4,7 +4,7 @@ const optionalPlatform = z.preprocess((value) => {
   if (typeof value !== "string") return value
   const trimmed = value.trim().toLowerCase()
   return trimmed === "" ? undefined : trimmed
-}, z.string().max(50, "Platform maksimal 50 karakter.").optional())
+}, z.string().optional())
 
 const tokenField = z.string().trim().min(1, "Token FCM wajib diisi.")
 
