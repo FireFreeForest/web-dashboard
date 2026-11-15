@@ -1,8 +1,8 @@
 import { HugeiconsIcon } from "@hugeicons/react"
 import { LogoutIcon, Settings05Icon } from "@hugeicons/core-free-icons"
-import { Link } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -13,10 +13,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { getInitials, type User } from "@/lib/user"
+import { useLogout } from "@/features/auth/mutations"
+import type { User } from "@/features/auth/types"
+import { getInitials } from "@/lib/user"
 
 export function UserMenuContent({ user }: { user: User }) {
+  const navigate = useNavigate()
+  const logout = useLogout()
   const initials = getInitials(user.name)
+
+  const handleLogout = async () => {
+    await logout.mutateAsync()
+    await navigate({ to: "/auth", replace: true })
+  }
 
   return (
     <>
@@ -24,7 +33,6 @@ export function UserMenuContent({ user }: { user: User }) {
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
             <Avatar>
-              <AvatarImage src={user.avatar} alt={user.name} />
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
@@ -44,7 +52,11 @@ export function UserMenuContent({ user }: { user: User }) {
         </DropdownMenuItem>
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
-      <DropdownMenuItem variant="destructive">
+      <DropdownMenuItem
+        variant="destructive"
+        disabled={logout.isPending}
+        onClick={handleLogout}
+      >
         <HugeiconsIcon icon={LogoutIcon} strokeWidth={2} />
         Log out
       </DropdownMenuItem>
@@ -61,7 +73,6 @@ export function UserMenu({ user }: { user: User }) {
         }
       >
         <Avatar size="sm">
-          <AvatarImage src={user.avatar} alt={user.name} />
           <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>

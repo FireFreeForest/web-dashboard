@@ -1,11 +1,18 @@
-import { Link, Outlet, createRootRoute } from "@tanstack/react-router"
+import type { QueryClient } from "@tanstack/react-query"
+import {
+  Link,
+  Outlet,
+  createRootRouteWithContext,
+} from "@tanstack/react-router"
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 
 import { RouteError } from "@/components/feedback/route-error"
 import { RoutePending } from "@/components/feedback/route-pending"
 import { Button } from "@/components/ui/button"
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient
+}>()({
   component: RootComponent,
   pendingComponent: RoutePending,
   errorComponent: RouteError,

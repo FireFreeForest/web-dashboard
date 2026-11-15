@@ -16,9 +16,12 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { currentUser } from "@/lib/user"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useMe } from "@/features/auth/queries"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: user } = useMe()
+
   return (
     <Sidebar collapsible="icon" {...props} variant="floating">
       <SidebarHeader>
@@ -47,7 +50,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarFooter className="hidden md:flex">
         <SidebarCollapse />
-        <NavUser user={currentUser} />
+        {user ? (
+          <NavUser user={user} />
+        ) : (
+          <Skeleton className="mx-auto size-8 rounded-full" />
+        )}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

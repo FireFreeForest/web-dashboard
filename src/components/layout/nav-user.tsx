@@ -1,7 +1,7 @@
 import { HugeiconsIcon } from "@hugeicons/react"
 import { UnfoldMoreIcon } from "@hugeicons/core-free-icons"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +14,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { getInitials, type User } from "@/lib/user"
+import type { User } from "@/features/auth/types"
+import { getInitials } from "@/lib/user"
 
 export function NavUser({ user }: { user: User }) {
   const { isMobile } = useSidebar()
@@ -29,7 +30,6 @@ export function NavUser({ user }: { user: User }) {
             }
           >
             <Avatar>
-              <AvatarImage src={user.avatar} alt={user.name} />
               <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">

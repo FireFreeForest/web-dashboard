@@ -7,12 +7,14 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { UserMenu } from "@/components/layout/user-menu"
-import { currentUser } from "@/lib/user"
+import { useMe } from "@/features/auth/queries"
 
 export function AppHeader() {
   const matches = useMatches()
+  const { data: user } = useMe()
   const crumb =
     matches
       .slice()
@@ -35,7 +37,11 @@ export function AppHeader() {
         </BreadcrumbList>
       </Breadcrumb>
       <div className="ml-auto">
-        <UserMenu user={currentUser} />
+        {user ? (
+          <UserMenu user={user} />
+        ) : (
+          <Skeleton className="size-8 rounded-full" />
+        )}
       </div>
     </header>
   )
