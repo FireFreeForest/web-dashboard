@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ServerStackIcon } from "@hugeicons/core-free-icons"
 
+import { CreateDeviceSheet } from "@/components/devices/create-device-sheet"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -13,6 +14,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useMe } from "@/features/auth/queries"
 import { useDevices } from "@/features/devices/queries"
 import type { Device, DeviceStatus } from "@/features/devices/types"
 import { cn } from "@/lib/utils"
@@ -143,20 +145,25 @@ function DeviceListError({
 }
 
 function NodesPage() {
+  const { data: user } = useMe()
   const { data, isPending, isError, error, refetch } = useDevices()
 
   const devices = data?.data ?? []
   const total = data?.meta.total ?? 0
+  const isAdmin = user?.role === "admin"
 
   return (
     <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
-      <header className="space-y-1">
-        <h1 className="font-heading text-2xl font-semibold tracking-tight">
-          Nodes
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {isPending ? "Memuat..." : `${total} perangkat terdaftar`}
-        </p>
+      <header className="flex items-start justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="font-heading text-2xl font-semibold tracking-tight">
+            Nodes
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {isPending ? "Memuat..." : `${total} perangkat terdaftar`}
+          </p>
+        </div>
+        {isAdmin ? <CreateDeviceSheet /> : null}
       </header>
 
       {isPending ? <DeviceListSkeleton /> : null}

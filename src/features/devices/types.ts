@@ -18,3 +18,12 @@ export type DeviceListParams = {
   page?: number
   per_page?: number
 }
+
+export type CreateDeviceInput = {
+  device_id: string
+  name?: string
+  location_name?: string
+  latitude?: number
+  longitude?: number
+  firmware_version?: string
+}
