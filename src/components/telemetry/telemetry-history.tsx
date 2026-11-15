@@ -1,5 +1,4 @@
 import { useState } from "react"
-import type { Atom } from "@tanstack/react-store"
 import { useCreateAtom, useSelector } from "@tanstack/react-store"
 import {
   useTable,
@@ -8,6 +7,7 @@ import {
 } from "@tanstack/react-table"
 
 import { DataTable } from "@/components/data-table/data-table"
+import { TablePagination } from "@/components/data-table/table-pagination"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -136,56 +136,6 @@ const fireColumns: Array<
   },
 ]
 
-function TelemetryPagination({
-  paginationAtom,
-  total,
-  isFetching,
-}: {
-  paginationAtom: Atom<PaginationState>
-  total: number
-  isFetching: boolean
-}) {
-  const pagination = useSelector(paginationAtom)
-  const pageCount = Math.max(1, Math.ceil(total / pagination.pageSize))
-  const pageIndex = pagination.pageIndex
-
-  return (
-    <div className="flex items-center justify-between gap-2">
-      <span className="text-xs text-muted-foreground">
-        Page {pageIndex + 1} of {pageCount}
-      </span>
-      <div className="flex gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() =>
-            paginationAtom.set((state) => ({
-              ...state,
-              pageIndex: state.pageIndex - 1,
-            }))
-          }
-          disabled={pageIndex <= 0 || isFetching}
-        >
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() =>
-            paginationAtom.set((state) => ({
-              ...state,
-              pageIndex: state.pageIndex + 1,
-            }))
-          }
-          disabled={pageIndex + 1 >= pageCount || isFetching}
-        >
-          Next
-        </Button>
-      </div>
-    </div>
-  )
-}
-
 function EnvironmentHistoryTable({ deviceId }: { deviceId: string }) {
   const paginationAtom = useCreateAtom<PaginationState>({
     pageIndex: 0,
@@ -249,7 +199,7 @@ function EnvironmentHistoryTable({ deviceId }: { deviceId: string }) {
           emptyMessage="Belum ada data."
         />
       </div>
-      <TelemetryPagination
+      <TablePagination
         paginationAtom={paginationAtom}
         total={total}
         isFetching={query.isFetching}
@@ -321,7 +271,7 @@ function FireHistoryTable({ deviceId }: { deviceId: string }) {
           emptyMessage="Belum ada data."
         />
       </div>
-      <TelemetryPagination
+      <TablePagination
         paginationAtom={paginationAtom}
         total={total}
         isFetching={query.isFetching}
