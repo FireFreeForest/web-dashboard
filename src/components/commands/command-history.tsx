@@ -8,6 +8,7 @@ import {
 
 import { DataTable } from "@/components/data-table/data-table"
 import { TablePagination } from "@/components/data-table/table-pagination"
+import { IssueCommandDialog } from "@/components/commands/issue-command-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -82,7 +83,13 @@ const commandColumns: Array<
   },
 ]
 
-export function CommandHistoryPanel({ deviceId }: { deviceId: string }) {
+export function CommandHistoryPanel({
+  deviceId,
+  canIssue,
+}: {
+  deviceId: string
+  canIssue: boolean
+}) {
   const paginationAtom = useCreateAtom<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -115,7 +122,10 @@ export function CommandHistoryPanel({ deviceId }: { deviceId: string }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <span className="text-sm font-medium">Riwayat Command</span>
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-sm font-medium">Riwayat Command</span>
+        {canIssue ? <IssueCommandDialog deviceId={deviceId} /> : null}
+      </div>
 
       {query.isLoading ? (
         <Skeleton className="h-40 w-full rounded-2xl" />

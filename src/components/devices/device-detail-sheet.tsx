@@ -177,6 +177,7 @@ function DeviceDetailPanel({
   deviceId,
   editing,
   canEdit,
+  canIssue,
   onEdit,
   onCancelEdit,
   onSaved,
@@ -185,6 +186,7 @@ function DeviceDetailPanel({
   deviceId: string
   editing: boolean
   canEdit: boolean
+  canIssue: boolean
   onEdit: () => void
   onCancelEdit: () => void
   onSaved: () => void
@@ -243,7 +245,7 @@ function DeviceDetailPanel({
       <DeviceDetailContent device={device}>
         <DeviceStatusPanel deviceId={deviceId} />
         <TelemetryHistoryPanel deviceId={deviceId} />
-        <CommandHistoryPanel deviceId={deviceId} />
+        <CommandHistoryPanel deviceId={deviceId} canIssue={canIssue} />
       </DeviceDetailContent>
       {canEdit ? (
         <SheetFooter className="flex-row">
@@ -267,11 +269,13 @@ export function DeviceDetailSheet({
   open,
   onOpenChange,
   canEdit,
+  canIssue,
 }: {
   deviceId: string | null
   open: boolean
   onOpenChange: (open: boolean) => void
   canEdit: boolean
+  canIssue: boolean
 }) {
   const [editing, setEditing] = useState(false)
 
@@ -297,6 +301,7 @@ export function DeviceDetailSheet({
             deviceId={deviceId}
             editing={editing}
             canEdit={canEdit}
+            canIssue={canIssue}
             onEdit={() => setEditing(true)}
             onCancelEdit={() => setEditing(false)}
             onSaved={() => setEditing(false)}

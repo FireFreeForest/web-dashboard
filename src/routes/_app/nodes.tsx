@@ -127,6 +127,7 @@ function NodesPage() {
   const devices = data?.data ?? []
   const total = data?.meta.total ?? 0
   const isAdmin = user?.role === "admin"
+  const canIssue = user?.role === "admin" || user?.role === "petugas"
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null)
 
   return (
@@ -166,6 +167,7 @@ function NodesPage() {
         deviceId={selectedDeviceId}
         open={selectedDeviceId !== null}
         canEdit={isAdmin}
+        canIssue={canIssue}
         onOpenChange={(open) => {
           if (!open) {
             setSelectedDeviceId(null)

@@ -7,14 +7,9 @@ import type { Command, CommandListParams } from "./types"
 
 export const commandKeys = {
   all: ["commands"] as const,
+  lists: (deviceId: string) => [...commandKeys.all, "list", deviceId] as const,
   list: (deviceId: string, params: CommandListParams = {}) =>
-    [
-      ...commandKeys.all,
-      "list",
-      deviceId,
-      params.page,
-      params.per_page,
-    ] as const,
+    [...commandKeys.lists(deviceId), params.page, params.per_page] as const,
 }
 
 export function getDeviceCommands(

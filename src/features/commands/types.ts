@@ -31,3 +31,14 @@ export type CommandListParams = {
   page?: number
   per_page?: number
 }
+
+export const DEFAULT_PUMP_DURATION_SECONDS = 30
+export const MAX_PUMP_DURATION_SECONDS = 300
+
+export type IssueCommandInput = {
+  action: CommandAction
+  payload: {
+    state: boolean
+    duration?: number
+  }
+}
