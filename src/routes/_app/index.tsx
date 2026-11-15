@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 
+import { DashboardOverview } from "@/components/dashboard/dashboard-summary"
 import { NodeGroupMarker } from "@/components/dashboard/node-group-marker"
 import { NodeMarker } from "@/components/dashboard/node-marker"
 import { NodePopup } from "@/components/dashboard/node-popup"
 import { useMapMode } from "@/components/providers/map-mode-provider"
 import { Map, MapControls, useMap, type MapViewport } from "@/components/ui/map"
+import { useSidebar } from "@/components/ui/sidebar"
 import { forestNodes, groupForestNodes, type ForestNode } from "@/lib/nodes"
+import { cn } from "@/lib/utils"
 
 export const Route = createFileRoute("/_app/")({
   staticData: { crumb: "Dashboard" },
@@ -33,6 +36,7 @@ function FlyToNode({ node }: { node?: ForestNode }) {
 
 function DashboardPage() {
   const { mapMode } = useMapMode()
+  const { state: sidebarState } = useSidebar()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [zoom, setZoom] = useState(6)
 
@@ -101,6 +105,16 @@ function DashboardPage() {
           )}
           <MapControls showCompass showFullscreen />
         </Map>
+      </div>
+      <div
+        className={cn(
+          "pointer-events-none absolute top-4 right-4 left-4 z-10 max-h-[calc(100%-2rem)] overflow-y-auto sm:top-6 sm:right-6",
+          sidebarState === "collapsed"
+            ? "md:left-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px+(--spacing(6)))]"
+            : "md:left-[calc(var(--sidebar-width)+(--spacing(6)))]"
+        )}
+      >
+        <DashboardOverview />
       </div>
     </div>
   )
