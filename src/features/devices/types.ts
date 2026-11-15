@@ -4,6 +4,8 @@ import type {
   RiskLevel,
 } from "@/features/telemetry/types"
 
+import type { CreateDeviceFormValues } from "./schema"
+
 export type DeviceStatus = "online" | "offline"
 
 export type Device = {
@@ -35,14 +37,7 @@ export type DeviceListParams = {
   per_page?: number
 }
 
-export type CreateDeviceInput = {
-  device_id: string
-  name?: string
-  location_name?: string
-  latitude?: number
-  longitude?: number
-  firmware_version?: string
-}
+export type CreateDeviceInput = CreateDeviceFormValues
 
 export type UpdateDeviceInput = {
   name?: string

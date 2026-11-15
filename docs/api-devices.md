@@ -178,7 +178,7 @@ Autentikasi: Bearer access token (khusus `admin`).
 
 | Field | Tipe | Wajib | Keterangan |
 | --- | --- | --- | --- |
-| `device_id` | string | Ya | Kode unik, pola `^[A-Za-z0-9._-]{3,64}$` |
+| `device_id` | string | Tidak | Kode unik, pola `^[A-Za-z0-9._-]{3,64}$`. Jika kosong, backend membuat ID otomatis berformat `FFF-XXXXXXXX` |
 | `name` | string | Tidak | Nama device |
 | `location_name` | string | Tidak | Nama lokasi |
 | `latitude` | number | Tidak | -90 sampai 90 |
