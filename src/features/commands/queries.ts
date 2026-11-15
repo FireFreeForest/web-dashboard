@@ -1,6 +1,6 @@
 import { keepPreviousData, queryOptions, useQuery } from "@tanstack/react-query"
 
-import { apiFetchList } from "@/lib/api/client"
+import { apiFetch, apiFetchList } from "@/lib/api/client"
 import type { ApiListEnvelope } from "@/lib/api/types"
 
 import type { Command, CommandListParams } from "./types"
@@ -10,6 +10,8 @@ export const commandKeys = {
   lists: (deviceId: string) => [...commandKeys.all, "list", deviceId] as const,
   list: (deviceId: string, params: CommandListParams = {}) =>
     [...commandKeys.lists(deviceId), params.page, params.per_page] as const,
+  details: () => [...commandKeys.all, "detail"] as const,
+  detail: (commandId: string) => [...commandKeys.details(), commandId] as const,
 }
 
 export function getDeviceCommands(
@@ -54,4 +56,19 @@ export function useDeviceCommands(
   params: CommandListParams = {}
 ) {
   return useQuery(deviceCommandsQueryOptions(deviceId, params))
+}
+
+export function getCommand(commandId: string): Promise<Command> {
+  return apiFetch<Command>({ url: `/commands/${commandId}` })
+}
+
+export function commandQueryOptions(commandId: string) {
+  return queryOptions({
+    queryKey: commandKeys.detail(commandId),
+    queryFn: () => getCommand(commandId),
+  })
+}
+
+export function useCommand(commandId: string) {
+  return useQuery(commandQueryOptions(commandId))
 }
