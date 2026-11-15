@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton"
 import { useDeviceStatus } from "@/features/devices/queries"
-import type { RiskLevel } from "@/features/devices/types"
+import type { RiskLevel } from "@/features/telemetry/types"
 import { cn } from "@/lib/utils"
 
 const riskMeta: Record<
