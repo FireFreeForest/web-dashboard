@@ -1,8 +1,14 @@
+import { useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ServerStackIcon } from "@hugeicons/core-free-icons"
 
 import { CreateDeviceSheet } from "@/components/devices/create-device-sheet"
+import { DeviceDetailSheet } from "@/components/devices/device-detail-sheet"
+import {
+  DeviceStatusPill,
+  formatDateTime,
+} from "@/components/devices/device-ui"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -16,76 +22,46 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { useMe } from "@/features/auth/queries"
 import { useDevices } from "@/features/devices/queries"
-import type { Device, DeviceStatus } from "@/features/devices/types"
-import { cn } from "@/lib/utils"
+import type { Device } from "@/features/devices/types"
 
 export const Route = createFileRoute("/_app/nodes")({
   staticData: { crumb: "Nodes" },
   component: NodesPage,
 })
 
-const statusMeta: Record<
-  DeviceStatus,
-  { label: string; dotClassName: string; pillClassName: string }
-> = {
-  online: {
-    label: "Online",
-    dotClassName: "bg-primary",
-    pillClassName: "bg-primary/10 text-primary",
-  },
-  offline: {
-    label: "Offline",
-    dotClassName: "bg-muted-foreground",
-    pillClassName: "bg-muted text-muted-foreground",
-  },
-}
-
-function StatusPill({ status }: { status: DeviceStatus }) {
-  const meta = statusMeta[status]
-
+function DeviceCard({
+  device,
+  onSelect,
+}: {
+  device: Device
+  onSelect: () => void
+}) {
   return (
-    <span
-      className={cn(
-        "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium",
-        meta.pillClassName
-      )}
+    <button
+      type="button"
+      onClick={onSelect}
+      className="flex w-full cursor-pointer rounded-2xl text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <span className={cn("size-1.5 rounded-full", meta.dotClassName)} />
-      {meta.label}
-    </span>
-  )
-}
-
-function formatLastSeen(value: string | null): string {
-  if (!value) return "—"
-
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return "—"
-
-  return date.toLocaleString()
-}
-
-function DeviceCard({ device }: { device: Device }) {
-  return (
-    <Card size="sm">
-      <CardContent className="flex flex-col gap-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex min-w-0 flex-col gap-0.5">
-            <p className="truncate font-heading text-sm font-semibold">
-              {device.name}
-            </p>
-            <span className="truncate font-mono text-[11px] tracking-wide text-muted-foreground">
-              {device.device_id}
-            </span>
+      <Card size="sm" className="w-full">
+        <CardContent className="flex flex-col gap-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <p className="truncate font-heading text-sm font-semibold">
+                {device.name}
+              </p>
+              <span className="truncate font-mono text-[11px] tracking-wide text-muted-foreground">
+                {device.device_id}
+              </span>
+            </div>
+            <DeviceStatusPill status={device.status} />
           </div>
-          <StatusPill status={device.status} />
-        </div>
-        <div className="flex flex-col gap-1 text-xs text-muted-foreground">
-          <span>{device.location_name || "—"}</span>
-          <span>Last seen {formatLastSeen(device.last_seen_at)}</span>
-        </div>
-      </CardContent>
-    </Card>
+          <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+            <span>{device.location_name || "—"}</span>
+            <span>Last seen {formatDateTime(device.last_seen_at)}</span>
+          </div>
+        </CardContent>
+      </Card>
+    </button>
   )
 }
 
@@ -151,6 +127,7 @@ function NodesPage() {
   const devices = data?.data ?? []
   const total = data?.meta.total ?? 0
   const isAdmin = user?.role === "admin"
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null)
 
   return (
     <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
@@ -176,10 +153,24 @@ function NodesPage() {
       {!isPending && !isError && devices.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {devices.map((device) => (
-            <DeviceCard key={device.id} device={device} />
+            <DeviceCard
+              key={device.id}
+              device={device}
+              onSelect={() => setSelectedDeviceId(device.device_id)}
+            />
           ))}
         </div>
       ) : null}
+
+      <DeviceDetailSheet
+        deviceId={selectedDeviceId}
+        open={selectedDeviceId !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedDeviceId(null)
+          }
+        }}
+      />
     </div>
   )
 }

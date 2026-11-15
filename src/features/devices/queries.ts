@@ -1,6 +1,6 @@
 import { queryOptions, useQuery } from "@tanstack/react-query"
 
-import { apiFetchList } from "@/lib/api/client"
+import { apiFetch, apiFetchList } from "@/lib/api/client"
 import type { ListEnvelope } from "@/lib/api/types"
 
 import type { Device, DeviceListParams } from "./types"
@@ -32,4 +32,19 @@ export function devicesQueryOptions(params: DeviceListParams = {}) {
 
 export function useDevices(params: DeviceListParams = {}) {
   return useQuery(devicesQueryOptions(params))
+}
+
+export function getDevice(deviceId: string): Promise<Device> {
+  return apiFetch<Device>({ url: `/devices/${deviceId}` })
+}
+
+export function deviceQueryOptions(deviceId: string) {
+  return queryOptions({
+    queryKey: deviceKeys.detail(deviceId),
+    queryFn: () => getDevice(deviceId),
+  })
+}
+
+export function useDevice(deviceId: string) {
+  return useQuery(deviceQueryOptions(deviceId))
 }
