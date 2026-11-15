@@ -1,5 +1,4 @@
-import { useState } from "react"
-import type { ComponentProps } from "react"
+import { useMemo, useState } from "react"
 import { useCreateAtom, useSelector } from "@tanstack/react-store"
 import {
   useTable,
@@ -9,7 +8,13 @@ import {
 
 import { DataTable } from "@/components/data-table/data-table"
 import { TablePagination } from "@/components/data-table/table-pagination"
-import { Badge } from "@/components/ui/badge"
+import { EventDetailSheet } from "@/components/events/event-detail-sheet"
+import {
+  EVENT_TYPE_LABEL,
+  formatTimestamp,
+  SeverityBadge,
+  StatusBadge,
+} from "@/components/events/event-ui"
 import { Button } from "@/components/ui/button"
 import {
   Select,
@@ -20,96 +25,8 @@ import {
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useEvents } from "@/features/events/queries"
-import type {
-  Event,
-  EventStatus,
-  EventType,
-  Severity,
-} from "@/features/events/types"
+import type { Event, EventStatus, Severity } from "@/features/events/types"
 import { paginationTableFeatures } from "@/lib/data-table/features"
-
-const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
-  dateStyle: "medium",
-  timeStyle: "medium",
-})
-
-function formatTimestamp(value: string): string {
-  const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? value : dateTimeFormatter.format(date)
-}
-
-type BadgeVariant = ComponentProps<typeof Badge>["variant"]
-
-const EVENT_TYPE_LABEL: Record<EventType, string> = {
-  FIRE_DETECTED: "Api Terdeteksi",
-  SMOKE_DETECTED: "Asap Terdeteksi",
-  TEMPERATURE_HIGH: "Suhu Tinggi",
-  SOIL_DRY: "Tanah Kering",
-  DEVICE_OFFLINE: "Device Offline",
-  SENSOR_ERROR: "Sensor Error",
-}
-
-const severityMeta: Record<Severity, { label: string; variant: BadgeVariant }> =
-  {
-    error: { label: "Error", variant: "outline" },
-    warning: { label: "Warning", variant: "secondary" },
-    critical: { label: "Critical", variant: "destructive" },
-  }
-
-const statusMeta: Record<
-  EventStatus,
-  { label: string; variant: BadgeVariant }
-> = {
-  active: { label: "Active", variant: "default" },
-  acknowledged: { label: "Acknowledged", variant: "secondary" },
-  resolved: { label: "Resolved", variant: "outline" },
-}
-
-const eventColumns: Array<ColumnDef<typeof paginationTableFeatures, Event>> = [
-  {
-    accessorKey: "triggered_at",
-    header: "Waktu",
-    cell: ({ row }) => (
-      <span className="whitespace-nowrap text-muted-foreground">
-        {formatTimestamp(row.original.triggered_at)}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "event_type",
-    header: "Tipe",
-    cell: ({ row }) => (
-      <span className="font-medium">
-        {EVENT_TYPE_LABEL[row.original.event_type]}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "severity",
-    header: "Severity",
-    cell: ({ row }) => {
-      const meta = severityMeta[row.original.severity]
-      return <Badge variant={meta.variant}>{meta.label}</Badge>
-    },
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const meta = statusMeta[row.original.status]
-      return <Badge variant={meta.variant}>{meta.label}</Badge>
-    },
-  },
-  {
-    accessorKey: "message",
-    header: "Pesan",
-    cell: ({ row }) => (
-      <span className="line-clamp-1 text-muted-foreground">
-        {row.original.message}
-      </span>
-    ),
-  },
-]
 
 export function EventsTable() {
   const paginationAtom = useCreateAtom<PaginationState>({
@@ -119,6 +36,7 @@ export function EventsTable() {
   const pagination = useSelector(paginationAtom)
   const [severity, setSeverity] = useState<Severity | "all">("all")
   const [status, setStatus] = useState<EventStatus | "all">("all")
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
 
   const query = useEvents({
     page: pagination.pageIndex + 1,
@@ -130,10 +48,70 @@ export function EventsTable() {
   const data = query.data?.data ?? []
   const total = query.data?.meta.total ?? 0
 
+  const columns = useMemo<
+    Array<ColumnDef<typeof paginationTableFeatures, Event>>
+  >(
+    () => [
+      {
+        accessorKey: "triggered_at",
+        header: "Waktu",
+        cell: ({ row }) => (
+          <span className="whitespace-nowrap text-muted-foreground">
+            {formatTimestamp(row.original.triggered_at)}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "event_type",
+        header: "Tipe",
+        cell: ({ row }) => (
+          <span className="font-medium">
+            {EVENT_TYPE_LABEL[row.original.event_type]}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "severity",
+        header: "Severity",
+        cell: ({ row }) => <SeverityBadge severity={row.original.severity} />,
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      },
+      {
+        accessorKey: "message",
+        header: "Pesan",
+        cell: ({ row }) => (
+          <span className="line-clamp-1 text-muted-foreground">
+            {row.original.message}
+          </span>
+        ),
+      },
+      {
+        id: "actions",
+        header: () => <span className="sr-only">Actions</span>,
+        cell: ({ row }) => (
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSelectedEventId(row.original.id)}
+            >
+              Detail
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    []
+  )
+
   const table = useTable(
     {
       features: paginationTableFeatures,
-      columns: eventColumns,
+      columns,
       data,
       getRowId: (row) => row.id,
       rowCount: total,
@@ -232,6 +210,16 @@ export function EventsTable() {
           />
         </div>
       )}
+
+      <EventDetailSheet
+        eventId={selectedEventId}
+        open={selectedEventId !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedEventId(null)
+          }
+        }}
+      />
     </div>
   )
 }

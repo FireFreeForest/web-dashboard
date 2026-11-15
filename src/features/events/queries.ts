@@ -1,6 +1,6 @@
 import { keepPreviousData, queryOptions, useQuery } from "@tanstack/react-query"
 
-import { apiFetchList } from "@/lib/api/client"
+import { apiFetch, apiFetchList } from "@/lib/api/client"
 import type { ApiListEnvelope } from "@/lib/api/types"
 
 import type { Event, EventListParams } from "./types"
@@ -20,6 +20,8 @@ export const eventKeys = {
       params.from,
       params.to,
     ] as const,
+  details: () => [...eventKeys.all, "detail"] as const,
+  detail: (eventId: string) => [...eventKeys.details(), eventId] as const,
 }
 
 export function getEvents(
@@ -41,4 +43,19 @@ export function eventsQueryOptions(params: EventListParams = {}) {
 
 export function useEvents(params: EventListParams = {}) {
   return useQuery(eventsQueryOptions(params))
+}
+
+export function getEvent(eventId: string): Promise<Event> {
+  return apiFetch<Event>({ url: `/events/${eventId}` })
+}
+
+export function eventQueryOptions(eventId: string) {
+  return queryOptions({
+    queryKey: eventKeys.detail(eventId),
+    queryFn: () => getEvent(eventId),
+  })
+}
+
+export function useEvent(eventId: string) {
+  return useQuery(eventQueryOptions(eventId))
 }
