@@ -5,6 +5,7 @@ import type { ApiListEnvelope } from "@/lib/api/types"
 
 import type {
   EnvironmentTelemetry,
+  FireTelemetry,
   LatestTelemetry,
   TelemetryListParams,
 } from "./types"
@@ -17,6 +18,16 @@ export const telemetryKeys = {
     [
       ...telemetryKeys.all,
       "environment",
+      deviceId,
+      params.page,
+      params.per_page,
+      params.from,
+      params.to,
+    ] as const,
+  fire: (deviceId: string, params: TelemetryListParams = {}) =>
+    [
+      ...telemetryKeys.all,
+      "fire",
       deviceId,
       params.page,
       params.per_page,
@@ -68,4 +79,32 @@ export function useEnvironmentTelemetry(
   params: TelemetryListParams = {}
 ) {
   return useQuery(environmentTelemetryQueryOptions(deviceId, params))
+}
+
+export function getFireTelemetry(
+  deviceId: string,
+  params: TelemetryListParams = {}
+): Promise<ApiListEnvelope<FireTelemetry>> {
+  return apiFetchList<FireTelemetry>({
+    url: `/devices/${deviceId}/telemetry/fire`,
+    params,
+  })
+}
+
+export function fireTelemetryQueryOptions(
+  deviceId: string,
+  params: TelemetryListParams = {}
+) {
+  return queryOptions({
+    queryKey: telemetryKeys.fire(deviceId, params),
+    queryFn: () => getFireTelemetry(deviceId, params),
+    placeholderData: keepPreviousData,
+  })
+}
+
+export function useFireTelemetry(
+  deviceId: string,
+  params: TelemetryListParams = {}
+) {
+  return useQuery(fireTelemetryQueryOptions(deviceId, params))
 }
