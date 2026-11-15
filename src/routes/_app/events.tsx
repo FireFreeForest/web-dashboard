@@ -1,14 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { TimelineEventIcon } from "@hugeicons/core-free-icons"
 
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty"
+import { EventsTable } from "@/components/events/events-table"
 
 export const Route = createFileRoute("/_app/events")({
   staticData: { crumb: "Events" },
@@ -17,18 +9,17 @@ export const Route = createFileRoute("/_app/events")({
 
 function EventsPage() {
   return (
-    <div className="flex flex-1 items-center justify-center p-6">
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <HugeiconsIcon icon={TimelineEventIcon} strokeWidth={2} />
-          </EmptyMedia>
-          <EmptyTitle>No events yet</EmptyTitle>
-          <EmptyDescription>
-            Alerts and activity from your nodes will show up here.
-          </EmptyDescription>
-        </EmptyHeader>
-      </Empty>
+    <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
+      <header className="space-y-1">
+        <h1 className="font-heading text-2xl font-semibold tracking-tight">
+          Events
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Alerts dan aktivitas dari perangkat yang terhubung.
+        </p>
+      </header>
+
+      <EventsTable />
     </div>
   )
 }
