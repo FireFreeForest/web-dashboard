@@ -26,7 +26,10 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
-import { useAcknowledgeEvent } from "@/features/events/mutations"
+import {
+  useAcknowledgeEvent,
+  useResolveEvent,
+} from "@/features/events/mutations"
 import { useEvent } from "@/features/events/queries"
 import type { Event } from "@/features/events/types"
 import { ApiError } from "@/lib/api/types"
@@ -43,11 +46,14 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 function EventDetailContent({
   event,
   canAcknowledge,
+  canResolve,
 }: {
   event: Event
   canAcknowledge: boolean
+  canResolve: boolean
 }) {
   const acknowledge = useAcknowledgeEvent()
+  const resolve = useResolveEvent()
 
   const handleAcknowledge = async () => {
     try {
@@ -59,6 +65,21 @@ function EventDetailContent({
       )
     }
   }
+
+  const handleResolve = async () => {
+    try {
+      await resolve.mutateAsync(event.id)
+      toast.success("Event di-resolve.")
+    } catch (error) {
+      toast.error(
+        error instanceof ApiError ? error.message : "Terjadi kesalahan."
+      )
+    }
+  }
+
+  const canAcknowledgeNow = canAcknowledge && event.status === "active"
+  const canResolveNow = canResolve && event.status !== "resolved"
+  const showFooter = canAcknowledgeNow || canResolveNow
 
   return (
     <>
@@ -121,11 +142,27 @@ function EventDetailContent({
         ) : null}
       </div>
 
-      {canAcknowledge && event.status === "active" ? (
-        <SheetFooter>
-          <Button onClick={handleAcknowledge} disabled={acknowledge.isPending}>
-            {acknowledge.isPending ? "Memproses..." : "Acknowledge"}
-          </Button>
+      {showFooter ? (
+        <SheetFooter className="flex-row">
+          {canAcknowledgeNow ? (
+            <Button
+              className="flex-1"
+              onClick={handleAcknowledge}
+              disabled={acknowledge.isPending}
+            >
+              {acknowledge.isPending ? "Memproses..." : "Acknowledge"}
+            </Button>
+          ) : null}
+          {canResolveNow ? (
+            <Button
+              className="flex-1"
+              variant="outline"
+              onClick={handleResolve}
+              disabled={resolve.isPending}
+            >
+              {resolve.isPending ? "Memproses..." : "Resolve"}
+            </Button>
+          ) : null}
         </SheetFooter>
       ) : null}
     </>
@@ -135,9 +172,11 @@ function EventDetailContent({
 function EventDetail({
   eventId,
   canAcknowledge,
+  canResolve,
 }: {
   eventId: string
   canAcknowledge: boolean
+  canResolve: boolean
 }) {
   const { data: event, isPending, isError, error, refetch } = useEvent(eventId)
 
@@ -171,7 +210,13 @@ function EventDetail({
     )
   }
 
-  return <EventDetailContent event={event} canAcknowledge={canAcknowledge} />
+  return (
+    <EventDetailContent
+      event={event}
+      canAcknowledge={canAcknowledge}
+      canResolve={canResolve}
+    />
+  )
 }
 
 export function EventDetailSheet({
@@ -179,11 +224,13 @@ export function EventDetailSheet({
   open,
   onOpenChange,
   canAcknowledge,
+  canResolve,
 }: {
   eventId: string | null
   open: boolean
   onOpenChange: (open: boolean) => void
   canAcknowledge: boolean
+  canResolve: boolean
 }) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -193,7 +240,11 @@ export function EventDetailSheet({
           <SheetDescription>Informasi lengkap event.</SheetDescription>
         </SheetHeader>
         {eventId ? (
-          <EventDetail eventId={eventId} canAcknowledge={canAcknowledge} />
+          <EventDetail
+            eventId={eventId}
+            canAcknowledge={canAcknowledge}
+            canResolve={canResolve}
+          />
         ) : null}
       </SheetContent>
     </Sheet>

@@ -21,3 +21,19 @@ export function useAcknowledgeEvent() {
     },
   })
 }
+
+export function useResolveEvent() {
+  const queryClient = useQueryClient()
+
+  return useMutation<Event, ApiError, string>({
+    mutationFn: (eventId) =>
+      apiFetch<Event>({
+        method: "POST",
+        url: `/events/${eventId}/resolve`,
+      }),
+    onSuccess: (event) => {
+      queryClient.setQueryData(eventKeys.detail(event.id), event)
+      void queryClient.invalidateQueries({ queryKey: eventKeys.lists() })
+    },
+  })
+}

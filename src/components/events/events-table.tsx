@@ -217,6 +217,7 @@ export function EventsTable() {
         eventId={selectedEventId}
         open={selectedEventId !== null}
         canAcknowledge={user?.role === "admin" || user?.role === "petugas"}
+        canResolve={user?.role === "petugas"}
         onOpenChange={(open) => {
           if (!open) {
             setSelectedEventId(null)
