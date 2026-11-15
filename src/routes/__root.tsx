@@ -1,0 +1,39 @@
+import { Link, Outlet, createRootRoute } from "@tanstack/react-router"
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
+
+import { RouteError } from "@/components/feedback/route-error"
+import { RoutePending } from "@/components/feedback/route-pending"
+import { Button } from "@/components/ui/button"
+
+export const Route = createRootRoute({
+  component: RootComponent,
+  pendingComponent: RoutePending,
+  errorComponent: RouteError,
+  notFoundComponent: NotFoundComponent,
+})
+
+function RootComponent() {
+  return (
+    <>
+      <Outlet />
+      {import.meta.env.DEV ? (
+        <TanStackRouterDevtools position="bottom-right" />
+      ) : null}
+    </>
+  )
+}
+
+function NotFoundComponent() {
+  return (
+    <div className="flex min-h-svh flex-col items-center justify-center gap-3 p-6 text-center">
+      <p className="text-sm font-medium text-muted-foreground">404</p>
+      <h1 className="text-2xl font-semibold tracking-tight">Page not found</h1>
+      <p className="text-sm text-muted-foreground">
+        The page you are looking for does not exist or has moved.
+      </p>
+      <Button size="sm" variant="outline" render={<Link to="/" />}>
+        Back to dashboard
+      </Button>
+    </div>
+  )
+}
