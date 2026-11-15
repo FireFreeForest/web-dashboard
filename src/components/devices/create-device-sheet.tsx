@@ -23,6 +23,7 @@ import {
 import { useCreateDevice } from "@/features/devices/mutations"
 import type { CreateDeviceInput } from "@/features/devices/types"
 import { ApiError } from "@/lib/api/types"
+import { toOptionalNumber } from "@/lib/utils"
 
 function getCreateDeviceErrorMessage(error: ApiError): string {
   switch (error.code) {
@@ -35,22 +36,6 @@ function getCreateDeviceErrorMessage(error: ApiError): string {
     default:
       return error.message
   }
-}
-
-function toOptionalNumber(
-  value: FormDataEntryValue | null
-): number | undefined {
-  if (value === null) {
-    return undefined
-  }
-
-  const text = String(value).trim()
-  if (text === "") {
-    return undefined
-  }
-
-  const number = Number(text)
-  return Number.isFinite(number) ? number : undefined
 }
 
 function CreateDeviceForm({ onSuccess }: { onSuccess: () => void }) {

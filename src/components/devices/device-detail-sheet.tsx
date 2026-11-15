@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { RadioTowerIcon } from "@hugeicons/core-free-icons"
+import { PencilEdit01Icon, RadioTowerIcon } from "@hugeicons/core-free-icons"
 
+import { UpdateDeviceForm } from "@/components/devices/update-device-form"
 import {
   DeviceStatusPill,
   formatDateTime,
@@ -19,6 +21,7 @@ import {
   Sheet,
   SheetContent,
   SheetDescription,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
@@ -81,7 +84,21 @@ function DeviceDetailContent({ device }: { device: Device }) {
   )
 }
 
-function DeviceDetail({ deviceId }: { deviceId: string }) {
+function DeviceDetailPanel({
+  deviceId,
+  editing,
+  canEdit,
+  onEdit,
+  onCancelEdit,
+  onSaved,
+}: {
+  deviceId: string
+  editing: boolean
+  canEdit: boolean
+  onEdit: () => void
+  onCancelEdit: () => void
+  onSaved: () => void
+}) {
   const {
     data: device,
     isPending,
@@ -120,26 +137,75 @@ function DeviceDetail({ deviceId }: { deviceId: string }) {
     )
   }
 
-  return <DeviceDetailContent device={device} />
+  if (editing) {
+    return (
+      <UpdateDeviceForm
+        device={device}
+        onCancel={onCancelEdit}
+        onSuccess={onSaved}
+      />
+    )
+  }
+
+  return (
+    <>
+      <DeviceDetailContent device={device} />
+      {canEdit ? (
+        <SheetFooter>
+          <Button onClick={onEdit}>
+            <HugeiconsIcon
+              icon={PencilEdit01Icon}
+              strokeWidth={2}
+              data-icon="inline-start"
+            />
+            Edit
+          </Button>
+        </SheetFooter>
+      ) : null}
+    </>
+  )
 }
 
 export function DeviceDetailSheet({
   deviceId,
   open,
   onOpenChange,
+  canEdit,
 }: {
   deviceId: string | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  canEdit: boolean
 }) {
+  const [editing, setEditing] = useState(false)
+
+  useEffect(() => {
+    if (!open) {
+      setEditing(false)
+    }
+  }, [open])
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Detail Device</SheetTitle>
-          <SheetDescription>Informasi lengkap perangkat.</SheetDescription>
+          <SheetTitle>{editing ? "Edit Device" : "Detail Device"}</SheetTitle>
+          <SheetDescription>
+            {editing
+              ? "Perbarui informasi perangkat."
+              : "Informasi lengkap perangkat."}
+          </SheetDescription>
         </SheetHeader>
-        {deviceId ? <DeviceDetail deviceId={deviceId} /> : null}
+        {deviceId ? (
+          <DeviceDetailPanel
+            deviceId={deviceId}
+            editing={editing}
+            canEdit={canEdit}
+            onEdit={() => setEditing(true)}
+            onCancelEdit={() => setEditing(false)}
+            onSaved={() => setEditing(false)}
+          />
+        ) : null}
       </SheetContent>
     </Sheet>
   )

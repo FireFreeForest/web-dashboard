@@ -27,3 +27,11 @@ export type CreateDeviceInput = {
   longitude?: number
   firmware_version?: string
 }
+
+export type UpdateDeviceInput = {
+  name?: string
+  location_name?: string
+  latitude?: number
+  longitude?: number
+  firmware_version?: string
+}

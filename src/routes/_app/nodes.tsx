@@ -165,6 +165,7 @@ function NodesPage() {
       <DeviceDetailSheet
         deviceId={selectedDeviceId}
         open={selectedDeviceId !== null}
+        canEdit={isAdmin}
         onOpenChange={(open) => {
           if (!open) {
             setSelectedDeviceId(null)
