@@ -1,12 +1,26 @@
 import { useEffect, useState } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { PencilEdit01Icon, RadioTowerIcon } from "@hugeicons/core-free-icons"
+import {
+  Delete02Icon,
+  PencilEdit01Icon,
+  RadioTowerIcon,
+} from "@hugeicons/core-free-icons"
 
 import { UpdateDeviceForm } from "@/components/devices/update-device-form"
 import {
   DeviceStatusPill,
   formatDateTime,
 } from "@/components/devices/device-ui"
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import {
   Empty,
@@ -26,7 +40,9 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { useDevice } from "@/features/devices/queries"
+import { useDeleteDevice } from "@/features/devices/mutations"
 import type { Device } from "@/features/devices/types"
+import { ApiError } from "@/lib/api/types"
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
@@ -84,6 +100,68 @@ function DeviceDetailContent({ device }: { device: Device }) {
   )
 }
 
+function DeleteDeviceDialog({
+  device,
+  onDeleted,
+}: {
+  device: Device
+  onDeleted: () => void
+}) {
+  const deleteDevice = useDeleteDevice()
+  const [open, setOpen] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  const handleDelete = async () => {
+    setErrorMessage(null)
+
+    try {
+      await deleteDevice.mutateAsync(device.device_id)
+      onDeleted()
+    } catch (error) {
+      setErrorMessage(
+        error instanceof ApiError ? error.message : "Terjadi kesalahan."
+      )
+    }
+  }
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger
+        render={<Button variant="destructive" className="flex-1" />}
+      >
+        <HugeiconsIcon
+          icon={Delete02Icon}
+          strokeWidth={2}
+          data-icon="inline-start"
+        />
+        Hapus
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Hapus Device?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Device "{device.name}" akan dihapus permanen. Tindakan ini tidak
+            dapat dibatalkan.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        {errorMessage ? (
+          <p className="text-sm text-destructive">{errorMessage}</p>
+        ) : null}
+        <AlertDialogFooter>
+          <AlertDialogCancel>Batal</AlertDialogCancel>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={deleteDevice.isPending}
+          >
+            {deleteDevice.isPending ? "Menghapus..." : "Hapus"}
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
+
 function DeviceDetailPanel({
   deviceId,
   editing,
@@ -91,6 +169,7 @@ function DeviceDetailPanel({
   onEdit,
   onCancelEdit,
   onSaved,
+  onDeleted,
 }: {
   deviceId: string
   editing: boolean
@@ -98,6 +177,7 @@ function DeviceDetailPanel({
   onEdit: () => void
   onCancelEdit: () => void
   onSaved: () => void
+  onDeleted: () => void
 }) {
   const {
     data: device,
@@ -151,8 +231,8 @@ function DeviceDetailPanel({
     <>
       <DeviceDetailContent device={device} />
       {canEdit ? (
-        <SheetFooter>
-          <Button onClick={onEdit}>
+        <SheetFooter className="flex-row">
+          <Button onClick={onEdit} className="flex-1">
             <HugeiconsIcon
               icon={PencilEdit01Icon}
               strokeWidth={2}
@@ -160,6 +240,7 @@ function DeviceDetailPanel({
             />
             Edit
           </Button>
+          <DeleteDeviceDialog device={device} onDeleted={onDeleted} />
         </SheetFooter>
       ) : null}
     </>
@@ -204,6 +285,7 @@ export function DeviceDetailSheet({
             onEdit={() => setEditing(true)}
             onCancelEdit={() => setEditing(false)}
             onSaved={() => setEditing(false)}
+            onDeleted={() => onOpenChange(false)}
           />
         ) : null}
       </SheetContent>

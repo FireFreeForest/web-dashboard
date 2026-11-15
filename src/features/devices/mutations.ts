@@ -42,3 +42,20 @@ export function useUpdateDevice() {
     },
   })
 }
+
+export function useDeleteDevice() {
+  const queryClient = useQueryClient()
+
+  return useMutation<void, ApiError, string>({
+    mutationFn: async (deviceId: string) => {
+      await apiFetch<void>({
+        method: "DELETE",
+        url: `/devices/${deviceId}`,
+      })
+    },
+    onSuccess: (_data, deviceId) => {
+      queryClient.removeQueries({ queryKey: deviceKeys.detail(deviceId) })
+      void queryClient.invalidateQueries({ queryKey: deviceKeys.lists() })
+    },
+  })
+}
