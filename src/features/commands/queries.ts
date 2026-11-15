@@ -22,6 +22,18 @@ export function getDeviceCommands(
   })
 }
 
+const COMMAND_STATUS_POLL_INTERVAL_MS = 5_000
+
+function hasInFlightCommand(
+  data: ApiListEnvelope<Command> | undefined
+): boolean {
+  if (!data) return false
+
+  return data.data.some(
+    (command) => command.status === "pending" || command.status === "sent"
+  )
+}
+
 export function deviceCommandsQueryOptions(
   deviceId: string,
   params: CommandListParams = {}
@@ -30,6 +42,10 @@ export function deviceCommandsQueryOptions(
     queryKey: commandKeys.list(deviceId, params),
     queryFn: () => getDeviceCommands(deviceId, params),
     placeholderData: keepPreviousData,
+    refetchInterval: (query) =>
+      hasInFlightCommand(query.state.data)
+        ? COMMAND_STATUS_POLL_INTERVAL_MS
+        : false,
   })
 }
 
