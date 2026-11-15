@@ -38,7 +38,6 @@ export const createDeviceSchema = z.object({
   location_name: optionalText,
   latitude: optionalCoordinate(-90, 90, "Latitude"),
   longitude: optionalCoordinate(-180, 180, "Longitude"),
-  firmware_version: optionalText,
 })
 
 export type CreateDeviceFormValues = z.infer<typeof createDeviceSchema>

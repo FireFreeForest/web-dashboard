@@ -50,9 +50,6 @@ export function UpdateDeviceForm({
   const [longitude, setLongitude] = useState(
     device.longitude !== null ? String(device.longitude) : ""
   )
-  const [firmwareVersion, setFirmwareVersion] = useState(
-    device.firmware_version
-  )
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const handleMapPick = useCallback(
@@ -97,7 +94,6 @@ export function UpdateDeviceForm({
       location_name: locationName.trim() || undefined,
       latitude: toOptionalNumber(latitude),
       longitude: toOptionalNumber(longitude),
-      firmware_version: firmwareVersion.trim() || undefined,
     }
 
     try {
@@ -180,15 +176,6 @@ export function UpdateDeviceForm({
             />
           </Field>
         </div>
-        <Field>
-          <FieldLabel htmlFor="firmware_version">Versi Firmware</FieldLabel>
-          <Input
-            id="firmware_version"
-            value={firmwareVersion}
-            onChange={(event) => setFirmwareVersion(event.target.value)}
-            disabled={updateDevice.isPending}
-          />
-        </Field>
         <FieldError>{errorMessage}</FieldError>
       </FieldGroup>
       <SheetFooter>

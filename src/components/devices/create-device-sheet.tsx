@@ -54,7 +54,6 @@ function CreateDeviceForm({ onSuccess }: { onSuccess: () => void }) {
   const [locationName, setLocationName] = useState("")
   const [latitude, setLatitude] = useState("")
   const [longitude, setLongitude] = useState("")
-  const [firmwareVersion, setFirmwareVersion] = useState("")
   const [errors, setErrors] = useState<FieldErrors>({})
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -106,7 +105,6 @@ function CreateDeviceForm({ onSuccess }: { onSuccess: () => void }) {
       location_name: locationName,
       latitude,
       longitude,
-      firmware_version: firmwareVersion,
     })
 
     if (!parsed.success) {
@@ -231,16 +229,6 @@ function CreateDeviceForm({ onSuccess }: { onSuccess: () => void }) {
             <FieldError>{errors.longitude}</FieldError>
           </Field>
         </div>
-        <Field>
-          <FieldLabel htmlFor="firmware_version">Versi Firmware</FieldLabel>
-          <Input
-            id="firmware_version"
-            value={firmwareVersion}
-            onChange={(event) => setFirmwareVersion(event.target.value)}
-            placeholder="1.2.0"
-            disabled={createDevice.isPending}
-          />
-        </Field>
         <FieldError>{errorMessage}</FieldError>
       </FieldGroup>
       <SheetFooter>

@@ -44,5 +44,4 @@ export type UpdateDeviceInput = {
   location_name?: string
   latitude?: number
   longitude?: number
-  firmware_version?: string
 }
