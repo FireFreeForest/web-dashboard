@@ -17,14 +17,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useRegisterPushToken } from "@/features/push/mutations"
 import {
+  useDeletePushToken,
+  useRegisterPushToken,
+} from "@/features/push/mutations"
+import {
+  deletePushTokenSchema,
   registerPushTokenSchema,
   type RegisterPushTokenFormValues,
 } from "@/features/push/schema"
 import {
-  saveStoredPushToken,
+  clearStoredPushToken,
   getStoredPushToken,
+  saveStoredPushToken,
 } from "@/features/push/token-storage"
 import {
   DEFAULT_PUSH_PLATFORM,
@@ -36,7 +41,7 @@ import { ApiError } from "@/lib/api/types"
 
 type FieldErrors = Partial<Record<keyof RegisterPushTokenFormValues, string>>
 
-function getRegisterPushTokenErrorMessage(error: ApiError): string {
+function getPushTokenErrorMessage(error: ApiError): string {
   switch (error.code) {
     case "invalid_request":
       return "Token FCM tidak valid."
@@ -58,10 +63,13 @@ function getInitialPlatform(): PushPlatform {
 
 export function PushNotificationSettings() {
   const registerPushToken = useRegisterPushToken()
+  const deletePushToken = useDeletePushToken()
   const [token, setToken] = useState(() => getStoredPushToken()?.token ?? "")
   const [platform, setPlatform] = useState<PushPlatform>(getInitialPlatform)
   const [errors, setErrors] = useState<FieldErrors>({})
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  const isPending = registerPushToken.isPending || deletePushToken.isPending
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -88,10 +96,41 @@ export function PushNotificationSettings() {
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.code === "invalid_request") {
-          setErrors({ token: getRegisterPushTokenErrorMessage(error) })
+          setErrors({ token: getPushTokenErrorMessage(error) })
         } else {
-          setErrorMessage(getRegisterPushTokenErrorMessage(error))
+          setErrorMessage(getPushTokenErrorMessage(error))
         }
+        return
+      }
+      setErrorMessage("Terjadi kesalahan tidak terduga.")
+    }
+  }
+
+  const handleDelete = async () => {
+    setErrorMessage(null)
+
+    const parsed = deletePushTokenSchema.safeParse({ token })
+
+    if (!parsed.success) {
+      const nextErrors: FieldErrors = {}
+      for (const issue of parsed.error.issues) {
+        const key = issue.path[0] as keyof RegisterPushTokenFormValues
+        nextErrors[key] ??= issue.message
+      }
+      setErrors(nextErrors)
+      return
+    }
+
+    setErrors({})
+
+    try {
+      await deletePushToken.mutateAsync(parsed.data.token)
+      clearStoredPushToken(parsed.data.token)
+      setToken("")
+      toast.success("Token notifikasi berhasil dihapus.")
+    } catch (error) {
+      if (error instanceof ApiError) {
+        setErrorMessage(getPushTokenErrorMessage(error))
         return
       }
       setErrorMessage("Terjadi kesalahan tidak terduga.")
@@ -120,7 +159,7 @@ export function PushNotificationSettings() {
               spellCheck={false}
               className="font-mono text-xs"
               aria-invalid={Boolean(errors.token)}
-              disabled={registerPushToken.isPending}
+              disabled={isPending}
             />
             <FieldDescription>
               Token diperoleh dari Firebase SDK perangkat, bukan access token
@@ -133,7 +172,7 @@ export function PushNotificationSettings() {
             <Select
               value={platform}
               onValueChange={(value) => setPlatform(value as PushPlatform)}
-              disabled={registerPushToken.isPending}
+              disabled={isPending}
             >
               <SelectTrigger id="push-platform" className="w-full">
                 <SelectValue>
@@ -159,11 +198,21 @@ export function PushNotificationSettings() {
               Push event hanya dikirim ke user aktif dengan role admin atau
               petugas.
             </p>
-            <Button type="submit" disabled={registerPushToken.isPending}>
-              {registerPushToken.isPending
-                ? "Mendaftarkan..."
-                : "Daftarkan Token"}
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isPending || token.trim() === ""}
+              >
+                {deletePushToken.isPending ? "Menghapus..." : "Hapus Token"}
+              </Button>
+              <Button type="submit" disabled={isPending}>
+                {registerPushToken.isPending
+                  ? "Mendaftarkan..."
+                  : "Daftarkan Token"}
+              </Button>
+            </div>
           </div>
         </FieldGroup>
       </form>

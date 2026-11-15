@@ -15,3 +15,13 @@ export function useRegisterPushToken() {
       }),
   })
 }
+
+export function useDeletePushToken() {
+  return useMutation<void, ApiError, string>({
+    mutationFn: (token) =>
+      apiFetch<void>({
+        method: "DELETE",
+        url: `/push/tokens/${encodeURIComponent(token)}`,
+      }),
+  })
+}

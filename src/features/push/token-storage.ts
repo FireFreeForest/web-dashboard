@@ -28,3 +28,14 @@ export function getStoredPushToken(): RegisterPushTokenInput | null {
 export function saveStoredPushToken(input: RegisterPushTokenInput): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(input))
 }
+
+export function clearStoredPushToken(token?: string): void {
+  if (token === undefined) {
+    localStorage.removeItem(STORAGE_KEY)
+    return
+  }
+
+  if (getStoredPushToken()?.token === token) {
+    localStorage.removeItem(STORAGE_KEY)
+  }
+}

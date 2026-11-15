@@ -1,4 +1,7 @@
-import type { RegisterPushTokenFormValues } from "./schema"
+import type {
+  DeletePushTokenFormValues,
+  RegisterPushTokenFormValues,
+} from "./schema"
 
 export const PUSH_PLATFORMS = ["web", "android", "ios"] as const
 
@@ -13,3 +16,5 @@ export const PUSH_PLATFORM_LABELS: Record<PushPlatform, string> = {
 export const DEFAULT_PUSH_PLATFORM: PushPlatform = "web"
 
 export type RegisterPushTokenInput = RegisterPushTokenFormValues
+
+export type DeletePushTokenInput = DeletePushTokenFormValues
