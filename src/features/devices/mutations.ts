@@ -39,6 +39,9 @@ export function useUpdateDevice() {
     onSuccess: (device) => {
       queryClient.setQueryData(deviceKeys.detail(device.device_id), device)
       void queryClient.invalidateQueries({ queryKey: deviceKeys.lists() })
+      void queryClient.invalidateQueries({
+        queryKey: deviceKeys.status(device.device_id),
+      })
     },
   })
 }
@@ -55,6 +58,7 @@ export function useDeleteDevice() {
     },
     onSuccess: (_data, deviceId) => {
       queryClient.removeQueries({ queryKey: deviceKeys.detail(deviceId) })
+      queryClient.removeQueries({ queryKey: deviceKeys.status(deviceId) })
       void queryClient.invalidateQueries({ queryKey: deviceKeys.lists() })
     },
   })

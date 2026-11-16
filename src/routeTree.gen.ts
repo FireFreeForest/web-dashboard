@@ -16,6 +16,7 @@ import { Route as AppEventsRouteImport } from './routes/_app/events'
 import { Route as AppNodesRouteImport } from './routes/_app/nodes'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppUsersRouteImport } from './routes/_app/users'
+import { Route as AppNodesDeviceIdRouteImport } from './routes/_app/nodes_.$deviceId'
 
 const AppRouteRoute = AppRouteRouteImport.update({
   id: '/_app',
@@ -51,6 +52,11 @@ const AppUsersRoute = AppUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppNodesDeviceIdRoute = AppNodesDeviceIdRouteImport.update({
+  id: '/nodes_/$deviceId',
+  path: '/nodes/$deviceId',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/nodes': typeof AppNodesRoute
   '/settings': typeof AppSettingsRoute
   '/users': typeof AppUsersRoute
+  '/nodes/$deviceId': typeof AppNodesDeviceIdRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AppSettingsRoute
   '/users': typeof AppUsersRoute
   '/': typeof AppIndexRoute
+  '/nodes/$deviceId': typeof AppNodesDeviceIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -77,12 +85,27 @@ export interface FileRoutesById {
   '/_app/settings': typeof AppSettingsRoute
   '/_app/users': typeof AppUsersRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/nodes_/$deviceId': typeof AppNodesDeviceIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/events' | '/nodes' | '/settings' | '/users'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/events'
+    | '/nodes'
+    | '/settings'
+    | '/users'
+    | '/nodes/$deviceId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/events' | '/nodes' | '/settings' | '/users' | '/'
+  to:
+    | '/auth'
+    | '/events'
+    | '/nodes'
+    | '/settings'
+    | '/users'
+    | '/'
+    | '/nodes/$deviceId'
   id:
     | '__root__'
     | '/_app'
@@ -92,6 +115,7 @@ export interface FileRouteTypes {
     | '/_app/settings'
     | '/_app/users'
     | '/_app/'
+    | '/_app/nodes_/$deviceId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -150,6 +174,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppUsersRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/nodes_/$deviceId': {
+      id: '/_app/nodes_/$deviceId'
+      path: '/nodes/$deviceId'
+      fullPath: '/nodes/$deviceId'
+      preLoaderRoute: typeof AppNodesDeviceIdRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
   }
 }
 
@@ -159,6 +190,7 @@ interface AppRouteRouteChildren {
   AppSettingsRoute: typeof AppSettingsRoute
   AppUsersRoute: typeof AppUsersRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppNodesDeviceIdRoute: typeof AppNodesDeviceIdRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
@@ -167,6 +199,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppSettingsRoute: AppSettingsRoute,
   AppUsersRoute: AppUsersRoute,
   AppIndexRoute: AppIndexRoute,
+  AppNodesDeviceIdRoute: AppNodesDeviceIdRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(

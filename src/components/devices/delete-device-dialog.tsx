@@ -19,10 +19,12 @@ export function DeleteDeviceDialog({
   device,
   open,
   onOpenChange,
+  onDeleted,
 }: {
   device: Device | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  onDeleted?: () => void
 }) {
   const deleteDevice = useDeleteDevice()
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -41,6 +43,7 @@ export function DeleteDeviceDialog({
       await deleteDevice.mutateAsync(device.device_id)
       toast.success("Device berhasil dihapus.")
       handleOpenChange(false)
+      onDeleted?.()
     } catch (error) {
       setErrorMessage(
         error instanceof ApiError ? error.message : "Terjadi kesalahan."

@@ -8,6 +8,7 @@ import {
   ServerStackIcon,
 } from "@hugeicons/core-free-icons"
 import { useSelector, type Atom } from "@tanstack/react-store"
+import { Link } from "@tanstack/react-router"
 import {
   useTable,
   type ColumnDef,
@@ -140,7 +141,14 @@ export function DevicesTable({
                   />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem disabled>
+                  <DropdownMenuItem
+                    render={
+                      <Link
+                        to="/nodes/$deviceId"
+                        params={{ deviceId: device.device_id }}
+                      />
+                    }
+                  >
                     <HugeiconsIcon icon={EyeIcon} strokeWidth={2} />
                     Detail
                   </DropdownMenuItem>

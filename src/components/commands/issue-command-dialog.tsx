@@ -48,7 +48,17 @@ function isFieldError(error: ApiError): boolean {
   return error.code === "validation_error"
 }
 
-export function IssueCommandDialog({ deviceId }: { deviceId: string }) {
+export function IssueCommandDialog({
+  deviceId,
+  triggerLabel = "Kirim Command",
+  triggerVariant = "outline",
+  triggerSize = "sm",
+}: {
+  deviceId: string
+  triggerLabel?: string
+  triggerVariant?: React.ComponentProps<typeof Button>["variant"]
+  triggerSize?: React.ComponentProps<typeof Button>["size"]
+}) {
   const [open, setOpen] = useState(false)
   const [state, setState] = useState(true)
   const [duration, setDuration] = useState(
@@ -129,13 +139,17 @@ export function IssueCommandDialog({ deviceId }: { deviceId: string }) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <Button size="sm" variant="outline" onClick={openDialog}>
+      <Button
+        size={triggerSize}
+        variant={triggerVariant}
+        onClick={openDialog}
+      >
         <HugeiconsIcon
           icon={WaterPumpIcon}
           strokeWidth={2}
           data-icon="inline-start"
         />
-        Kirim Command
+        {triggerLabel}
       </Button>
       <DialogContent>
         <DialogHeader>

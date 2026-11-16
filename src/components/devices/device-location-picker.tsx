@@ -1,8 +1,7 @@
 import { useCallback, useEffect } from "react"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { RadioTowerIcon } from "@hugeicons/core-free-icons"
 import type { MapMouseEvent } from "maplibre-gl"
 
+import { DeviceLocationMarker } from "@/components/devices/device-location-marker"
 import {
   Map,
   MapControls,
@@ -97,15 +96,7 @@ export function DeviceLocationPicker({
             onDragEnd={({ lng, lat }) => handlePick(lng, lat)}
           >
             <MarkerContent>
-              <div className="group relative flex size-9 items-center justify-center">
-                <span className="relative flex size-7 items-center justify-center rounded-full bg-primary text-white shadow-md transition-all group-hover:scale-110">
-                  <HugeiconsIcon
-                    icon={RadioTowerIcon}
-                    strokeWidth={2}
-                    className="size-3.5"
-                  />
-                </span>
-              </div>
+              <DeviceLocationMarker />
             </MarkerContent>
           </MapMarker>
         )}

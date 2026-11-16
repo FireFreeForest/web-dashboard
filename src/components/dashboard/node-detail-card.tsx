@@ -10,6 +10,7 @@ import {
   TemperatureIcon,
 } from "@hugeicons/core-free-icons"
 
+import { MetricTile } from "@/components/telemetry/metric-tile"
 import { Button } from "@/components/ui/button"
 import {
   getNodeStatus,
@@ -18,34 +19,6 @@ import {
   type PumpState,
 } from "@/lib/nodes"
 import { cn } from "@/lib/utils"
-
-function Metric({
-  icon,
-  label,
-  value,
-  className,
-  iconClassName,
-}: {
-  icon: typeof TemperatureIcon
-  label: string
-  value: string
-  className?: string
-  iconClassName?: string
-}) {
-  return (
-    <div className={cn("flex flex-col gap-0.5 rounded-lg p-2", className)}>
-      <HugeiconsIcon
-        icon={icon}
-        strokeWidth={2}
-        className={cn("size-4", iconClassName)}
-      />
-      <span className="text-sm font-semibold tabular-nums">{value}</span>
-      <span className="text-[10px] leading-none text-muted-foreground">
-        {label}
-      </span>
-    </div>
-  )
-}
 
 function IntensityBar({
   label,
@@ -147,21 +120,24 @@ export function NodeDetailCard({ node }: { node: ForestNode }) {
       </div>
 
       <div className="grid grid-cols-3 gap-2">
-        <Metric
+        <MetricTile
+          size="sm"
           icon={TemperatureIcon}
           label="Temp"
           value={`${node.environment.temperatureC.toFixed(1)}°C`}
           className="bg-orange-500/10"
           iconClassName="text-orange-600 dark:text-orange-400"
         />
-        <Metric
+        <MetricTile
+          size="sm"
           icon={HumidityIcon}
           label="Humidity"
           value={`${node.environment.humidityPct}%`}
           className="bg-sky-500/10"
           iconClassName="text-sky-600 dark:text-sky-400"
         />
-        <Metric
+        <MetricTile
+          size="sm"
           icon={Plant01Icon}
           label="Soil Moisture"
           value={`${node.environment.soilMoisturePct}%`}
