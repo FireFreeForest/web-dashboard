@@ -90,10 +90,10 @@ export function RealtimeTicketSettings() {
   return (
     <section className="flex flex-col gap-3">
       <div className="flex flex-col gap-1">
-        <h3 className="text-sm font-medium">WebSocket access</h3>
+        <h3 className="text-sm font-medium">Ticket inspector</h3>
         <p className="text-sm text-muted-foreground">
-          Buat tiket sekali pakai untuk membuka koneksi realtime. Tiket hanya
-          berlaku 60 detik dan hangus setelah dipakai.
+          Utilitas manual untuk memeriksa tiket. Koneksi realtime utama membuat
+          tiket sendiri secara otomatis.
         </p>
       </div>
       <FieldGroup className="gap-4">

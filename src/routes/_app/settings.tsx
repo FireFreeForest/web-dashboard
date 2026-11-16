@@ -14,6 +14,7 @@ import {
 } from "@/components/providers/map-mode-provider"
 import { useTheme } from "@/components/providers/theme-provider"
 import { PushNotificationSettings } from "@/components/push/push-notification-settings"
+import { RealtimeConnectionSettings } from "@/components/realtime/realtime-connection-settings"
 import { RealtimeTicketSettings } from "@/components/realtime/realtime-ticket-settings"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -198,11 +199,12 @@ function SettingsPage() {
         <div className="flex flex-col gap-1">
           <h2 className="font-heading text-lg font-medium">Realtime</h2>
           <p className="text-sm text-muted-foreground">
-            Create a short-lived ticket before opening a WebSocket connection.
+            Monitor the WebSocket connection and inspect connection tickets.
           </p>
         </div>
 
         <div className="flex flex-col gap-8 md:col-span-2">
+          <RealtimeConnectionSettings />
           <RealtimeTicketSettings />
         </div>
       </div>
