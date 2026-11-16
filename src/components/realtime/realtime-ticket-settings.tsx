@@ -88,81 +88,72 @@ export function RealtimeTicketSettings() {
   }
 
   return (
-    <section className="flex flex-col gap-3">
-      <div className="flex flex-col gap-1">
-        <h3 className="text-sm font-medium">Ticket inspector</h3>
-        <p className="text-sm text-muted-foreground">
-          Utilitas manual untuk memeriksa tiket. Koneksi realtime utama membuat
-          tiket sendiri secara otomatis.
-        </p>
-      </div>
-      <FieldGroup className="gap-4">
-        <Field>
-          <FieldLabel htmlFor="realtime-ticket">Tiket WebSocket</FieldLabel>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Input
-              id="realtime-ticket"
-              value={ticket?.ticket ?? ""}
-              placeholder="Belum ada tiket"
-              readOnly
-              onFocus={(event) => event.currentTarget.select()}
-              className="min-w-0 flex-1 font-mono text-xs"
-              spellCheck={false}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCopy}
-              disabled={!ticket || isExpired}
-              className="sm:shrink-0"
-            >
-              <HugeiconsIcon
-                icon={Copy01Icon}
-                strokeWidth={2}
-                data-icon="inline-start"
-              />
-              Salin
-            </Button>
-          </div>
-          <FieldDescription>
-            Tiket berasal dari endpoint realtime, bukan access token login.
-            Jangan bagikan tiket ini kepada pengguna lain.
-          </FieldDescription>
-        </Field>
-        {errorMessage ? <FieldError>{errorMessage}</FieldError> : null}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          {ticket ? (
-            <Badge variant={isExpired ? "outline" : "secondary"}>
-              <HugeiconsIcon
-                icon={Time01Icon}
-                strokeWidth={2}
-                data-icon="inline-start"
-              />
-              {isExpired ? "Kedaluwarsa" : `Berlaku ${secondsLeft} detik`}
-            </Badge>
-          ) : (
-            <p className="text-xs text-muted-foreground">
-              Belum ada tiket aktif.
-            </p>
-          )}
+    <FieldGroup className="gap-4">
+      <Field>
+        <FieldLabel htmlFor="realtime-ticket">Tiket WebSocket</FieldLabel>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Input
+            id="realtime-ticket"
+            value={ticket?.ticket ?? ""}
+            placeholder="Belum ada tiket"
+            readOnly
+            onFocus={(event) => event.currentTarget.select()}
+            className="min-w-0 flex-1 font-mono text-xs"
+            spellCheck={false}
+          />
           <Button
             type="button"
-            onClick={handleCreate}
-            disabled={createTicket.isPending}
+            variant="outline"
+            onClick={handleCopy}
+            disabled={!ticket || isExpired}
+            className="sm:shrink-0"
           >
             <HugeiconsIcon
-              icon={Ticket01Icon}
+              icon={Copy01Icon}
               strokeWidth={2}
               data-icon="inline-start"
             />
-            {createTicket.isPending
-              ? "Membuat tiket..."
-              : ticket
-                ? "Buat tiket baru"
-                : "Buat tiket"}
+            Salin
           </Button>
         </div>
-      </FieldGroup>
-    </section>
+        <FieldDescription>
+          Tiket berasal dari endpoint realtime, bukan access token login. Jangan
+          bagikan tiket ini kepada pengguna lain.
+        </FieldDescription>
+      </Field>
+      {errorMessage ? <FieldError>{errorMessage}</FieldError> : null}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {ticket ? (
+          <Badge variant={isExpired ? "outline" : "secondary"}>
+            <HugeiconsIcon
+              icon={Time01Icon}
+              strokeWidth={2}
+              data-icon="inline-start"
+            />
+            {isExpired ? "Kedaluwarsa" : `Berlaku ${secondsLeft} detik`}
+          </Badge>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Belum ada tiket aktif.
+          </p>
+        )}
+        <Button
+          type="button"
+          onClick={handleCreate}
+          disabled={createTicket.isPending}
+        >
+          <HugeiconsIcon
+            icon={Ticket01Icon}
+            strokeWidth={2}
+            data-icon="inline-start"
+          />
+          {createTicket.isPending
+            ? "Membuat tiket..."
+            : ticket
+              ? "Buat tiket baru"
+              : "Buat tiket"}
+        </Button>
+      </div>
+    </FieldGroup>
   )
 }
