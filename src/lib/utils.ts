@@ -1,17 +1,23 @@
 export { cn } from "cn"
 
-export function toOptionalNumber(
-  value: FormDataEntryValue | null
-): number | undefined {
-  if (value === null) {
-    return undefined
-  }
+const dateFormatter = new Intl.DateTimeFormat("id-ID", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+})
 
-  const text = String(value).trim()
-  if (text === "") {
-    return undefined
-  }
+const timeFormatter = new Intl.DateTimeFormat("id-ID", {
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+})
 
-  const number = Number(text)
-  return Number.isFinite(number) ? number : undefined
+export function formatDateTime(value: string | null | undefined): string {
+  if (!value) return "—"
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return "—"
+
+  return `${dateFormatter.format(date)} ${timeFormatter.format(date)}`
 }

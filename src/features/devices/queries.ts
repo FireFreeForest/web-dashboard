@@ -1,4 +1,4 @@
-import { queryOptions, useQuery } from "@tanstack/react-query"
+import { keepPreviousData, queryOptions, useQuery } from "@tanstack/react-query"
 
 import { apiFetch, apiFetchList } from "@/lib/api/client"
 import type { ApiListEnvelope } from "@/lib/api/types"
@@ -29,6 +29,7 @@ export function devicesQueryOptions(params: DeviceListParams = {}) {
   return queryOptions({
     queryKey: deviceKeys.list(params),
     queryFn: () => listDevices(params),
+    placeholderData: keepPreviousData,
   })
 }
 

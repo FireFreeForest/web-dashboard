@@ -1,7 +1,15 @@
 import { useCallback, useEffect } from "react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { RadioTowerIcon } from "@hugeicons/core-free-icons"
 import type { MapMouseEvent } from "maplibre-gl"
 
-import { Map, MapMarker, MarkerContent, useMap } from "@/components/ui/map"
+import {
+  Map,
+  MapControls,
+  MapMarker,
+  MarkerContent,
+  useMap,
+} from "@/components/ui/map"
 import { cn } from "@/lib/utils"
 
 const DEFAULT_MAP_CENTER: [number, number] = [113.9, 0.5]
@@ -10,6 +18,7 @@ type DeviceLocationPickerProps = {
   latitude: string
   longitude: string
   onChange: (latitude: string, longitude: string) => void
+  showFullscreen?: boolean
   className?: string
 }
 
@@ -46,6 +55,7 @@ export function DeviceLocationPicker({
   latitude,
   longitude,
   onChange,
+  showFullscreen = false,
   className,
 }: DeviceLocationPickerProps) {
   const latitudeValue = toCoordinate(latitude)
@@ -86,9 +96,22 @@ export function DeviceLocationPicker({
             draggable
             onDragEnd={({ lng, lat }) => handlePick(lng, lat)}
           >
-            <MarkerContent />
+            <MarkerContent>
+              <div className="group relative flex size-9 items-center justify-center">
+                <span className="relative flex size-7 items-center justify-center rounded-full bg-primary text-white shadow-md transition-all group-hover:scale-110">
+                  <HugeiconsIcon
+                    icon={RadioTowerIcon}
+                    strokeWidth={2}
+                    className="size-3.5"
+                  />
+                </span>
+              </div>
+            </MarkerContent>
           </MapMarker>
         )}
+        {showFullscreen ? (
+          <MapControls showZoom={false} showFullscreen />
+        ) : null}
       </Map>
     </div>
   )
