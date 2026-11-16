@@ -1,11 +1,22 @@
 import { useEffect, useMemo, useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ChartHistogramIcon } from "@hugeicons/core-free-icons"
 
 import { DashboardOverview } from "@/components/dashboard/dashboard-summary"
 import { NodeGroupMarker } from "@/components/dashboard/node-group-marker"
 import { NodeMarker } from "@/components/dashboard/node-marker"
 import { NodePopup } from "@/components/dashboard/node-popup"
 import { useMapMode } from "@/components/providers/map-mode-provider"
+import { Button } from "@/components/ui/button"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
 import { Map, MapControls, useMap, type MapViewport } from "@/components/ui/map"
 import { useSidebar } from "@/components/ui/sidebar"
 import { forestNodes, groupForestNodes, type ForestNode } from "@/lib/nodes"
@@ -32,6 +43,39 @@ function FlyToNode({ node }: { node?: ForestNode }) {
   }, [map, node])
 
   return null
+}
+
+function MobileDashboardSummary() {
+  return (
+    <Drawer showSwipeHandle>
+      <DrawerTrigger
+        render={
+          <Button
+            size="lg"
+            className="absolute bottom-4 left-4 z-10 md:hidden"
+          />
+        }
+      >
+        <HugeiconsIcon
+          icon={ChartHistogramIcon}
+          strokeWidth={2}
+          data-icon="inline-start"
+        />
+        Ringkasan
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader className="sr-only">
+          <DrawerTitle>Ringkasan dashboard</DrawerTitle>
+          <DrawerDescription>
+            Ringkasan sistem dan event terbaru.
+          </DrawerDescription>
+        </DrawerHeader>
+        <div className="min-h-0 flex-1 overflow-y-auto p-3">
+          <DashboardOverview fluid />
+        </div>
+      </DrawerContent>
+    </Drawer>
+  )
 }
 
 function DashboardPage() {
@@ -108,7 +152,7 @@ function DashboardPage() {
       </div>
       <div
         className={cn(
-          "pointer-events-none absolute top-4 right-4 left-4 z-10 max-h-[calc(100%-2rem)] overflow-y-auto sm:top-6 sm:right-6",
+          "pointer-events-none absolute top-4 right-4 left-4 z-10 hidden max-h-[calc(100%-2rem)] overflow-y-auto sm:top-6 sm:right-6 md:block",
           sidebarState === "collapsed"
             ? "md:left-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px+(--spacing(6)))]"
             : "md:left-[calc(var(--sidebar-width)+(--spacing(6)))]"
@@ -116,6 +160,7 @@ function DashboardPage() {
       >
         <DashboardOverview />
       </div>
+      <MobileDashboardSummary />
     </div>
   )
 }
