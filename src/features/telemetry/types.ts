@@ -31,9 +31,51 @@ export type LatestTelemetry = {
   risk_level: RiskLevel
 }
 
+export type EnvironmentAggregatePoint = {
+  bucket_start: string
+  temperature: number | null
+  humidity: number | null
+  soil_moisture: number
+  sample_count: number
+}
+
+export type FireAggregatePoint = {
+  bucket_start: string
+  flame_level: number | null
+  smoke_level: number
+  flame_detected_ratio: number
+  pump_on_ratio: number
+  buzzer_on_ratio: number
+  sample_count: number
+}
+
+export type EnvironmentAggregate = {
+  device_id: string
+  from: string
+  to: string
+  interval_minutes: number
+  bucket_timezone: "Asia/Jakarta"
+  points: EnvironmentAggregatePoint[]
+}
+
+export type FireAggregate = {
+  device_id: string
+  from: string
+  to: string
+  interval_minutes: number
+  bucket_timezone: "Asia/Jakarta"
+  points: FireAggregatePoint[]
+}
+
 export type TelemetryListParams = {
   page?: number
   per_page?: number
   from?: string
   to?: string
+}
+
+export type TelemetryAggregateParams = {
+  from: string
+  to: string
+  interval?: number
 }

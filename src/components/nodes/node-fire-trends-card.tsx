@@ -1,11 +1,5 @@
 import { useMemo, useState } from "react"
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-} from "recharts"
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 import {
   ChartContainer,
@@ -15,73 +9,68 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
-import { useFireTelemetry } from "@/features/telemetry/queries"
-import { adcToPercent } from "@/features/telemetry/utils"
+import { useFireTelemetryAggregate } from "@/features/telemetry/queries"
+import { adcToInvertedPercent, adcToPercent } from "@/features/telemetry/utils"
 
 import { NodeTrendCard } from "./node-trend-card"
 import {
-  createDummyFireTrend,
   formatTrendTime,
   formatTrendTooltipLabel,
-  getRangeStart,
+  getTrendWindow,
+  RANGE_INTERVAL_MINUTES,
   type TrendRange,
 } from "./node-trends-data"
 
 const chartConfig = {
   flame: {
-    label: "Intensitas Api (%)",
+    label: "Tingkat Keparahan Api (%)",
     color: "var(--chart-flame)",
   },
   smoke: {
-    label: "Intensitas Asap (%)",
+    label: "Tingkat Keparahan Asap (%)",
     color: "var(--chart-smoke)",
   },
 } satisfies ChartConfig
 
 export function NodeFireTrendsCard({ deviceId }: { deviceId: string }) {
-  const [range, setRange] = useState<TrendRange>("24H")
-  const from = useMemo(() => getRangeStart(range).toISOString(), [range])
-  const query = useFireTelemetry(deviceId, {
-    from,
-    per_page: 100,
+  const [range, setRange] = useState<TrendRange>("1H")
+  const window = useMemo(() => getTrendWindow(range), [range])
+  const query = useFireTelemetryAggregate(deviceId, {
+    from: window.from,
+    to: window.to,
+    interval: RANGE_INTERVAL_MINUTES[range],
   })
 
   const points = useMemo(() => {
-    const rows = query.data?.data ?? []
+    const rows = query.data?.points ?? []
 
     return rows
-      .slice()
-      .reverse()
       .map((row) => ({
-        time: new Date(row.recorded_at).getTime(),
+        time: Date.parse(row.bucket_start),
         flame:
-          row.flame_level != null ? adcToPercent(row.flame_level) : null,
+          row.flame_level != null
+            ? adcToInvertedPercent(row.flame_level)
+            : null,
         smoke: adcToPercent(row.smoke_level),
       }))
       .filter((point) => Number.isFinite(point.time))
   }, [query.data])
 
-  const demoPoints = useMemo(() => createDummyFireTrend(range), [range])
-  const isDummy = !query.isLoading && !query.isError && points.length === 0
-  const chartData = isDummy ? demoPoints : points
+  const isEmpty = !query.isLoading && !query.isError && points.length === 0
 
   return (
     <NodeTrendCard
       title="Fire Detection Trends"
-      description={isDummy ? "Data contoh sementara." : undefined}
       range={range}
       onRangeChange={setRange}
       isLoading={query.isLoading}
       isError={query.isError}
       errorMessage={query.error?.message}
       onRetry={() => void query.refetch()}
-      isEmpty={false}
+      isEmpty={isEmpty}
     >
-      <ChartContainer
-        config={chartConfig}
-        className="aspect-auto h-64 w-full"
-      >
-        <AreaChart data={chartData} accessibilityLayer>
+      <ChartContainer config={chartConfig} className="aspect-auto h-64 w-full">
+        <AreaChart data={points} accessibilityLayer>
           <CartesianGrid vertical={false} />
           <XAxis
             dataKey="time"

@@ -12,6 +12,7 @@ import { NodeEnvironmentTrendsCard } from "@/components/nodes/node-environment-t
 import { NodeFireTrendsCard } from "@/components/nodes/node-fire-trends-card"
 import { NodeLiveTelemetryCard } from "@/components/nodes/node-live-telemetry-card"
 import { NodeLocationCard } from "@/components/nodes/node-location-card"
+import { NodeWaterPumpTrendsCard } from "@/components/nodes/node-waterpump-trends-card"
 import { Button } from "@/components/ui/button"
 import {
   Empty,
@@ -56,14 +57,8 @@ export function NodeDetailPage({ deviceId }: { deviceId: string }) {
           </EmptyHeader>
           <EmptyContent>
             <div className="flex flex-wrap items-center justify-center gap-2">
-              <Button
-                variant="outline"
-                onClick={() => void query.refetch()}
-              >
-                <HugeiconsIcon
-                  icon={RefreshIcon}
-                  data-icon="inline-start"
-                />
+              <Button variant="outline" onClick={() => void query.refetch()}>
+                <HugeiconsIcon icon={RefreshIcon} data-icon="inline-start" />
                 Coba lagi
               </Button>
               <Button render={<Link to="/nodes" />}>Kembali ke Nodes</Button>
@@ -89,6 +84,7 @@ export function NodeDetailPage({ deviceId }: { deviceId: string }) {
           <NodeLiveTelemetryCard environment={environment} fire={fire} />
           <NodeEnvironmentTrendsCard deviceId={deviceId} />
           <NodeFireTrendsCard deviceId={deviceId} />
+          <NodeWaterPumpTrendsCard deviceId={deviceId} />
         </div>
         <div className="flex flex-col gap-4">
           <NodeDetailsCard device={device} />

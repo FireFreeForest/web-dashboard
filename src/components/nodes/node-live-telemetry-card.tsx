@@ -8,17 +8,12 @@ import {
 } from "@hugeicons/core-free-icons"
 
 import { MetricTile } from "@/components/telemetry/metric-tile"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type {
   EnvironmentTelemetry,
   FireTelemetry,
 } from "@/features/telemetry/types"
-import { adcToPercent } from "@/features/telemetry/utils"
+import { adcToInvertedPercent, adcToPercent } from "@/features/telemetry/utils"
 import { cn } from "@/lib/utils"
 
 const groupLabelClassName =
@@ -33,7 +28,7 @@ export function NodeLiveTelemetryCard({
 }) {
   const flameValue =
     fire?.flame_level != null
-      ? `${adcToPercent(fire.flame_level)}%`
+      ? `${adcToInvertedPercent(fire.flame_level)}%`
       : fire?.flame_detected
         ? "Terdeteksi"
         : "—"
@@ -45,10 +40,7 @@ export function NodeLiveTelemetryCard({
       </CardHeader>
       <CardContent className="grid grid-cols-1 gap-2 lg:grid-cols-6">
         <span
-          className={cn(
-            groupLabelClassName,
-            "lg:col-span-3 lg:col-start-1"
-          )}
+          className={cn(groupLabelClassName, "lg:col-span-3 lg:col-start-1")}
         >
           Environment
         </span>
@@ -76,9 +68,7 @@ export function NodeLiveTelemetryCard({
           icon={Plant01Icon}
           label="Soil Moisture"
           value={
-            environment
-              ? `${adcToPercent(environment.soil_moisture)}%`
-              : "—"
+            environment ? `${adcToPercent(environment.soil_moisture)}%` : "—"
           }
           className="bg-emerald-500/10 lg:col-span-1 lg:col-start-3 lg:row-start-2"
           iconClassName="text-emerald-600 dark:text-emerald-400"
@@ -123,9 +113,7 @@ export function NodeLiveTelemetryCard({
             "lg:col-span-1 lg:col-start-6 lg:row-start-2",
             fire?.pump ? "bg-primary/10" : "bg-muted"
           )}
-          iconClassName={
-            fire?.pump ? "text-primary" : "text-muted-foreground"
-          }
+          iconClassName={fire?.pump ? "text-primary" : "text-muted-foreground"}
           valueClassName={fire?.pump ? "text-primary" : undefined}
         />
       </CardContent>

@@ -4,9 +4,12 @@ import { apiFetch, apiFetchList } from "@/lib/api/client"
 import type { ApiListEnvelope } from "@/lib/api/types"
 
 import type {
+  EnvironmentAggregate,
   EnvironmentTelemetry,
+  FireAggregate,
   FireTelemetry,
   LatestTelemetry,
+  TelemetryAggregateParams,
   TelemetryListParams,
 } from "./types"
 
@@ -24,6 +27,16 @@ export const telemetryKeys = {
       params.from,
       params.to,
     ] as const,
+  environmentAggregate: (deviceId: string, params: TelemetryAggregateParams) =>
+    [
+      ...telemetryKeys.all,
+      "environment",
+      "aggregate",
+      deviceId,
+      params.from,
+      params.to,
+      params.interval,
+    ] as const,
   fire: (deviceId: string, params: TelemetryListParams = {}) =>
     [
       ...telemetryKeys.all,
@@ -33,6 +46,16 @@ export const telemetryKeys = {
       params.per_page,
       params.from,
       params.to,
+    ] as const,
+  fireAggregate: (deviceId: string, params: TelemetryAggregateParams) =>
+    [
+      ...telemetryKeys.all,
+      "fire",
+      "aggregate",
+      deviceId,
+      params.from,
+      params.to,
+      params.interval,
     ] as const,
 }
 
@@ -107,4 +130,60 @@ export function useFireTelemetry(
   params: TelemetryListParams = {}
 ) {
   return useQuery(fireTelemetryQueryOptions(deviceId, params))
+}
+
+export function getEnvironmentTelemetryAggregate(
+  deviceId: string,
+  params: TelemetryAggregateParams
+): Promise<EnvironmentAggregate> {
+  return apiFetch<EnvironmentAggregate>({
+    url: `/devices/${deviceId}/telemetry/environment/aggregate`,
+    params,
+  })
+}
+
+export function environmentTelemetryAggregateQueryOptions(
+  deviceId: string,
+  params: TelemetryAggregateParams
+) {
+  return queryOptions({
+    queryKey: telemetryKeys.environmentAggregate(deviceId, params),
+    queryFn: () => getEnvironmentTelemetryAggregate(deviceId, params),
+    placeholderData: keepPreviousData,
+  })
+}
+
+export function useEnvironmentTelemetryAggregate(
+  deviceId: string,
+  params: TelemetryAggregateParams
+) {
+  return useQuery(environmentTelemetryAggregateQueryOptions(deviceId, params))
+}
+
+export function getFireTelemetryAggregate(
+  deviceId: string,
+  params: TelemetryAggregateParams
+): Promise<FireAggregate> {
+  return apiFetch<FireAggregate>({
+    url: `/devices/${deviceId}/telemetry/fire/aggregate`,
+    params,
+  })
+}
+
+export function fireTelemetryAggregateQueryOptions(
+  deviceId: string,
+  params: TelemetryAggregateParams
+) {
+  return queryOptions({
+    queryKey: telemetryKeys.fireAggregate(deviceId, params),
+    queryFn: () => getFireTelemetryAggregate(deviceId, params),
+    placeholderData: keepPreviousData,
+  })
+}
+
+export function useFireTelemetryAggregate(
+  deviceId: string,
+  params: TelemetryAggregateParams
+) {
+  return useQuery(fireTelemetryAggregateQueryOptions(deviceId, params))
 }
