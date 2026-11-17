@@ -25,7 +25,7 @@ import type {
   RealtimeEventType,
   RealtimeMessage,
 } from "@/features/realtime/types"
-import { cn } from "@/lib/utils"
+import { cn, formatTime } from "@/lib/utils"
 import type { VariantProps } from "class-variance-authority"
 
 type BadgeVariant = VariantProps<typeof badgeVariants>["variant"]
@@ -70,23 +70,17 @@ const STATUS_DETAILS: Record<
 
 const MESSAGE_LABELS: Record<RealtimeEventType, string> = {
   connected: "Koneksi siap",
-  "telemetry.environment": "Telemetri lingkungan",
-  "telemetry.fire": "Telemetri api dan asap",
-  "event.created": "Event baru",
-  "event.updated": "Event diperbarui",
-  "event.resolved": "Event selesai",
-  "risk.updated": "Tingkat risiko diperbarui",
-  "device.status": "Status device",
-  "command.issued": "Command dibuat",
-  "command.ack": "Command dikonfirmasi",
-  "command.timeout": "Command timeout",
+  "telemetry.environment": "Telemetri Lingkungan",
+  "telemetry.fire": "Telemetri Api dan Asap",
+  "event.created": "Event Baru",
+  "event.updated": "Event Diperbarui",
+  "event.resolved": "Event Selesai",
+  "risk.updated": "Tingkat Risiko Diperbarui",
+  "device.status": "Status Device",
+  "command.issued": "Perintah Dibuat",
+  "command.ack": "Perintah Dikonfirmasi",
+  "command.timeout": "Perintah Waktu Habis",
 }
-
-const TIME_FORMATTER = new Intl.DateTimeFormat("id-ID", {
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-})
 
 function getLastMessageTime(
   message: RealtimeMessage | null,
@@ -102,7 +96,7 @@ function getLastMessageTime(
     return null
   }
 
-  return TIME_FORMATTER.format(date)
+  return formatTime(date)
 }
 
 export function RealtimeConnectionSettings() {
@@ -124,7 +118,7 @@ export function RealtimeConnectionSettings() {
     status === "reconnecting"
   const lastMessageLabel = lastMessage
     ? MESSAGE_LABELS[lastMessage.type]
-    : "Belum ada pesan realtime."
+    : "Belum ada pesan waktu nyata."
   const lastMessageTime = getLastMessageTime(lastMessage, lastMessageAt)
 
   const handleApplyFilter = () => {
@@ -132,77 +126,88 @@ export function RealtimeConnectionSettings() {
   }
 
   return (
-    <FieldGroup className="gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <Badge variant={statusDetails.variant}>
-          <HugeiconsIcon
-            icon={statusDetails.icon}
-            strokeWidth={2}
-            data-icon="inline-start"
-            className={cn(statusDetails.spinning && "animate-spin")}
-          />
-          {statusDetails.label}
-        </Badge>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <HugeiconsIcon
-            icon={Activity01Icon}
-            strokeWidth={2}
-            data-icon="inline-start"
-          />
-          <span className="truncate">{lastMessageLabel}</span>
-          {lastMessageTime ? (
-            <span className="shrink-0 text-xs">{lastMessageTime}</span>
-          ) : null}
-        </div>
+    <section className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
+        <h3 className="text-sm font-medium">Koneksi WebSocket</h3>
+        <p className="text-sm text-muted-foreground">
+          Koneksi waktu nyata terbuka otomatis setelah login. Tiket dibuat ulang
+          setiap kali koneksi terputus.
+        </p>
       </div>
-      {errorMessage ? <FieldError>{errorMessage}</FieldError> : null}
-      <Field>
-        <FieldLabel htmlFor="realtime-device-filter">Filter device</FieldLabel>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Input
-            id="realtime-device-filter"
-            value={deviceFilter}
-            onChange={(event) => setDeviceFilter(event.currentTarget.value)}
-            placeholder="FFF-KTG-001"
-            autoComplete="off"
-            spellCheck={false}
-            className="min-w-0 flex-1"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleApplyFilter}
-            className="sm:shrink-0"
-          >
-            Terapkan filter
-          </Button>
-        </div>
-        <FieldDescription>
-          Kosongkan untuk menerima semua device. Gunakan kode device, bukan
-          UUID. Filter aktif: {deviceId ?? "semua device"}.
-        </FieldDescription>
-      </Field>
-      <div className="flex justify-end">
-        {isActive ? (
-          <Button type="button" variant="outline" onClick={disconnect}>
+      <FieldGroup className="gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Badge variant={statusDetails.variant}>
             <HugeiconsIcon
-              icon={UnplugIcon}
+              icon={statusDetails.icon}
+              strokeWidth={2}
+              data-icon="inline-start"
+              className={cn(statusDetails.spinning && "animate-spin")}
+            />
+            {statusDetails.label}
+          </Badge>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <HugeiconsIcon
+              icon={Activity01Icon}
               strokeWidth={2}
               data-icon="inline-start"
             />
-            Putuskan
-          </Button>
-        ) : (
-          <Button type="button" onClick={connect}>
-            <HugeiconsIcon
-              icon={Wifi01Icon}
-              strokeWidth={2}
-              data-icon="inline-start"
+            <span className="truncate">{lastMessageLabel}</span>
+            {lastMessageTime ? (
+              <span className="shrink-0 text-xs">{lastMessageTime}</span>
+            ) : null}
+          </div>
+        </div>
+        {errorMessage ? <FieldError>{errorMessage}</FieldError> : null}
+        <Field>
+          <FieldLabel htmlFor="realtime-device-filter">
+            Filter Device
+          </FieldLabel>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Input
+              id="realtime-device-filter"
+              value={deviceFilter}
+              onChange={(event) => setDeviceFilter(event.currentTarget.value)}
+              placeholder="FFF-KTG-001"
+              autoComplete="off"
+              spellCheck={false}
+              className="min-w-0 flex-1"
             />
-            Hubungkan
-          </Button>
-        )}
-      </div>
-    </FieldGroup>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleApplyFilter}
+              className="sm:shrink-0"
+            >
+              Terapkan filter
+            </Button>
+          </div>
+          <FieldDescription>
+            Kosongkan untuk menerima semua Device. Gunakan kode Device, bukan
+            UUID. Filter aktif: {deviceId ?? "Semua Device"}.
+          </FieldDescription>
+        </Field>
+        <div className="flex justify-end">
+          {isActive ? (
+            <Button type="button" variant="outline" onClick={disconnect}>
+              <HugeiconsIcon
+                icon={UnplugIcon}
+                strokeWidth={2}
+                data-icon="inline-start"
+              />
+              Putuskan
+            </Button>
+          ) : (
+            <Button type="button" onClick={connect}>
+              <HugeiconsIcon
+                icon={Wifi01Icon}
+                strokeWidth={2}
+                data-icon="inline-start"
+              />
+              Hubungkan
+            </Button>
+          )}
+        </div>
+      </FieldGroup>
+    </section>
   )
 }

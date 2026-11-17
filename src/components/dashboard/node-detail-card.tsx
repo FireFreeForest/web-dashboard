@@ -19,7 +19,7 @@ import {
   type MapNode,
   type PumpState,
 } from "@/lib/nodes"
-import { cn, formatRelativeTime } from "@/lib/utils"
+import { cn, formatRelativeTime, formatTemperature } from "@/lib/utils"
 
 function IntensityBar({
   label,
@@ -61,7 +61,7 @@ function PumpPill({ state }: { state: PumpState | null }) {
       )}
     >
       <HugeiconsIcon icon={PowerIcon} strokeWidth={2} className="size-3" />
-      {state === null ? "—" : isOn ? "On" : "Off"}
+      {state === null ? "—" : isOn ? "ON" : "OFF"}
     </span>
   )
 }
@@ -126,19 +126,15 @@ export function NodeDetailCard({ node }: { node: MapNode }) {
         <MetricTile
           size="sm"
           icon={TemperatureIcon}
-          label="Temp"
-          value={
-            node.environment.temperatureC !== null
-              ? `${node.environment.temperatureC.toFixed(1)}°C`
-              : "—"
-          }
+          label="Suhu"
+          value={formatTemperature(node.environment.temperatureC)}
           className="bg-orange-500/10"
           iconClassName="text-orange-600 dark:text-orange-400"
         />
         <MetricTile
           size="sm"
           icon={HumidityIcon}
-          label="Humidity"
+          label="Kelembapan"
           value={
             node.environment.humidityPct !== null
               ? `${Math.round(node.environment.humidityPct)}%`
@@ -150,7 +146,7 @@ export function NodeDetailCard({ node }: { node: MapNode }) {
         <MetricTile
           size="sm"
           icon={Plant01Icon}
-          label="Soil Moisture"
+          label="Kelembapan Tanah"
           value={
             node.environment.soilMoisturePct !== null
               ? `${node.environment.soilMoisturePct}%`
@@ -163,19 +159,19 @@ export function NodeDetailCard({ node }: { node: MapNode }) {
 
       <div className="flex flex-col gap-2">
         <IntensityBar
-          label="Fire intensity"
+          label="Intensitas Api"
           value={node.fire.fireIntensity}
           barClassName={meta.barClassName}
         />
         <IntensityBar
-          label="Smoke intensity"
+          label="Intensitas Asap"
           value={node.fire.smokeIntensity}
           barClassName={meta.barClassName}
         />
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        <span className="text-xs text-muted-foreground">Water Pump</span>
+        <span className="text-xs text-muted-foreground">Pompa Air</span>
         <PumpPill state={node.actuator.pumpState} />
       </div>
 

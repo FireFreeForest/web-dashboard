@@ -142,7 +142,7 @@ function EditUserForm({
         if (error.code !== "invalid_request") {
           setFormError(
             error.code === "forbidden"
-              ? "Anda tidak memiliki akses untuk mengubah user."
+              ? "Anda tidak memiliki akses untuk mengubah User."
               : error.message
           )
         }
@@ -161,7 +161,7 @@ function EditUserForm({
           <FieldDescription>Email tidak dapat diubah.</FieldDescription>
         </Field>
         <Field data-invalid={Boolean(errors.name)}>
-          <FieldLabel htmlFor="edit-user-name">Name</FieldLabel>
+          <FieldLabel htmlFor="edit-user-name">Nama</FieldLabel>
           <Input
             id="edit-user-name"
             value={name}
@@ -172,7 +172,7 @@ function EditUserForm({
           <FieldError>{errors.name}</FieldError>
         </Field>
         <Field data-invalid={Boolean(errors.role)}>
-          <FieldLabel htmlFor="edit-user-role">Role</FieldLabel>
+          <FieldLabel htmlFor="edit-user-role">Peran</FieldLabel>
           <Select
             value={role}
             onValueChange={(value) => setRole(value as UserRole)}
@@ -195,7 +195,7 @@ function EditUserForm({
           </Select>
           {isSelf ? (
             <FieldDescription>
-              Role akun sendiri tidak dapat diubah.
+              Peran akun sendiri tidak dapat diubah.
             </FieldDescription>
           ) : null}
           <FieldError>{errors.role}</FieldError>
@@ -221,7 +221,7 @@ function EditUserForm({
           />
         </Field>
         <Field data-invalid={Boolean(errors.password)}>
-          <FieldLabel htmlFor="edit-user-password">Password baru</FieldLabel>
+          <FieldLabel htmlFor="edit-user-password">Kata Sandi Baru</FieldLabel>
           <Input
             id="edit-user-password"
             type="text"
@@ -232,7 +232,7 @@ function EditUserForm({
             disabled={updateUser.isPending}
           />
           <FieldDescription>
-            Kosongkan bila tidak ingin mengubah password.
+            Kosongkan bila tidak ingin mengubah kata sandi.
           </FieldDescription>
           <FieldError>{errors.password}</FieldError>
         </Field>
@@ -244,10 +244,10 @@ function EditUserForm({
             onClick={onClose}
             disabled={updateUser.isPending}
           >
-            Cancel
+            Batal
           </Button>
           <Button type="submit" disabled={updateUser.isPending}>
-            {updateUser.isPending ? "Saving..." : "Save changes"}
+            {updateUser.isPending ? "Menyimpan..." : "Simpan Perubahan"}
           </Button>
         </DialogFooter>
       </FieldGroup>
@@ -270,9 +270,9 @@ export function EditUserDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit user</DialogTitle>
+          <DialogTitle>Ubah User</DialogTitle>
           <DialogDescription>
-            Perubahan role berlaku setelah user login atau refresh token.
+            Perubahan peran berlaku setelah User masuk atau menyegarkan token.
           </DialogDescription>
         </DialogHeader>
         {user ? (

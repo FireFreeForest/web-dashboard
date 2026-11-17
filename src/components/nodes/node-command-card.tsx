@@ -24,7 +24,7 @@ export function NodeCommandCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Send Command</CardTitle>
+        <CardTitle>Kirim Perintah</CardTitle>
       </CardHeader>
       <CardContent className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
@@ -36,7 +36,7 @@ export function NodeCommandCard({
             />
           </span>
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium">Water Pump</span>
+            <span className="text-sm font-medium">Pompa Air</span>
             <Badge
               variant={pump ? "secondary" : "outline"}
               className="w-fit"
@@ -48,7 +48,7 @@ export function NodeCommandCard({
         {canIssue ? (
           <IssueCommandDialog
             deviceId={deviceId}
-            triggerLabel={pump ? "Turn Off" : "Turn On"}
+            triggerLabel={pump ? "Matikan" : "Nyalakan"}
           />
         ) : (
           <span className="text-xs text-muted-foreground">

@@ -4,7 +4,6 @@ import { toast } from "sonner"
 
 import {
   EVENT_TYPE_LABEL,
-  formatTimestamp,
   SeverityBadge,
   StatusBadge,
 } from "@/components/events/event-ui"
@@ -34,6 +33,7 @@ import {
 import { useEvent } from "@/features/events/queries"
 import type { Event } from "@/features/events/types"
 import { ApiError } from "@/lib/api/types"
+import { formatDateTime } from "@/lib/utils"
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
@@ -62,7 +62,7 @@ function EventDetailContent({
   const handleAcknowledge = async () => {
     try {
       await acknowledge.mutateAsync(event.id)
-      toast.success("Event di-acknowledge.")
+      toast.success("Event dikonfirmasi.")
     } catch (error) {
       toast.error(
         error instanceof ApiError ? error.message : "Terjadi kesalahan."
@@ -73,7 +73,7 @@ function EventDetailContent({
   const handleResolve = async () => {
     try {
       await resolve.mutateAsync(event.id)
-      toast.success("Event di-resolve.")
+      toast.success("Event diselesaikan.")
     } catch (error) {
       toast.error(
         error instanceof ApiError ? error.message : "Terjadi kesalahan."
@@ -109,28 +109,28 @@ function EventDetailContent({
 
         <div className="flex flex-col gap-3">
           <DetailRow label="Pesan" value={event.message} />
-          <DetailRow label="Source" value={event.source || "—"} />
+          <DetailRow label="Sumber" value={event.source || "—"} />
           <DetailRow label="Device" value={deviceCode} />
-          <DetailRow label="Dibuat" value={formatTimestamp(event.created_at)} />
+          <DetailRow label="Dibuat" value={formatDateTime(event.created_at)} />
         </div>
 
         <div className="flex flex-col gap-3">
-          <p className="text-xs font-medium text-muted-foreground">Timeline</p>
+          <p className="text-xs font-medium text-muted-foreground">Linimasa</p>
           <DetailRow
-            label="Triggered"
-            value={formatTimestamp(event.triggered_at)}
+            label="Dipicu"
+            value={formatDateTime(event.triggered_at)}
           />
           <DetailRow
-            label="Acknowledged"
+            label="Dikonfirmasi"
             value={
               event.acknowledged_at
-                ? formatTimestamp(event.acknowledged_at)
+                ? formatDateTime(event.acknowledged_at)
                 : "—"
             }
           />
           <DetailRow
-            label="Resolved"
-            value={event.resolved_at ? formatTimestamp(event.resolved_at) : "—"}
+            label="Diselesaikan"
+            value={event.resolved_at ? formatDateTime(event.resolved_at) : "—"}
           />
         </div>
 
@@ -154,7 +154,7 @@ function EventDetailContent({
               onClick={handleAcknowledge}
               disabled={acknowledge.isPending}
             >
-              {acknowledge.isPending ? "Memproses..." : "Acknowledge"}
+              {acknowledge.isPending ? "Memproses..." : "Konfirmasi"}
             </Button>
           ) : null}
           {canResolveNow ? (
@@ -164,7 +164,7 @@ function EventDetailContent({
               onClick={handleResolve}
               disabled={resolve.isPending}
             >
-              {resolve.isPending ? "Memproses..." : "Resolve"}
+              {resolve.isPending ? "Memproses..." : "Selesaikan"}
             </Button>
           ) : null}
         </SheetFooter>
@@ -201,7 +201,7 @@ function EventDetail({
             <EmptyMedia variant="icon">
               <HugeiconsIcon icon={TimelineEventIcon} strokeWidth={2} />
             </EmptyMedia>
-            <EmptyTitle>Gagal memuat detail</EmptyTitle>
+            <EmptyTitle>Gagal memuat detail Event</EmptyTitle>
             <EmptyDescription>{error?.message}</EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
@@ -241,7 +241,7 @@ export function EventDetailSheet({
       <SheetContent>
         <SheetHeader>
           <SheetTitle>Detail Event</SheetTitle>
-          <SheetDescription>Informasi lengkap event.</SheetDescription>
+          <SheetDescription>Informasi lengkap Event.</SheetDescription>
         </SheetHeader>
         {eventId ? (
           <EventDetail

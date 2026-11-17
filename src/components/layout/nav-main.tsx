@@ -1,7 +1,7 @@
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
 import {
   DashboardSquare01Icon,
-  ServerStackIcon,
+  RadioTowerIcon,
   TimelineEventIcon,
   UserGroupIcon,
 } from "@hugeicons/core-free-icons"
@@ -25,8 +25,8 @@ type NavItem = {
 }
 
 const platformItems: NavItem[] = [
-  { title: "Dashboard", to: "/", icon: DashboardSquare01Icon, exact: true },
-  { title: "Nodes", to: "/nodes", icon: ServerStackIcon, exact: false },
+  { title: "Beranda", to: "/", icon: DashboardSquare01Icon, exact: true },
+  { title: "Device", to: "/nodes", icon: RadioTowerIcon, exact: false },
   { title: "Events", to: "/events", icon: TimelineEventIcon, exact: false },
 ]
 
@@ -68,12 +68,12 @@ export function NavMain() {
   return (
     <>
       <SidebarGroup>
-        <SidebarGroupLabel>Platform</SidebarGroupLabel>
+        <SidebarGroupLabel>Menu Utama</SidebarGroupLabel>
         <SidebarMenu>{renderItems(platformItems)}</SidebarMenu>
       </SidebarGroup>
       {isAdmin ? (
         <SidebarGroup>
-          <SidebarGroupLabel>Administrator</SidebarGroupLabel>
+          <SidebarGroupLabel>Administrasi</SidebarGroupLabel>
           <SidebarMenu>{renderItems(adminItems)}</SidebarMenu>
         </SidebarGroup>
       ) : null}

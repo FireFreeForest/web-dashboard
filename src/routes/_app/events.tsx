@@ -15,7 +15,7 @@ function EventsPage() {
           Events
         </h1>
         <p className="text-sm text-muted-foreground">
-          Alerts dan aktivitas dari perangkat yang terhubung.
+          Peringatan dan aktivitas dari Device yang terhubung.
         </p>
       </header>
 

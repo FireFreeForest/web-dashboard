@@ -25,7 +25,7 @@ export function DataTable<
 >({
   table,
   caption,
-  emptyMessage = "No results.",
+  emptyMessage = "Belum ada data.",
   className,
   containerClassName,
 }: DataTableProps<TFeatures, TData, TSelected>) {

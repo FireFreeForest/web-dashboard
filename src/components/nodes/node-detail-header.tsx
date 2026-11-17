@@ -54,7 +54,9 @@ export function NodeDetailHeader({
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink render={<Link to="/nodes" />}>Nodes</BreadcrumbLink>
+            <BreadcrumbLink render={<Link to="/nodes" />}>
+              Device
+            </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
@@ -89,9 +91,7 @@ export function NodeDetailHeader({
                   strokeWidth={2}
                   className="size-3.5 shrink-0"
                 />
-                <span className="truncate">
-                  {device.location_name || "—"}
-                </span>
+                <span className="truncate">{device.location_name || "—"}</span>
               </span>
               <span className="inline-flex items-center gap-1 whitespace-nowrap">
                 <HugeiconsIcon
@@ -99,7 +99,7 @@ export function NodeDetailHeader({
                   strokeWidth={2}
                   className="size-3.5 shrink-0"
                 />
-                Last updated {formatRelativeTime(lastSeenAt)}
+                Terakhir diperbarui: {formatRelativeTime(lastSeenAt)}
               </span>
             </div>
           </div>
@@ -112,7 +112,7 @@ export function NodeDetailHeader({
                 <Button
                   variant="outline"
                   size="icon-sm"
-                  aria-label="Node actions"
+                  aria-label="Aksi Device"
                 />
               }
             >
@@ -124,7 +124,7 @@ export function NodeDetailHeader({
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setEditing(true)}>
                 <HugeiconsIcon icon={Edit02Icon} strokeWidth={2} />
-                Edit
+                Ubah
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem

@@ -15,12 +15,12 @@ export function SidebarCollapse() {
     return null
   }
 
-  const label = state === "expanded" ? "Collapse" : "Expand"
+  const label = state === "expanded" ? "Ciutkan" : "Perluas"
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <SidebarMenuButton tooltip={`${label} sidebar`} onClick={toggleSidebar}>
+        <SidebarMenuButton tooltip={`${label} bilah samping`} onClick={toggleSidebar}>
           <HugeiconsIcon icon={SidebarLeftIcon} strokeWidth={2} />
           <span>{label}</span>
         </SidebarMenuButton>

@@ -7,16 +7,11 @@ import {
   Timer01Icon,
 } from "@hugeicons/core-free-icons"
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import type { Device } from "@/features/devices/types"
-import { cn } from "@/lib/utils"
+import { cn, formatVoltage } from "@/lib/utils"
 
 import { nodeHardwarePlaceholder } from "./node-detail-placeholders"
 
@@ -75,30 +70,32 @@ export function NodeDetailsCard({ device }: { device: Device }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Node Details</CardTitle>
+        <CardTitle>Detail Device</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
-        <DetailRow icon={CpuIcon} label="Firmware Version">
+        <DetailRow icon={CpuIcon} label="Versi Firmware">
           <span className="font-mono text-xs">
             {device.firmware_version || "—"}
           </span>
         </DetailRow>
         <Separator />
-        <DetailRow icon={SignalFull01Icon} label="Signal (RSSI)">
+        <DetailRow icon={SignalFull01Icon} label="Sinyal (RSSI)">
           <SignalBars rssiDbm={hardware.rssiDbm} />
           <span className="tabular-nums">{hardware.rssiDbm} dBm</span>
         </DetailRow>
         <Separator />
-        <DetailRow icon={BatteryIcon} label="Battery">
+        <DetailRow icon={BatteryIcon} label="Baterai">
           <Progress value={hardware.batteryPct} className="w-16" />
           <span className="tabular-nums">{hardware.batteryPct}%</span>
         </DetailRow>
         <Separator />
-        <DetailRow icon={BoltIcon} label="Voltage">
-          <span className="tabular-nums">{hardware.voltageV.toFixed(2)} V</span>
+        <DetailRow icon={BoltIcon} label="Tegangan">
+          <span className="tabular-nums">
+            {formatVoltage(hardware.voltageV)}
+          </span>
         </DetailRow>
         <Separator />
-        <DetailRow icon={Timer01Icon} label="Uptime">
+        <DetailRow icon={Timer01Icon} label="Waktu Aktif">
           <span>{hardware.uptime}</span>
         </DetailRow>
       </CardContent>

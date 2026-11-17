@@ -51,7 +51,7 @@ export function NodeWaterPumpTrendsCard({ deviceId }: { deviceId: string }) {
 
   return (
     <NodeTrendCard
-      title="Water Pump Trends"
+      title="Tren Pompa Air"
       range={range}
       onRangeChange={setRange}
       isLoading={query.isLoading}

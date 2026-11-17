@@ -14,7 +14,7 @@ import type {
   FireTelemetry,
 } from "@/features/telemetry/types"
 import { adcToInvertedPercent, adcToPercent } from "@/features/telemetry/utils"
-import { cn } from "@/lib/utils"
+import { cn, formatTemperature } from "@/lib/utils"
 
 const groupLabelClassName =
   "text-sm font-medium text-muted-foreground lg:row-start-1"
@@ -36,28 +36,24 @@ export function NodeLiveTelemetryCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Live Telemetry</CardTitle>
+        <CardTitle>Telemetri Langsung</CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-1 gap-2 lg:grid-cols-6">
         <span
           className={cn(groupLabelClassName, "lg:col-span-3 lg:col-start-1")}
         >
-          Environment
+          Lingkungan
         </span>
         <MetricTile
           icon={TemperatureIcon}
-          label="Temperature"
-          value={
-            environment?.temperature != null
-              ? `${environment.temperature.toFixed(1)}°C`
-              : "—"
-          }
+          label="Suhu"
+          value={formatTemperature(environment?.temperature)}
           className="bg-orange-500/10 lg:col-span-1 lg:col-start-1 lg:row-start-2"
           iconClassName="text-orange-600 dark:text-orange-400"
         />
         <MetricTile
           icon={HumidityIcon}
-          label="Humidity"
+          label="Kelembapan"
           value={
             environment?.humidity != null ? `${environment.humidity}%` : "—"
           }
@@ -66,7 +62,7 @@ export function NodeLiveTelemetryCard({
         />
         <MetricTile
           icon={Plant01Icon}
-          label="Soil Moisture"
+          label="Kelembapan Tanah"
           value={
             environment ? `${adcToPercent(environment.soil_moisture)}%` : "—"
           }
@@ -80,18 +76,18 @@ export function NodeLiveTelemetryCard({
             "pt-2 lg:col-span-2 lg:col-start-4 lg:pt-0"
           )}
         >
-          Fire Detection
+          Deteksi Api
         </span>
         <MetricTile
           icon={FireIcon}
-          label="Fire Intensity"
+          label="Intensitas Api"
           value={flameValue}
           className="bg-destructive/10 lg:col-span-1 lg:col-start-4 lg:row-start-2"
           iconClassName="text-destructive"
         />
         <MetricTile
           icon={CloudFogIcon}
-          label="Smoke Intensity"
+          label="Intensitas Asap"
           value={fire ? `${adcToPercent(fire.smoke_level)}%` : "—"}
           className="bg-amber-500/10 lg:col-span-1 lg:col-start-5 lg:row-start-2"
           iconClassName="text-amber-600 dark:text-amber-400"
@@ -103,11 +99,11 @@ export function NodeLiveTelemetryCard({
             "pt-2 lg:col-span-1 lg:col-start-6 lg:pt-0"
           )}
         >
-          Actuator
+          Aktuator
         </span>
         <MetricTile
           icon={PowerIcon}
-          label="Water Pump"
+          label="Pompa Air"
           value={fire ? (fire.pump ? "ON" : "OFF") : "—"}
           className={cn(
             "lg:col-span-1 lg:col-start-6 lg:row-start-2",

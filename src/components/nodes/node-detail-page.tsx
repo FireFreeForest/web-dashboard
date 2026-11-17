@@ -47,11 +47,11 @@ export function NodeDetailPage({ deviceId }: { deviceId: string }) {
               <HugeiconsIcon icon={Alert02Icon} strokeWidth={2} />
             </EmptyMedia>
             <EmptyTitle>
-              {isNotFound ? "Node tidak ditemukan" : "Gagal memuat node"}
+              {isNotFound ? "Device tidak ditemukan" : "Gagal memuat Device"}
             </EmptyTitle>
             <EmptyDescription>
               {isNotFound
-                ? "Node dengan ID tersebut tidak tersedia."
+                ? "Device dengan ID tersebut tidak tersedia."
                 : query.error?.message}
             </EmptyDescription>
           </EmptyHeader>
@@ -61,7 +61,7 @@ export function NodeDetailPage({ deviceId }: { deviceId: string }) {
                 <HugeiconsIcon icon={RefreshIcon} data-icon="inline-start" />
                 Coba lagi
               </Button>
-              <Button render={<Link to="/nodes" />}>Kembali ke Nodes</Button>
+              <Button render={<Link to="/nodes" />}>Kembali ke Device</Button>
             </div>
           </EmptyContent>
         </Empty>

@@ -39,7 +39,7 @@ type FieldErrors = Partial<Record<keyof CreateDeviceFormValues, string>>
 function getUpdateDeviceErrorMessage(error: ApiError): string {
   switch (error.code) {
     case "invalid_request":
-      return "Payload device tidak valid."
+      return "Data Device tidak valid."
     case "not_found":
       return "Device tidak ditemukan."
     case "network_error":
@@ -227,8 +227,8 @@ export function EditDeviceDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Device</DialogTitle>
-          <DialogDescription>Perbarui informasi perangkat.</DialogDescription>
+          <DialogTitle>Ubah Device</DialogTitle>
+          <DialogDescription>Perbarui informasi Device.</DialogDescription>
         </DialogHeader>
         {device ? (
           <EditDeviceForm

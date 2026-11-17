@@ -5,7 +5,7 @@ import {
   Edit02Icon,
   EyeIcon,
   MoreHorizontalCircle01Icon,
-  ServerStackIcon,
+  RadioTowerIcon,
 } from "@hugeicons/core-free-icons"
 import { useSelector, type Atom } from "@tanstack/react-store"
 import { Link } from "@tanstack/react-router"
@@ -80,14 +80,14 @@ export function DevicesTable({
     () => [
       {
         accessorKey: "name",
-        header: "Node",
+        header: "Device",
         cell: ({ row }) => (
           <span className="font-medium">{row.original.name}</span>
         ),
       },
       {
         accessorKey: "device_id",
-        header: "Node ID",
+        header: "Device ID",
         cell: ({ row }) => (
           <span className="text-muted-foreground">
             {row.original.device_id}
@@ -110,7 +110,7 @@ export function DevicesTable({
       },
       {
         accessorKey: "last_seen_at",
-        header: "Last seen",
+        header: "Terakhir Dilihat",
         cell: ({ row }) => (
           <span className="whitespace-nowrap text-muted-foreground">
             {formatDateTime(row.original.last_seen_at)}
@@ -119,7 +119,7 @@ export function DevicesTable({
       },
       {
         id: "actions",
-        header: () => <span className="sr-only">Actions</span>,
+        header: () => <span className="sr-only">Aksi</span>,
         cell: ({ row }) => {
           const device = row.original
 
@@ -131,7 +131,7 @@ export function DevicesTable({
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      aria-label={`Actions for ${device.name}`}
+                      aria-label={`Aksi untuk ${device.name}`}
                     />
                   }
                 >
@@ -158,7 +158,7 @@ export function DevicesTable({
                         onClick={() => setEditingDevice(device)}
                       >
                         <HugeiconsIcon icon={Edit02Icon} strokeWidth={2} />
-                        Edit
+                        Ubah
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
@@ -222,9 +222,9 @@ export function DevicesTable({
         <Empty className="rounded-2xl ring-1 ring-foreground/10">
           <EmptyHeader>
             <EmptyMedia variant="icon">
-              <HugeiconsIcon icon={ServerStackIcon} strokeWidth={2} />
+              <HugeiconsIcon icon={RadioTowerIcon} strokeWidth={2} />
             </EmptyMedia>
-            <EmptyTitle>Gagal memuat perangkat</EmptyTitle>
+            <EmptyTitle>Gagal memuat Device</EmptyTitle>
             <EmptyDescription>
               {error.code === "forbidden"
                 ? "Anda tidak memiliki akses ke halaman ini."
@@ -232,7 +232,7 @@ export function DevicesTable({
             </EmptyDescription>
           </EmptyHeader>
           <Button variant="outline" onClick={onRetry}>
-            Retry
+            Coba lagi
           </Button>
         </Empty>
       ) : (
@@ -241,8 +241,8 @@ export function DevicesTable({
         >
           <DataTable
             table={table}
-            caption="Nodes"
-            emptyMessage="Belum ada node."
+            caption="Device"
+            emptyMessage="Belum ada Device."
           />
         </div>
       )}
@@ -251,11 +251,11 @@ export function DevicesTable({
         <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
           <span>
             {total === 0
-              ? "0 node"
-              : `${rangeStart}-${rangeEnd} dari ${total} node`}
+              ? "0 Device"
+              : `${rangeStart}-${rangeEnd} dari ${total} Device`}
           </span>
           <div className="flex items-center gap-2">
-            <span>Rows</span>
+            <span>Baris</span>
             <Select
               value={String(pagination.pageSize)}
               onValueChange={(value) => handlePageSizeChange(value as string)}
@@ -275,7 +275,7 @@ export function DevicesTable({
         </div>
         <div className="flex items-center justify-between gap-2 sm:justify-end">
           <span className="text-sm text-muted-foreground">
-            Page {pageIndex + 1} of {pageCount}
+            Halaman {pageIndex + 1} dari {pageCount}
           </span>
           <Button
             variant="outline"
@@ -283,7 +283,7 @@ export function DevicesTable({
             onClick={() => handlePageChange(pageIndex - 1)}
             disabled={pageIndex <= 0 || isFetching}
           >
-            Previous
+            Sebelumnya
           </Button>
           <Button
             variant="outline"
@@ -291,7 +291,7 @@ export function DevicesTable({
             onClick={() => handlePageChange(pageIndex + 1)}
             disabled={pageIndex + 1 >= pageCount || isFetching}
           >
-            Next
+            Berikutnya
           </Button>
         </div>
       </div>

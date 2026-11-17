@@ -34,12 +34,14 @@ function NotFoundComponent() {
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-3 p-6 text-center">
       <p className="text-sm font-medium text-muted-foreground">404</p>
-      <h1 className="text-2xl font-semibold tracking-tight">Page not found</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">
+        Halaman tidak ditemukan
+      </h1>
       <p className="text-sm text-muted-foreground">
-        The page you are looking for does not exist or has moved.
+        Halaman yang Anda cari tidak ada atau telah dipindahkan.
       </p>
       <Button size="sm" variant="outline" render={<Link to="/" />}>
-        Back to dashboard
+        Kembali ke dasbor
       </Button>
     </div>
   )

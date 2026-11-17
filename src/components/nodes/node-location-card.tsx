@@ -48,7 +48,7 @@ export function NodeLocationCard({ device }: { device: Device }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Node Location</CardTitle>
+        <CardTitle>Lokasi Device</CardTitle>
       </CardHeader>
       <CardContent>
         {coordinates ? (
@@ -77,9 +77,9 @@ export function NodeLocationCard({ device }: { device: Device }) {
               <EmptyMedia variant="icon">
                 <HugeiconsIcon icon={MapPinOffIcon} strokeWidth={2} />
               </EmptyMedia>
-              <EmptyTitle>Lokasi belum diset</EmptyTitle>
+              <EmptyTitle>Lokasi belum diatur</EmptyTitle>
               <EmptyDescription>
-                Koordinat node belum tersedia.
+                Koordinat Device belum tersedia.
               </EmptyDescription>
             </EmptyHeader>
           </Empty>

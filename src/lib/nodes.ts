@@ -130,13 +130,13 @@ export const nodeStatusMeta: Record<
     pillClassName: "bg-primary/10 text-primary",
   },
   warning: {
-    label: "Warning",
+    label: "Peringatan",
     dotClassName: "bg-amber-500",
     barClassName: "bg-amber-500",
     pillClassName: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
   },
   critical: {
-    label: "Critical",
+    label: "Kritis",
     dotClassName: "bg-destructive",
     barClassName: "bg-destructive",
     pillClassName: "bg-destructive/10 text-destructive",
@@ -148,7 +148,7 @@ export const nodeStatusMeta: Record<
     pillClassName: "bg-muted text-muted-foreground",
   },
   unknown: {
-    label: "Tidak diketahui",
+    label: "Tidak Diketahui",
     dotClassName: "bg-muted-foreground",
     barClassName: "bg-muted-foreground",
     pillClassName: "bg-muted text-muted-foreground",

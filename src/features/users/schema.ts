@@ -9,11 +9,11 @@ const emailField = z
   .min(1, "Email wajib diisi.")
   .email("Format email tidak valid.")
 
-const roleField = z.enum(USER_ROLES, { message: "Role tidak valid." })
+const roleField = z.enum(USER_ROLES, { message: "Peran tidak valid." })
 
 export const createUserSchema = z.object({
   email: emailField,
-  password: z.string().min(8, "Password minimal 8 karakter."),
+  password: z.string().min(8, "Kata sandi minimal 8 karakter."),
   name: z.string().trim(),
   role: roleField,
 })
@@ -30,7 +30,7 @@ export const updateUserSchema = z
       .optional()
       .refine(
         (value) => !value || value.length >= 8,
-        "Password minimal 8 karakter."
+        "Kata sandi minimal 8 karakter."
       ),
   })
   .refine(

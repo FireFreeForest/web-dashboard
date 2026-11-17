@@ -20,17 +20,7 @@ import type {
   FireTelemetry,
 } from "@/features/telemetry/types"
 import { paginationTableFeatures } from "@/lib/data-table/features"
-import { cn } from "@/lib/utils"
-
-const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
-  dateStyle: "medium",
-  timeStyle: "medium",
-})
-
-function formatTimestamp(value: string): string {
-  const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? value : dateTimeFormatter.format(date)
-}
+import { cn, formatDateTime, formatTemperature } from "@/lib/utils"
 
 const environmentColumns: Array<
   ColumnDef<typeof paginationTableFeatures, EnvironmentTelemetry>
@@ -40,21 +30,18 @@ const environmentColumns: Array<
     header: "Waktu",
     cell: ({ row }) => (
       <span className="whitespace-nowrap text-muted-foreground">
-        {formatTimestamp(row.original.recorded_at)}
+        {formatDateTime(row.original.recorded_at)}
       </span>
     ),
   },
   {
     accessorKey: "temperature",
     header: "Suhu",
-    cell: ({ row }) => {
-      const value = row.original.temperature
-      return (
-        <span className="tabular-nums">
-          {value != null ? `${value.toFixed(1)}°C` : "—"}
-        </span>
-      )
-    },
+    cell: ({ row }) => (
+      <span className="tabular-nums">
+        {formatTemperature(row.original.temperature)}
+      </span>
+    ),
   },
   {
     accessorKey: "humidity",
@@ -85,7 +72,7 @@ const fireColumns: Array<
     header: "Waktu",
     cell: ({ row }) => (
       <span className="whitespace-nowrap text-muted-foreground">
-        {formatTimestamp(row.original.recorded_at)}
+        {formatDateTime(row.original.recorded_at)}
       </span>
     ),
   },
@@ -102,7 +89,7 @@ const fireColumns: Array<
   },
   {
     accessorKey: "flame_level",
-    header: "Level Api",
+    header: "Tingkat Api",
     cell: ({ row }) => (
       <span className="tabular-nums">
         {row.original.flame_level != null ? row.original.flame_level : "—"}
@@ -111,7 +98,7 @@ const fireColumns: Array<
   },
   {
     accessorKey: "smoke_level",
-    header: "Level Asap",
+    header: "Tingkat Asap",
     cell: ({ row }) => (
       <span className="tabular-nums">{row.original.smoke_level}</span>
     ),
@@ -121,7 +108,7 @@ const fireColumns: Array<
     header: "Pompa",
     cell: ({ row }) => (
       <Badge variant={row.original.pump ? "secondary" : "outline"}>
-        {row.original.pump ? "On" : "Off"}
+        {row.original.pump ? "ON" : "OFF"}
       </Badge>
     ),
   },
@@ -130,7 +117,7 @@ const fireColumns: Array<
     header: "Buzzer",
     cell: ({ row }) => (
       <Badge variant={row.original.buzzer ? "secondary" : "outline"}>
-        {row.original.buzzer ? "On" : "Off"}
+        {row.original.buzzer ? "ON" : "OFF"}
       </Badge>
     ),
   },
@@ -195,7 +182,7 @@ function EnvironmentHistoryTable({ deviceId }: { deviceId: string }) {
       >
         <DataTable
           table={table}
-          caption="Riwayat lingkungan"
+          caption="Riwayat Lingkungan"
           emptyMessage="Belum ada data."
         />
       </div>
@@ -267,7 +254,7 @@ function FireHistoryTable({ deviceId }: { deviceId: string }) {
       >
         <DataTable
           table={table}
-          caption="Riwayat api/asap"
+          caption="Riwayat Api/Asap"
           emptyMessage="Belum ada data."
         />
       </div>

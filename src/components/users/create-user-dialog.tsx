@@ -133,11 +133,11 @@ export function CreateUserDialog() {
           data-icon="inline-start"
           strokeWidth={2}
         />
-        Add user
+        Tambah User
       </Button>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add user</DialogTitle>
+          <DialogTitle>Tambah User</DialogTitle>
           <DialogDescription>
             Buat akun baru. User langsung aktif setelah dibuat.
           </DialogDescription>
@@ -145,7 +145,7 @@ export function CreateUserDialog() {
         <form onSubmit={handleSubmit} noValidate>
           <FieldGroup>
             <Field data-invalid={Boolean(errors.name)}>
-              <FieldLabel htmlFor="create-user-name">Name</FieldLabel>
+              <FieldLabel htmlFor="create-user-name">Nama</FieldLabel>
               <Input
                 id="create-user-name"
                 value={name}
@@ -169,7 +169,7 @@ export function CreateUserDialog() {
               <FieldError>{errors.email}</FieldError>
             </Field>
             <Field data-invalid={Boolean(errors.password)}>
-              <FieldLabel htmlFor="create-user-password">Password</FieldLabel>
+              <FieldLabel htmlFor="create-user-password">Kata Sandi</FieldLabel>
               <Input
                 id="create-user-password"
                 type="text"
@@ -182,7 +182,7 @@ export function CreateUserDialog() {
               <FieldError>{errors.password}</FieldError>
             </Field>
             <Field data-invalid={Boolean(errors.role)}>
-              <FieldLabel htmlFor="create-user-role">Role</FieldLabel>
+              <FieldLabel htmlFor="create-user-role">Peran</FieldLabel>
               <Select
                 value={role}
                 onValueChange={(value) => setRole(value as UserRole)}
@@ -213,10 +213,10 @@ export function CreateUserDialog() {
                 onClick={() => handleOpenChange(false)}
                 disabled={createUser.isPending}
               >
-                Cancel
+                Batal
               </Button>
               <Button type="submit" disabled={createUser.isPending}>
-                {createUser.isPending ? "Saving..." : "Create user"}
+                {createUser.isPending ? "Menyimpan..." : "Buat User"}
               </Button>
             </DialogFooter>
           </FieldGroup>

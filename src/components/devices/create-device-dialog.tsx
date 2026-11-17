@@ -39,7 +39,7 @@ type FieldErrors = Partial<Record<keyof CreateDeviceFormValues, string>>
 function getCreateDeviceErrorMessage(error: ApiError): string {
   switch (error.code) {
     case "invalid_request":
-      return "Payload device tidak valid."
+      return "Data Device tidak valid."
     case "network_error":
       return "Tidak dapat terhubung ke server."
     default:

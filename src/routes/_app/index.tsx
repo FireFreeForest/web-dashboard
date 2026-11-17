@@ -19,7 +19,7 @@ import { groupMapNodes, type MapNode } from "@/lib/nodes"
 import { cn } from "@/lib/utils"
 
 export const Route = createFileRoute("/_app/")({
-  staticData: { crumb: "Dashboard" },
+  staticData: { crumb: "Beranda" },
   component: DashboardPage,
 })
 
@@ -65,7 +65,7 @@ function MapNodesStatus({
     <div className="pointer-events-none absolute inset-x-0 bottom-4 z-10 flex justify-center px-4">
       <div className="pointer-events-auto flex items-center gap-2 rounded-full border bg-background/95 px-4 py-2 text-sm shadow-lg backdrop-blur">
         {isLoading ? (
-          <span className="text-muted-foreground">Memuat node...</span>
+          <span className="text-muted-foreground">Memuat Device...</span>
         ) : errorMessage ? (
           <>
             <HugeiconsIcon
@@ -88,7 +88,7 @@ function MapNodesStatus({
           </>
         ) : (
           <span className="text-muted-foreground">
-            Belum ada node dengan koordinat.
+            Belum ada Device dengan koordinat.
           </span>
         )}
       </div>
@@ -132,7 +132,7 @@ function DashboardPage() {
     isError && error instanceof Error
       ? error.message
       : isError
-        ? "Gagal memuat node."
+        ? "Gagal memuat Device."
         : null
 
   return (

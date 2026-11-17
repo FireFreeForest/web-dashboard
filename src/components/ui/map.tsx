@@ -679,7 +679,7 @@ function PopupCloseButton({ onClick }: { onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      aria-label="Close popup"
+        aria-label="Tutup popup"
       className="absolute top-1 right-1 z-10 inline-flex size-5 cursor-pointer items-center justify-center rounded-sm text-foreground transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
     >
       <X className="size-3.5" />
@@ -995,10 +995,10 @@ function MapControls({
     >
       {showZoom && (
         <ControlGroup>
-          <ControlButton onClick={handleZoomIn} label="Zoom in">
+          <ControlButton onClick={handleZoomIn} label="Perbesar">
             <Plus className="size-4" />
           </ControlButton>
-          <ControlButton onClick={handleZoomOut} label="Zoom out">
+          <ControlButton onClick={handleZoomOut} label="Perkecil">
             <Minus className="size-4" />
           </ControlButton>
         </ControlGroup>
@@ -1012,7 +1012,7 @@ function MapControls({
         <ControlGroup>
           <ControlButton
             onClick={handleLocate}
-            label="Find my location"
+            label="Lokasi saya"
             disabled={waitingForLocation}
           >
             {waitingForLocation ? (
@@ -1025,7 +1025,7 @@ function MapControls({
       )}
       {showFullscreen && (
         <ControlGroup>
-          <ControlButton onClick={handleFullscreen} label="Toggle fullscreen">
+          <ControlButton onClick={handleFullscreen} label="Alihkan layar penuh">
             <Maximize className="size-4" />
           </ControlButton>
         </ControlGroup>
@@ -1060,7 +1060,7 @@ function CompassButton({ onClick }: { onClick: () => void }) {
   }, [map])
 
   return (
-    <ControlButton onClick={onClick} label="Reset bearing to north">
+        <ControlButton onClick={onClick} label="Atur ulang arah ke utara">
       <svg
         ref={compassRef}
         viewBox="0 0 24 24"

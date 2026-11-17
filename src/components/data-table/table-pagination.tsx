@@ -20,7 +20,7 @@ export function TablePagination({
   return (
     <div className="flex items-center justify-between gap-2">
       <span className="text-xs text-muted-foreground">
-        Page {pageIndex + 1} of {pageCount}
+        Halaman {pageIndex + 1} dari {pageCount}
       </span>
       <div className="flex gap-2">
         <Button
@@ -34,7 +34,7 @@ export function TablePagination({
           }
           disabled={pageIndex <= 0 || isFetching}
         >
-          Previous
+          Sebelumnya
         </Button>
         <Button
           variant="outline"
@@ -47,7 +47,7 @@ export function TablePagination({
           }
           disabled={pageIndex + 1 >= pageCount || isFetching}
         >
-          Next
+          Berikutnya
         </Button>
       </div>
     </div>

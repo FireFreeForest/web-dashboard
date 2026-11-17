@@ -2,10 +2,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowRight01Icon, RefreshIcon } from "@hugeicons/core-free-icons"
 import { Link } from "@tanstack/react-router"
 
-import {
-  EVENT_TYPE_LABEL,
-  SeverityBadge,
-} from "@/components/events/event-ui"
+import { EventItem } from "@/components/events/event-item"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -16,7 +13,6 @@ import {
 } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useEvents } from "@/features/events/queries"
-import { formatRelativeTime } from "@/lib/utils"
 
 export function NodeActivityCard({ deviceId }: { deviceId: string }) {
   const query = useEvents({ device_id: deviceId, per_page: 5 })
@@ -25,10 +21,10 @@ export function NodeActivityCard({ deviceId }: { deviceId: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent Activity</CardTitle>
+        <CardTitle>Aktivitas Terbaru</CardTitle>
         <CardAction>
           <Button size="xs" variant="ghost" render={<Link to="/events" />}>
-            View All
+            Lihat Semua
             <HugeiconsIcon icon={ArrowRight01Icon} data-icon="inline-end" />
           </Button>
         </CardAction>
@@ -61,25 +57,7 @@ export function NodeActivityCard({ deviceId }: { deviceId: string }) {
         ) : (
           <ul className="flex flex-col divide-y divide-border">
             {events.map((event) => (
-              <li
-                key={event.id}
-                className="flex items-start justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
-              >
-                <div className="flex min-w-0 flex-col gap-1">
-                  <span className="truncate text-sm font-medium">
-                    {EVENT_TYPE_LABEL[event.event_type]}
-                  </span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {event.message}
-                  </span>
-                </div>
-                <div className="flex shrink-0 flex-col items-end gap-1">
-                  <SeverityBadge severity={event.severity} />
-                  <span className="text-[11px] text-muted-foreground">
-                    {formatRelativeTime(event.triggered_at)}
-                  </span>
-                </div>
-              </li>
+              <EventItem key={event.id} event={event} />
             ))}
           </ul>
         )}

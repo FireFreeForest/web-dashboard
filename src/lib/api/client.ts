@@ -44,7 +44,7 @@ export function toApiError(error: unknown): ApiError {
   return new ApiError({
     status: 0,
     code: "unknown_error",
-    message: error instanceof Error ? error.message : "Unexpected error",
+    message: error instanceof Error ? error.message : "Terjadi kesalahan tak terduga.",
   })
 }
 

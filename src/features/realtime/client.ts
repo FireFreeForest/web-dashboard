@@ -227,16 +227,16 @@ export class RealtimeClient {
       (error.status === 401 || error.status === 403)
     ) {
       this.manualDisconnect = true
-      this.handlers.onError("Sesi login tidak valid. Silakan login ulang.")
+      this.handlers.onError("Sesi masuk tidak valid. Silakan masuk ulang.")
       this.handlers.onStatusChange("error")
       return
     }
 
     if (error instanceof ApiError && error.code === "internal_error") {
-      this.handlers.onError("Server gagal membuat tiket realtime.")
+      this.handlers.onError("Server gagal membuat tiket waktu nyata.")
     } else {
       this.handlers.onError(
-        "Tidak dapat membuat tiket realtime. Mencoba lagi..."
+        "Tidak dapat membuat tiket waktu nyata. Mencoba lagi..."
       )
     }
 

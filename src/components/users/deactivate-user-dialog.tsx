@@ -43,7 +43,7 @@ export function DeactivateUserDialog({
         }
         toast.error(
           error.code === "forbidden"
-            ? "Anda tidak memiliki akses untuk menonaktifkan user."
+            ? "Anda tidak memiliki akses untuk menonaktifkan User."
             : error.message
         )
         return
@@ -56,25 +56,25 @@ export function DeactivateUserDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Nonaktifkan user?</AlertDialogTitle>
+          <AlertDialogTitle>Nonaktifkan User?</AlertDialogTitle>
           <AlertDialogDescription>
             {user
-              ? `${user.name || user.email} tidak akan bisa login lagi.`
+              ? `${user.name || user.email} tidak akan bisa masuk lagi.`
               : ""}{" "}
-            Sesi lama tetap aktif sampai access token kedaluwarsa. Gunakan edit
-            user untuk mengaktifkan kembali.
+            Sesi lama tetap aktif sampai token akses kedaluwarsa. Gunakan ubah
+            User untuk mengaktifkan kembali.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={updateUser.isPending}>
-            Cancel
+            Batal
           </AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             onClick={handleConfirm}
             disabled={updateUser.isPending}
           >
-            {updateUser.isPending ? "Processing..." : "Deactivate"}
+            {updateUser.isPending ? "Memproses..." : "Nonaktifkan"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

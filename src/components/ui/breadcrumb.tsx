@@ -8,7 +8,7 @@ import { ArrowRight01Icon, MoreHorizontalCircle01Icon } from "@hugeicons/core-fr
 function Breadcrumb({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
-      aria-label="breadcrumb"
+      aria-label="navigasi breadcrumb"
       data-slot="breadcrumb"
       className={cn(className)}
       {...props}

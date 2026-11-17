@@ -60,7 +60,7 @@ export function NodeFireTrendsCard({ deviceId }: { deviceId: string }) {
 
   return (
     <NodeTrendCard
-      title="Fire Detection Trends"
+      title="Tren Deteksi Api"
       range={range}
       onRangeChange={setRange}
       isLoading={query.isLoading}

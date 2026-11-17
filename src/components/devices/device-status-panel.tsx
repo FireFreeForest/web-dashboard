@@ -1,7 +1,7 @@
 import { RiskLevelPill } from "@/components/telemetry/risk-level-pill"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useDeviceStatus } from "@/features/devices/queries"
-import { cn } from "@/lib/utils"
+import { cn, formatTemperature } from "@/lib/utils"
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
@@ -63,11 +63,7 @@ export function DeviceStatusPanel({ deviceId }: { deviceId: string }) {
           <div className="grid grid-cols-3 gap-2">
             <Metric
               label="Suhu"
-              value={
-                data.environment.temperature != null
-                  ? `${data.environment.temperature.toFixed(1)}°C`
-                  : "—"
-              }
+              value={formatTemperature(data.environment.temperature)}
             />
             <Metric
               label="Kelembapan"
@@ -96,14 +92,17 @@ export function DeviceStatusPanel({ deviceId }: { deviceId: string }) {
               value={data.fire.flame_detected ? "Terdeteksi" : "Aman"}
             />
             <Metric
-              label="Level Api"
+              label="Tingkat Api"
               value={
                 data.fire.flame_level != null
                   ? String(data.fire.flame_level)
                   : "—"
               }
             />
-            <Metric label="Level Asap" value={String(data.fire.smoke_level)} />
+            <Metric
+              label="Tingkat Asap"
+              value={String(data.fire.smoke_level)}
+            />
           </div>
           <div className="flex items-center gap-2">
             <BooleanPill label="Pompa" active={data.fire.pump} />

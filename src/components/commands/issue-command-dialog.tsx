@@ -50,7 +50,7 @@ function isFieldError(error: ApiError): boolean {
 
 export function IssueCommandDialog({
   deviceId,
-  triggerLabel = "Kirim Command",
+  triggerLabel = "Kirim Perintah",
   triggerVariant = "outline",
   triggerSize = "sm",
 }: {
@@ -153,9 +153,9 @@ export function IssueCommandDialog({
       </Button>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Kirim Command Pompa</DialogTitle>
+          <DialogTitle>Kirim Perintah Pompa</DialogTitle>
           <DialogDescription>
-            Nyalakan atau matikan pompa air untuk device ini.
+            Nyalakan atau matikan pompa air untuk Device ini.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} noValidate>

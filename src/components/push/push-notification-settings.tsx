@@ -138,75 +138,84 @@ export function PushNotificationSettings() {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
-      <FieldGroup className="gap-4">
-        <Field data-invalid={Boolean(errors.token)}>
-          <FieldLabel htmlFor="push-token">Token FCM</FieldLabel>
-          <Input
-            id="push-token"
-            value={token}
-            onChange={(event) => setToken(event.target.value)}
-            placeholder="Tempel token FCM dari Firebase SDK"
-            autoComplete="off"
-            spellCheck={false}
-            className="font-mono text-xs"
-            aria-invalid={Boolean(errors.token)}
-            disabled={isPending}
-          />
-          <FieldDescription>
-            Token diperoleh dari Firebase SDK perangkat, bukan access token
-            login. Token yang sama akan diperbarui, bukan diduplikasi.
-          </FieldDescription>
-          <FieldError>{errors.token}</FieldError>
-        </Field>
-        <Field data-invalid={Boolean(errors.platform)}>
-          <FieldLabel htmlFor="push-platform">Platform</FieldLabel>
-          <Select
-            value={platform}
-            onValueChange={(value) => setPlatform(value as PushPlatform)}
-            disabled={isPending}
-          >
-            <SelectTrigger id="push-platform" className="w-full">
-              <SelectValue>
-                {(value) =>
-                  PUSH_PLATFORM_LABELS[value as PushPlatform] ??
-                  PUSH_PLATFORM_LABELS[DEFAULT_PUSH_PLATFORM]
-                }
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {PUSH_PLATFORMS.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {PUSH_PLATFORM_LABELS[option]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <FieldError>{errors.platform}</FieldError>
-        </Field>
-        {errorMessage ? <FieldError>{errorMessage}</FieldError> : null}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs text-muted-foreground">
-            Push event hanya dikirim ke user aktif dengan role admin atau
-            petugas.
-          </p>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={isPending || token.trim() === ""}
+    <section className="space-y-3">
+      <div className="space-y-1">
+        <h3 className="text-sm font-medium">Notifikasi Push</h3>
+        <p className="text-sm text-muted-foreground">
+          Daftarkan token Firebase Cloud Messaging (FCM) Device ini agar
+          menerima notifikasi Event.
+        </p>
+      </div>
+      <form onSubmit={handleSubmit} noValidate>
+        <FieldGroup className="gap-4">
+          <Field data-invalid={Boolean(errors.token)}>
+            <FieldLabel htmlFor="push-token">Token FCM</FieldLabel>
+            <Input
+              id="push-token"
+              value={token}
+              onChange={(event) => setToken(event.target.value)}
+              placeholder="Tempel token FCM dari Firebase SDK"
+              autoComplete="off"
+              spellCheck={false}
+              className="font-mono text-xs"
+              aria-invalid={Boolean(errors.token)}
+              disabled={isPending}
+            />
+            <FieldDescription>
+              Token diperoleh dari Firebase SDK Device, bukan token akses
+              masuk. Token yang sama akan diperbarui, bukan diduplikasi.
+            </FieldDescription>
+            <FieldError>{errors.token}</FieldError>
+          </Field>
+          <Field data-invalid={Boolean(errors.platform)}>
+            <FieldLabel htmlFor="push-platform">Platform</FieldLabel>
+            <Select
+              value={platform}
+              onValueChange={(value) => setPlatform(value as PushPlatform)}
+              disabled={isPending}
             >
-              {deletePushToken.isPending ? "Menghapus..." : "Hapus Token"}
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {registerPushToken.isPending
-                ? "Mendaftarkan..."
-                : "Daftarkan Token"}
-            </Button>
+              <SelectTrigger id="push-platform" className="w-full">
+                <SelectValue>
+                  {(value) =>
+                    PUSH_PLATFORM_LABELS[value as PushPlatform] ??
+                    PUSH_PLATFORM_LABELS[DEFAULT_PUSH_PLATFORM]
+                  }
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {PUSH_PLATFORMS.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {PUSH_PLATFORM_LABELS[option]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FieldError>{errors.platform}</FieldError>
+          </Field>
+          {errorMessage ? <FieldError>{errorMessage}</FieldError> : null}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs text-muted-foreground">
+              Notifikasi Event hanya dikirim ke User aktif dengan peran admin
+              atau petugas.
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isPending || token.trim() === ""}
+              >
+                {deletePushToken.isPending ? "Menghapus..." : "Hapus Token"}
+              </Button>
+              <Button type="submit" disabled={isPending}>
+                {registerPushToken.isPending
+                  ? "Mendaftarkan..."
+                  : "Daftarkan Token"}
+              </Button>
+            </div>
           </div>
-        </div>
-      </FieldGroup>
-    </form>
+        </FieldGroup>
+      </form>
+    </section>
   )
 }

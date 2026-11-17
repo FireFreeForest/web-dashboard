@@ -11,7 +11,7 @@ export function UserStatusBadge({ active }: { active: boolean }) {
             : "size-1.5 rounded-full bg-current"
         }
       />
-      {active ? "Active" : "Inactive"}
+      {active ? "Aktif" : "Nonaktif"}
     </Badge>
   )
 }

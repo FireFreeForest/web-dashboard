@@ -48,7 +48,7 @@ export function UserMenuContent({ user }: { user: User }) {
       <DropdownMenuGroup>
         <DropdownMenuItem render={<Link to="/settings" />}>
           <HugeiconsIcon icon={Settings05Icon} strokeWidth={2} />
-          Settings
+          Pengaturan
         </DropdownMenuItem>
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
@@ -58,7 +58,7 @@ export function UserMenuContent({ user }: { user: User }) {
         onClick={handleLogout}
       >
         <HugeiconsIcon icon={LogoutIcon} strokeWidth={2} />
-        Log out
+        Keluar
       </DropdownMenuItem>
     </>
   )
@@ -69,7 +69,7 @@ export function UserMenu({ user }: { user: User }) {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="ghost" size="icon-sm" aria-label="Open user menu" />
+          <Button variant="ghost" size="icon-sm" aria-label="Buka menu pengguna" />
         }
       >
         <Avatar size="sm">

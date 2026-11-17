@@ -62,7 +62,7 @@ export function NodeEnvironmentTrendsCard({ deviceId }: { deviceId: string }) {
 
   return (
     <NodeTrendCard
-      title="Environment Trends"
+      title="Tren Lingkungan"
       range={range}
       onRangeChange={setRange}
       isLoading={query.isLoading}

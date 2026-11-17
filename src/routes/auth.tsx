@@ -11,7 +11,7 @@ type AuthBeforeLoadContext = {
 }
 
 export const Route = createFileRoute("/auth")({
-  staticData: { crumb: "Sign in" },
+  staticData: { crumb: "Masuk" },
   validateSearch: (search: Record<string, unknown>) => ({
     redirect:
       typeof search.redirect === "string" &&

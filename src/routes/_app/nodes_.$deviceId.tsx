@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { NodeDetailPage } from "@/components/nodes/node-detail-page"
 
 export const Route = createFileRoute("/_app/nodes_/$deviceId")({
-  staticData: { crumb: "Node Detail" },
+  staticData: { crumb: "Detail Device" },
   component: NodeDetailRoute,
 })
 

@@ -1,10 +1,12 @@
+import { formatShortDate, formatShortTime } from "@/lib/utils"
+
 export type TrendRange = "1H" | "6H" | "24H" | "7D"
 
 export const TREND_RANGES: Array<{ value: TrendRange; label: string }> = [
-  { value: "1H", label: "1H" },
-  { value: "6H", label: "6H" },
-  { value: "24H", label: "24H" },
-  { value: "7D", label: "7D" },
+  { value: "1H", label: "1 jam" },
+  { value: "6H", label: "6 jam" },
+  { value: "24H", label: "24 jam" },
+  { value: "7D", label: "7 hari" },
 ]
 
 const RANGE_MS: Record<TrendRange, number> = {
@@ -51,29 +53,13 @@ export function getTrendWindow(range: TrendRange): {
   }
 }
 
-const timeFormatter = new Intl.DateTimeFormat("id-ID", {
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-})
-
-const dateFormatter = new Intl.DateTimeFormat("id-ID", {
-  day: "numeric",
-  month: "short",
-})
-
 export function formatTrendTime(
   value: number | null | undefined,
   range: TrendRange
 ): string {
   if (value == null) return "—"
 
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return "—"
-
-  return range === "7D"
-    ? dateFormatter.format(date)
-    : timeFormatter.format(date)
+  return range === "7D" ? formatShortDate(value) : formatShortTime(value)
 }
 
 export function formatTrendTooltipLabel(

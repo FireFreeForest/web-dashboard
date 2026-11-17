@@ -6,23 +6,13 @@ import { cn } from "@/lib/utils"
 
 export type BadgeVariant = ComponentProps<typeof Badge>["variant"]
 
-const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
-  dateStyle: "medium",
-  timeStyle: "medium",
-})
-
-export function formatTimestamp(value: string): string {
-  const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? value : dateTimeFormatter.format(date)
-}
-
 export const EVENT_TYPE_LABEL: Record<EventType, string> = {
   FIRE_DETECTED: "Api Terdeteksi",
   SMOKE_DETECTED: "Asap Terdeteksi",
   TEMPERATURE_HIGH: "Suhu Tinggi",
   SOIL_DRY: "Tanah Kering",
   DEVICE_OFFLINE: "Device Offline",
-  SENSOR_ERROR: "Sensor Error",
+  SENSOR_ERROR: "Galat Sensor",
 }
 
 export const EVENT_TYPE_OPTIONS = Object.entries(EVENT_TYPE_LABEL) as Array<
@@ -38,7 +28,7 @@ type SeverityMeta = {
 
 export const SEVERITY_META: Record<Severity, SeverityMeta> = {
   error: {
-    label: "Error",
+    label: "Galat",
     variant: "outline",
     badgeClassName: "border-border bg-muted/60 text-muted-foreground",
     iconClassName: "bg-muted text-muted-foreground",
@@ -63,9 +53,9 @@ const statusMeta: Record<
   EventStatus,
   { label: string; variant: BadgeVariant }
 > = {
-  active: { label: "Active", variant: "default" },
-  acknowledged: { label: "Acknowledged", variant: "secondary" },
-  resolved: { label: "Resolved", variant: "outline" },
+  active: { label: "Aktif", variant: "default" },
+  acknowledged: { label: "Dikonfirmasi", variant: "secondary" },
+  resolved: { label: "Selesai", variant: "outline" },
 }
 
 export function SeverityBadge({

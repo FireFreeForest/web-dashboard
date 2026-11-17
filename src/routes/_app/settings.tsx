@@ -5,10 +5,7 @@ import {
   GlobeIcon,
   MapIcon,
   Moon02Icon,
-  Notification01Icon,
-  PaintBrush01Icon,
   Sun03Icon,
-  Wifi01Icon,
 } from "@hugeicons/core-free-icons"
 
 import {
@@ -19,19 +16,11 @@ import { useTheme } from "@/components/providers/theme-provider"
 import { PushNotificationSettings } from "@/components/push/push-notification-settings"
 import { RealtimeConnectionSettings } from "@/components/realtime/realtime-connection-settings"
 import { RealtimeTicketSettings } from "@/components/realtime/realtime-ticket-settings"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { FieldLegend, FieldSet } from "@/components/ui/field"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 export const Route = createFileRoute("/_app/settings")({
-  staticData: { crumb: "Settings" },
+  staticData: { crumb: "Pengaturan" },
   component: SettingsPage,
 })
 
@@ -45,20 +34,20 @@ const THEME_OPTIONS: {
 }[] = [
   {
     value: "system",
-    label: "System",
-    description: "Match your device",
+    label: "Sistem",
+    description: "Ikuti pengaturan Device",
     icon: ComputerIcon,
   },
   {
     value: "light",
-    label: "Light",
-    description: "Always light",
+    label: "Terang",
+    description: "Selalu terang",
     icon: Sun03Icon,
   },
   {
     value: "dark",
-    label: "Dark",
-    description: "Always dark",
+    label: "Gelap",
+    description: "Selalu gelap",
     icon: Moon02Icon,
   },
 ]
@@ -71,32 +60,44 @@ const MAP_MODE_OPTIONS: {
 }[] = [
   {
     value: "flat",
-    label: "Flat",
-    description: "Standard 2D map",
+    label: "Datar",
+    description: "Peta 2D standar",
     icon: MapIcon,
   },
   {
     value: "globe",
-    label: "Globe",
-    description: "3D globe view",
+    label: "Bola Dunia",
+    description: "Tampilan bola dunia 3D",
     icon: GlobeIcon,
   },
 ]
 
-const OPTION_ITEM_CLASS =
-  "h-auto min-h-0 w-full min-w-0 flex-col items-start justify-start gap-1 rounded-xl p-3 text-left whitespace-normal aria-pressed:border-primary/40 aria-pressed:bg-primary/5 aria-pressed:ring-2 aria-pressed:ring-primary/20 aria-pressed:hover:bg-primary/10"
-
-function OptionContent({
+function OptionButton({
   label,
   description,
   icon,
+  selected,
+  onSelect,
 }: {
   label: string
   description: string
   icon: IconSvgElement
+  selected: boolean
+  onSelect: () => void
 }) {
   return (
-    <>
+    <Button
+      type="button"
+      role="radio"
+      aria-checked={selected}
+      variant="outline"
+      onClick={onSelect}
+      className={cn(
+        "h-auto flex-col items-start gap-1.5 rounded-xl p-4 text-left whitespace-normal",
+        selected &&
+          "border-primary/40 bg-primary/5 ring-2 ring-primary/20 hover:bg-primary/10"
+      )}
+    >
       <span className="flex items-center gap-2 text-sm font-medium">
         <HugeiconsIcon icon={icon} strokeWidth={2} />
         {label}
@@ -104,7 +105,7 @@ function OptionContent({
       <span className="text-xs font-normal text-muted-foreground">
         {description}
       </span>
-    </>
+    </Button>
   )
 }
 
@@ -112,198 +113,101 @@ function SettingsPage() {
   const { theme, setTheme } = useTheme()
   const { mapMode, setMapMode } = useMapMode()
 
-  const handleThemeChange = (value: string[]) => {
-    const next = value[0]
-
-    if (next === "system" || next === "light" || next === "dark") {
-      setTheme(next)
-    }
-  }
-
-  const handleMapModeChange = (value: string[]) => {
-    const next = value[0]
-
-    if (next === "flat" || next === "globe") {
-      setMapMode(next)
-    }
-  }
-
   return (
-    <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4 md:p-6">
-      <Tabs defaultValue="appearance" className="flex flex-col gap-3">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <h1 className="font-heading text-2xl font-semibold tracking-tight">
-              Settings
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Manage appearance, notifications, and realtime connection.
-            </p>
-          </div>
-          <TabsList className="grid w-full grid-cols-3 sm:w-fit">
-            <TabsTrigger
-              value="appearance"
-              className="px-1 text-xs sm:px-2 sm:text-sm"
+    <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
+      <header className="space-y-1">
+        <h1 className="font-heading text-2xl font-semibold tracking-tight">
+          Pengaturan
+        </h1>
+      </header>
+
+      <div className="grid gap-8 md:grid-cols-3">
+        <div className="space-y-1">
+          <h2 className="font-heading text-lg font-medium">Tampilan</h2>
+          <p className="text-sm text-muted-foreground">
+            Sesuaikan tampilan dasbor Anda.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-8 md:col-span-2">
+          <section className="space-y-3">
+            <div className="space-y-1">
+              <h3 className="text-sm font-medium">Tema</h3>
+              <p className="text-sm text-muted-foreground">
+                Pilih tema warna yang digunakan di seluruh dasbor.
+              </p>
+            </div>
+            <div
+              role="radiogroup"
+              aria-label="Tema"
+              className="grid gap-3 sm:grid-cols-3"
             >
-              <HugeiconsIcon
-                icon={PaintBrush01Icon}
-                strokeWidth={2}
-                data-icon="inline-start"
-              />
-              Appearance
-            </TabsTrigger>
-            <TabsTrigger
-              value="notifications"
-              className="px-1 text-xs sm:px-2 sm:text-sm"
+              {THEME_OPTIONS.map((option) => (
+                <OptionButton
+                  key={option.value}
+                  label={option.label}
+                  description={option.description}
+                  icon={option.icon}
+                  selected={theme === option.value}
+                  onSelect={() => setTheme(option.value)}
+                />
+              ))}
+            </div>
+          </section>
+
+          <section className="space-y-3">
+            <div className="space-y-1">
+              <h3 className="text-sm font-medium">Mode Peta</h3>
+              <p className="text-sm text-muted-foreground">
+                Pilih cara peta dasbor ditampilkan.
+              </p>
+            </div>
+            <div
+              role="radiogroup"
+              aria-label="Mode Peta"
+              className="grid gap-3 sm:grid-cols-2"
             >
-              <HugeiconsIcon
-                icon={Notification01Icon}
-                strokeWidth={2}
-                data-icon="inline-start"
-              />
-              Notifications
-            </TabsTrigger>
-            <TabsTrigger
-              value="realtime"
-              className="px-1 text-xs sm:px-2 sm:text-sm"
-            >
-              <HugeiconsIcon
-                icon={Wifi01Icon}
-                strokeWidth={2}
-                data-icon="inline-start"
-              />
-              Realtime
-            </TabsTrigger>
-          </TabsList>
-        </header>
+              {MAP_MODE_OPTIONS.map((option) => (
+                <OptionButton
+                  key={option.value}
+                  label={option.label}
+                  description={option.description}
+                  icon={option.icon}
+                  selected={mapMode === option.value}
+                  onSelect={() => setMapMode(option.value)}
+                />
+              ))}
+            </div>
+          </section>
+        </div>
+      </div>
 
-        <TabsContent
-          value="appearance"
-          keepMounted
-          className="flex flex-col gap-3"
-        >
-          <Card size="sm">
-            <CardHeader>
-              <CardTitle>Theme</CardTitle>
-              <CardDescription>
-                Choose the color theme used across the dashboard.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <FieldSet className="min-w-0">
-                <FieldLegend className="sr-only">Theme</FieldLegend>
-                <ToggleGroup
-                  value={[theme]}
-                  onValueChange={handleThemeChange}
-                  variant="outline"
-                  spacing={3}
-                  className="grid w-full grid-cols-1 gap-3 sm:grid-cols-3"
-                >
-                  {THEME_OPTIONS.map((option) => (
-                    <ToggleGroupItem
-                      key={option.value}
-                      value={option.value}
-                      className={OPTION_ITEM_CLASS}
-                    >
-                      <OptionContent
-                        label={option.label}
-                        description={option.description}
-                        icon={option.icon}
-                      />
-                    </ToggleGroupItem>
-                  ))}
-                </ToggleGroup>
-              </FieldSet>
-            </CardContent>
-          </Card>
+      <div className="grid gap-8 md:grid-cols-3">
+        <div className="space-y-1">
+          <h2 className="font-heading text-lg font-medium">Notifikasi</h2>
+          <p className="text-sm text-muted-foreground">
+            Daftarkan Device ini untuk menerima notifikasi Event.
+          </p>
+        </div>
 
-          <Card size="sm">
-            <CardHeader>
-              <CardTitle>Map mode</CardTitle>
-              <CardDescription>
-                Choose how the dashboard map is rendered.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <FieldSet className="min-w-0">
-                <FieldLegend className="sr-only">Map mode</FieldLegend>
-                <ToggleGroup
-                  value={[mapMode]}
-                  onValueChange={handleMapModeChange}
-                  variant="outline"
-                  spacing={3}
-                  className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2"
-                >
-                  {MAP_MODE_OPTIONS.map((option) => (
-                    <ToggleGroupItem
-                      key={option.value}
-                      value={option.value}
-                      className={OPTION_ITEM_CLASS}
-                    >
-                      <OptionContent
-                        label={option.label}
-                        description={option.description}
-                        icon={option.icon}
-                      />
-                    </ToggleGroupItem>
-                  ))}
-                </ToggleGroup>
-              </FieldSet>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        <div className="flex flex-col gap-8 md:col-span-2">
+          <PushNotificationSettings />
+        </div>
+      </div>
 
-        <TabsContent
-          value="notifications"
-          keepMounted
-          className="flex flex-col gap-3"
-        >
-          <Card size="sm">
-            <CardHeader>
-              <CardTitle>Push notifications</CardTitle>
-              <CardDescription>
-                Daftarkan token Firebase Cloud Messaging (FCM) perangkat ini
-                agar menerima notifikasi event.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <PushNotificationSettings />
-            </CardContent>
-          </Card>
-        </TabsContent>
+      <div className="grid gap-8 md:grid-cols-3">
+        <div className="flex flex-col gap-1">
+          <h2 className="font-heading text-lg font-medium">Waktu Nyata</h2>
+          <p className="text-sm text-muted-foreground">
+            Pantau koneksi WebSocket dan periksa tiket koneksi.
+          </p>
+        </div>
 
-        <TabsContent
-          value="realtime"
-          keepMounted
-          className="flex flex-col gap-3"
-        >
-          <Card size="sm">
-            <CardHeader>
-              <CardTitle>WebSocket connection</CardTitle>
-              <CardDescription>
-                Koneksi realtime terbuka otomatis setelah login. Tiket dibuat
-                ulang setiap kali koneksi terputus.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RealtimeConnectionSettings />
-            </CardContent>
-          </Card>
-
-          <Card size="sm">
-            <CardHeader>
-              <CardTitle>Ticket inspector</CardTitle>
-              <CardDescription>
-                Utilitas manual untuk memeriksa tiket. Koneksi realtime utama
-                membuat tiket sendiri secara otomatis.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RealtimeTicketSettings />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        <div className="flex flex-col gap-8 md:col-span-2">
+          <RealtimeConnectionSettings />
+          <RealtimeTicketSettings />
+        </div>
+      </div>
     </div>
   )
 }

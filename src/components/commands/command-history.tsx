@@ -15,16 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useDeviceCommands } from "@/features/commands/queries"
 import type { Command, CommandStatus } from "@/features/commands/types"
 import { paginationTableFeatures } from "@/lib/data-table/features"
-
-const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
-  dateStyle: "medium",
-  timeStyle: "medium",
-})
-
-function formatTimestamp(value: string): string {
-  const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? value : dateTimeFormatter.format(date)
-}
+import { formatDateTime } from "@/lib/utils"
 
 type BadgeVariant = ComponentProps<typeof Badge>["variant"]
 
@@ -32,11 +23,11 @@ const statusMeta: Record<
   CommandStatus,
   { label: string; variant: BadgeVariant }
 > = {
-  pending: { label: "Pending", variant: "secondary" },
+  pending: { label: "Menunggu", variant: "secondary" },
   sent: { label: "Terkirim", variant: "secondary" },
   success: { label: "Sukses", variant: "default" },
   failed: { label: "Gagal", variant: "destructive" },
-  timeout: { label: "Timeout", variant: "outline" },
+  timeout: { label: "Waktu Habis", variant: "outline" },
 }
 
 const commandColumns: Array<
@@ -47,7 +38,7 @@ const commandColumns: Array<
     header: "Waktu",
     cell: ({ row }) => (
       <span className="whitespace-nowrap text-muted-foreground">
-        {formatTimestamp(row.original.issued_at)}
+        {formatDateTime(row.original.issued_at)}
       </span>
     ),
   },
@@ -58,7 +49,7 @@ const commandColumns: Array<
       const state = row.original.payload.state
       return (
         <Badge variant={state ? "secondary" : "outline"}>
-          {state ? "On" : "Off"}
+          {state ? "ON" : "OFF"}
         </Badge>
       )
     },
@@ -123,7 +114,7 @@ export function CommandHistoryPanel({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-sm font-medium">Riwayat Command</span>
+        <span className="text-sm font-medium">Riwayat Perintah</span>
         {canIssue ? <IssueCommandDialog deviceId={deviceId} /> : null}
       </div>
 
@@ -149,8 +140,8 @@ export function CommandHistoryPanel({
           >
             <DataTable
               table={table}
-              caption="Riwayat command"
-              emptyMessage="Belum ada command."
+              caption="Riwayat Perintah"
+              emptyMessage="Belum ada perintah."
             />
           </div>
           <TablePagination

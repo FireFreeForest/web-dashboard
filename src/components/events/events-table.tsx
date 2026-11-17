@@ -14,7 +14,6 @@ import { EventDetailSheet } from "@/components/events/event-detail-sheet"
 import {
   EVENT_TYPE_LABEL,
   EVENT_TYPE_OPTIONS,
-  formatTimestamp,
   SeverityBadge,
   StatusBadge,
 } from "@/components/events/event-ui"
@@ -51,6 +50,7 @@ import type {
   Severity,
 } from "@/features/events/types"
 import { paginationTableFeatures } from "@/lib/data-table/features"
+import { formatDateTime } from "@/lib/utils"
 
 type EventFiltersProps = {
   severity: Severity | "all"
@@ -85,7 +85,7 @@ function EventFilterFields({
   return (
     <FieldGroup className={className}>
       <Field className="gap-1.5">
-        <FieldLabel htmlFor={severityId}>Severity</FieldLabel>
+        <FieldLabel htmlFor={severityId}>Keparahan</FieldLabel>
         <Select
           value={severity}
           onValueChange={(value) =>
@@ -97,8 +97,8 @@ function EventFilterFields({
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem value="all">Semua severity</SelectItem>
-              <SelectItem value="error">Error</SelectItem>
+              <SelectItem value="all">Semua Keparahan</SelectItem>
+              <SelectItem value="error">Galat</SelectItem>
               <SelectItem value="warning">Peringatan</SelectItem>
               <SelectItem value="critical">Kritis</SelectItem>
             </SelectGroup>
@@ -119,10 +119,10 @@ function EventFilterFields({
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem value="all">Semua status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="acknowledged">Acknowledged</SelectItem>
-              <SelectItem value="resolved">Resolved</SelectItem>
+              <SelectItem value="all">Semua Status</SelectItem>
+              <SelectItem value="active">Aktif</SelectItem>
+              <SelectItem value="acknowledged">Dikonfirmasi</SelectItem>
+              <SelectItem value="resolved">Selesai</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -141,7 +141,7 @@ function EventFilterFields({
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem value="all">Semua tipe</SelectItem>
+              <SelectItem value="all">Semua Tipe</SelectItem>
               {EVENT_TYPE_OPTIONS.map(([value, label]) => (
                 <SelectItem key={value} value={value}>
                   {label}
@@ -163,7 +163,7 @@ function EventFilterFields({
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem value="all">Semua device</SelectItem>
+              <SelectItem value="all">Semua Device</SelectItem>
               {devices.map((device) => (
                 <SelectItem key={device.id} value={device.device_id}>
                   {device.device_id}
@@ -209,9 +209,9 @@ function MobileEventFilters({
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>Filter event</DrawerTitle>
+          <DrawerTitle>Filter Event</DrawerTitle>
           <DrawerDescription>
-            Pilih filter untuk mempersempit daftar event.
+            Pilih filter untuk mempersempit daftar Event.
           </DrawerDescription>
         </DrawerHeader>
         <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
@@ -225,7 +225,7 @@ function MobileEventFilters({
             onClick={onReset}
             disabled={activeCount === 0}
           >
-            Reset
+            Atur Ulang
           </Button>
           <DrawerClose render={<Button type="button" className="flex-1" />}>
             Terapkan
@@ -273,7 +273,7 @@ export function EventsTable() {
         header: "Waktu",
         cell: ({ row }) => (
           <span className="whitespace-nowrap text-muted-foreground">
-            {formatTimestamp(row.original.triggered_at)}
+            {formatDateTime(row.original.triggered_at)}
           </span>
         ),
       },
@@ -288,7 +288,7 @@ export function EventsTable() {
       },
       {
         accessorKey: "severity",
-        header: "Severity",
+        header: "Keparahan",
         cell: ({ row }) => <SeverityBadge severity={row.original.severity} />,
       },
       {
@@ -307,7 +307,7 @@ export function EventsTable() {
       },
       {
         id: "actions",
-        header: () => <span className="sr-only">Actions</span>,
+        header: () => <span className="sr-only">Aksi</span>,
         cell: ({ row }) => (
           <div className="flex justify-end">
             <Button
@@ -382,7 +382,7 @@ export function EventsTable() {
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
           <p className="text-xs font-medium text-muted-foreground">
-            Filter event
+            Filter Event
           </p>
           <MobileEventFilters
             severity={severity}
@@ -437,7 +437,7 @@ export function EventsTable() {
             <DataTable
               table={table}
               caption="Events"
-              emptyMessage="Belum ada event."
+              emptyMessage="Belum ada Event."
               className="min-w-[44rem]"
             />
           </div>

@@ -9,7 +9,7 @@ import { useDevices } from "@/features/devices/queries"
 import { ApiError } from "@/lib/api/types"
 
 export const Route = createFileRoute("/_app/nodes")({
-  staticData: { crumb: "Nodes" },
+  staticData: { crumb: "Device" },
   component: NodesPage,
 })
 
@@ -34,7 +34,7 @@ function NodesPage() {
       <header className="flex items-start justify-between gap-4">
         <div className="space-y-1">
           <h1 className="font-heading text-2xl font-semibold tracking-tight">
-            Nodes
+            Device
           </h1>
         </div>
         {isAdmin ? <CreateDeviceDialog /> : null}

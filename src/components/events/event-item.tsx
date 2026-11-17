@@ -61,10 +61,14 @@ export function EventItem({
             {EVENT_TYPE_LABEL[event.event_type]}
           </span>
           <span className="truncate text-xs text-muted-foreground">
-            {deviceLabel ?? "—"}
-            <span aria-hidden className="mx-1.5">
-              •
-            </span>
+            {deviceLabel ? (
+              <>
+                {deviceLabel}
+                <span aria-hidden className="mx-1.5">
+                  •
+                </span>
+              </>
+            ) : null}
             {formatRelativeTime(event.triggered_at)}
           </span>
         </div>

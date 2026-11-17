@@ -2,8 +2,8 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import {
   Alert02Icon,
   ArrowRight01Icon,
+  RadioTowerIcon,
   RefreshIcon,
-  ServerStackIcon,
   Wifi01Icon,
   WifiDisconnected01Icon,
 } from "@hugeicons/core-free-icons"
@@ -52,7 +52,7 @@ function DeviceStat({
   iconClassName,
   valueClassName,
 }: {
-  icon: typeof ServerStackIcon
+  icon: typeof RadioTowerIcon
   value: number
   label: string
   iconClassName?: string
@@ -85,14 +85,14 @@ function DevicesSummary({ devices }: { devices: DashboardSummary["devices"] }) {
   return (
     <div className="grid grid-cols-3 gap-3">
       <DeviceStat
-        icon={ServerStackIcon}
+        icon={RadioTowerIcon}
         value={devices.total}
-        label="Total Devices"
+        label="Total Device"
       />
       <DeviceStat
         icon={Wifi01Icon}
         value={devices.online}
-        label="Aktif"
+        label="Online"
         iconClassName="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
         valueClassName="text-emerald-600 dark:text-emerald-400"
       />
@@ -111,7 +111,7 @@ function DevicesCard({ devices }: { devices: DashboardSummary["devices"] }) {
   return (
     <Card size="sm">
       <CardContent>
-        <h2 className="sr-only">Ringkasan device</h2>
+        <h2 className="sr-only">Ringkasan Device</h2>
         <DevicesSummary devices={devices} />
       </CardContent>
     </Card>
@@ -121,7 +121,7 @@ function DevicesCard({ devices }: { devices: DashboardSummary["devices"] }) {
 function AllEventsButton() {
   return (
     <Button size="xs" variant="ghost" render={<Link to="/events" />}>
-      Semua event
+      Semua Event
       <HugeiconsIcon icon={ArrowRight01Icon} data-icon="inline-end" />
     </Button>
   )
@@ -155,7 +155,7 @@ function EventSummaryBody({ summary }: { summary: DashboardSummary }) {
       ) : null}
 
       {recentEvents.length === 0 ? (
-        <p className="py-2 text-sm text-muted-foreground">Belum ada event.</p>
+        <p className="py-2 text-sm text-muted-foreground">Belum ada Event.</p>
       ) : (
         <ul className="flex flex-col divide-y divide-border">
           {recentEvents.map((event) => (
@@ -173,8 +173,8 @@ function EventSummaryBody({ summary }: { summary: DashboardSummary }) {
 
 function EventSummaryCard({ summary }: { summary: DashboardSummary }) {
   return (
-    <Card size="sm">
-      <CardHeader>
+    <Card size="sm" className="gap-2">
+      <CardHeader className="gap-y-0">
         <CardTitle>Ringkasan Event</CardTitle>
         <CardAction>
           <AllEventsButton />
@@ -189,7 +189,7 @@ function EventSummaryCard({ summary }: { summary: DashboardSummary }) {
 
 function EventSummarySection({ summary }: { summary: DashboardSummary }) {
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-2">
         <h2 className="font-heading text-base font-medium">Ringkasan Event</h2>
         <AllEventsButton />
@@ -283,7 +283,7 @@ export function DashboardMobileSummary() {
         }
       >
         <HugeiconsIcon
-          icon={ServerStackIcon}
+          icon={RadioTowerIcon}
           strokeWidth={2}
           data-icon="inline-start"
         />

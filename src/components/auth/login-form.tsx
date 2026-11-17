@@ -19,11 +19,11 @@ import { cn } from "@/lib/utils"
 function getLoginErrorMessage(error: ApiError): string {
   switch (error.code) {
     case "invalid_credentials":
-      return "Email atau password salah."
+      return "Email atau kata sandi salah."
     case "account_inactive":
       return "Akun tidak aktif."
     case "rate_limited":
-      return "Terlalu banyak percobaan login."
+      return "Terlalu banyak percobaan masuk."
     case "network_error":
       return "Tidak dapat terhubung ke server."
     default:
@@ -106,7 +106,7 @@ export function LoginForm({
             </div>
             <h1 className="text-xl font-bold">Fire-Free Forest</h1>
             <FieldDescription>
-              Sign in to the forest monitoring dashboard.
+              Masuk ke dasbor pemantauan hutan.
             </FieldDescription>
           </div>
           <Field data-invalid={Boolean(errorMessage)}>
@@ -116,7 +116,7 @@ export function LoginForm({
               name="email"
               type="email"
               autoComplete="email"
-              placeholder="Enter your email"
+              placeholder="Masukkan email Anda"
               aria-invalid={Boolean(errorMessage)}
               disabled={login.isPending}
               required
@@ -124,13 +124,13 @@ export function LoginForm({
             />
           </Field>
           <Field data-invalid={Boolean(errorMessage)}>
-            <FieldLabel htmlFor="password">Password</FieldLabel>
+            <FieldLabel htmlFor="password">Kata Sandi</FieldLabel>
             <Input
               id="password"
               name="password"
               type="password"
               autoComplete="current-password"
-              placeholder="Enter your password"
+              placeholder="Masukkan kata sandi Anda"
               aria-invalid={Boolean(errorMessage)}
               disabled={login.isPending}
               required
@@ -140,7 +140,7 @@ export function LoginForm({
           </Field>
           <Field>
             <Button type="submit" disabled={isDisabled} aria-busy={login.isPending}>
-              {login.isPending ? "Signing in..." : "Login"}
+              {login.isPending ? "Sedang masuk..." : "Masuk"}
             </Button>
           </Field>
         </FieldGroup>

@@ -48,12 +48,9 @@ import { useUpdateUser } from "@/features/users/mutations"
 import type { User } from "@/features/users/types"
 import { ApiError } from "@/lib/api/types"
 import { getInitials } from "@/lib/user"
+import { formatDate } from "@/lib/utils"
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
-
-const dateFormatter = new Intl.DateTimeFormat(undefined, {
-  dateStyle: "medium",
-})
 
 export function UsersTable({
   users,
@@ -136,7 +133,7 @@ export function UsersTable({
       },
       {
         accessorKey: "role",
-        header: "Role",
+        header: "Peran",
         cell: ({ row }) => <UserRoleBadge role={row.original.role} />,
       },
       {
@@ -146,21 +143,16 @@ export function UsersTable({
       },
       {
         accessorKey: "created_at",
-        header: "Created",
-        cell: ({ row }) => {
-          const date = new Date(row.original.created_at)
-          return (
-            <span className="text-muted-foreground">
-              {Number.isNaN(date.getTime())
-                ? row.original.created_at
-                : dateFormatter.format(date)}
-            </span>
-          )
-        },
+        header: "Dibuat",
+        cell: ({ row }) => (
+          <span className="text-muted-foreground">
+            {formatDate(row.original.created_at)}
+          </span>
+        ),
       },
       {
         id: "actions",
-        header: () => <span className="sr-only">Actions</span>,
+        header: () => <span className="sr-only">Aksi</span>,
         cell: ({ row }) => {
           const user = row.original
           const isSelf = user.id === currentUserId
@@ -173,7 +165,7 @@ export function UsersTable({
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      aria-label={`Actions for ${user.email}`}
+                      aria-label={`Aksi untuk ${user.email}`}
                     />
                   }
                 >
@@ -185,7 +177,7 @@ export function UsersTable({
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => openEdit(user)}>
                     <HugeiconsIcon icon={Edit02Icon} strokeWidth={2} />
-                    Edit
+                    Ubah
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   {user.is_active ? (
@@ -195,7 +187,7 @@ export function UsersTable({
                       onClick={() => openDeactivate(user)}
                     >
                       <HugeiconsIcon icon={UserBlock01Icon} strokeWidth={2} />
-                      Deactivate
+                      Nonaktifkan
                     </DropdownMenuItem>
                   ) : (
                     <DropdownMenuItem
@@ -203,7 +195,7 @@ export function UsersTable({
                       onClick={() => handleActivate(user)}
                     >
                       <HugeiconsIcon icon={UserCheck01Icon} strokeWidth={2} />
-                      Activate
+                      Aktifkan
                     </DropdownMenuItem>
                   )}
                 </DropdownMenuContent>
@@ -266,7 +258,7 @@ export function UsersTable({
             <EmptyMedia variant="icon">
               <HugeiconsIcon icon={UserBlock01Icon} strokeWidth={2} />
             </EmptyMedia>
-            <EmptyTitle>Gagal memuat user</EmptyTitle>
+            <EmptyTitle>Gagal memuat User</EmptyTitle>
             <EmptyDescription>
               {error.code === "forbidden"
                 ? "Anda tidak memiliki akses ke halaman ini."
@@ -274,7 +266,7 @@ export function UsersTable({
             </EmptyDescription>
           </EmptyHeader>
           <Button variant="outline" onClick={onRetry}>
-            Retry
+            Coba lagi
           </Button>
         </Empty>
       ) : (
@@ -284,7 +276,7 @@ export function UsersTable({
           <DataTable
             table={table}
             caption="Users"
-            emptyMessage="Belum ada user."
+            emptyMessage="Belum ada User."
           />
         </div>
       )}
@@ -293,11 +285,11 @@ export function UsersTable({
         <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
           <span>
             {total === 0
-              ? "0 user"
-              : `${rangeStart}-${rangeEnd} dari ${total} user`}
+              ? "0 User"
+              : `${rangeStart}-${rangeEnd} dari ${total} User`}
           </span>
           <div className="flex items-center gap-2">
-            <span>Rows</span>
+            <span>Baris</span>
             <Select
               value={String(pagination.pageSize)}
               onValueChange={(value) => handlePageSizeChange(value as string)}
@@ -317,7 +309,7 @@ export function UsersTable({
         </div>
         <div className="flex items-center justify-between gap-2 sm:justify-end">
           <span className="text-sm text-muted-foreground">
-            Page {pageIndex + 1} of {pageCount}
+            Halaman {pageIndex + 1} dari {pageCount}
           </span>
           <Button
             variant="outline"
@@ -325,7 +317,7 @@ export function UsersTable({
             onClick={() => handlePageChange(pageIndex - 1)}
             disabled={pageIndex <= 0 || isFetching}
           >
-            Previous
+            Sebelumnya
           </Button>
           <Button
             variant="outline"
@@ -333,7 +325,7 @@ export function UsersTable({
             onClick={() => handlePageChange(pageIndex + 1)}
             disabled={pageIndex + 1 >= pageCount || isFetching}
           >
-            Next
+            Berikutnya
           </Button>
         </div>
       </div>
