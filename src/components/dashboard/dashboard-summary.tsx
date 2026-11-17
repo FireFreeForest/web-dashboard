@@ -237,7 +237,7 @@ function SummaryError({
   )
 }
 
-export function DashboardOverview() {
+export function DashboardOverview({ fluid = false }: { fluid?: boolean }) {
   const { data, isPending, isError, error, refetch } = useDashboardSummary()
 
   if (isPending) {
@@ -250,10 +250,20 @@ export function DashboardOverview() {
 
   return (
     <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-      <div className="pointer-events-auto w-full max-w-md">
+      <div
+        className={cn(
+          "pointer-events-auto w-full",
+          fluid ? "max-w-none" : "max-w-md"
+        )}
+      >
         <SummaryCard summary={data} />
       </div>
-      <div className="pointer-events-auto w-full max-w-sm">
+      <div
+        className={cn(
+          "pointer-events-auto w-full",
+          fluid ? "max-w-none" : "max-w-sm"
+        )}
+      >
         <RecentEventsCard events={data.recent_events} />
       </div>
     </div>

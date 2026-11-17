@@ -13,6 +13,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import { useMe } from "@/features/auth/queries"
 
@@ -35,8 +36,15 @@ const adminItems: NavItem[] = [
 
 export function NavMain() {
   const matchRoute = useMatchRoute()
+  const { isMobile, setOpenMobile } = useSidebar()
   const { data: user } = useMe()
   const isAdmin = user?.role === "admin"
+
+  const handleNavigate = () => {
+    if (isMobile) {
+      setOpenMobile(false)
+    }
+  }
 
   const renderItems = (items: NavItem[]) =>
     items.map((item) => {
@@ -47,6 +55,7 @@ export function NavMain() {
           <SidebarMenuButton
             tooltip={item.title}
             isActive={isActive}
+            onClick={handleNavigate}
             render={<Link to={item.to} />}
           >
             <HugeiconsIcon icon={item.icon} strokeWidth={2} />
