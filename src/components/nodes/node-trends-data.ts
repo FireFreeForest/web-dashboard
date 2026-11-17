@@ -1,4 +1,8 @@
-import { formatShortDate, formatShortTime } from "@/lib/utils"
+import {
+  formatShortDate,
+  formatShortTime,
+  formatShortTimeWithSeconds,
+} from "@/lib/utils"
 
 export type TrendRange = "1H" | "6H" | "24H" | "7D"
 
@@ -17,7 +21,7 @@ const RANGE_MS: Record<TrendRange, number> = {
 }
 
 export const RANGE_INTERVAL_MINUTES: Record<TrendRange, number> = {
-  "1H": 1,
+  "1H": 0,
   "6H": 5,
   "24H": 15,
   "7D": 60,
@@ -59,12 +63,20 @@ export function formatTrendTime(
 ): string {
   if (value == null) return "—"
 
-  return range === "7D" ? formatShortDate(value) : formatShortTime(value)
+  return range === "7D"
+    ? `${formatShortDate(value)} ${formatShortTime(value)}`
+    : formatShortTime(value)
 }
 
 export function formatTrendTooltipLabel(
   payload: ReadonlyArray<{ payload?: { time?: number } }>,
   range: TrendRange
 ): string {
-  return formatTrendTime(payload[0]?.payload?.time, range)
+  const time = payload[0]?.payload?.time
+
+  if (time == null) return "—"
+
+  return range === "1H"
+    ? formatShortTimeWithSeconds(time)
+    : formatTrendTime(time, range)
 }

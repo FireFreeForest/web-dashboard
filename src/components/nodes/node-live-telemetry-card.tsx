@@ -36,7 +36,7 @@ export function NodeLiveTelemetryCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Telemetri Langsung</CardTitle>
+        <CardTitle>Telemetri</CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-1 gap-2 lg:grid-cols-6">
         <span

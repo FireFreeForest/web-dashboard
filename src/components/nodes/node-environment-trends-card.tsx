@@ -10,7 +10,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart"
 import { useEnvironmentTelemetryAggregate } from "@/features/telemetry/queries"
-import { adcToPercent } from "@/features/telemetry/utils"
+import { adcToPercent, seriesPointTime } from "@/features/telemetry/utils"
 
 import { NodeTrendCard } from "./node-trend-card"
 import {
@@ -50,7 +50,7 @@ export function NodeEnvironmentTrendsCard({ deviceId }: { deviceId: string }) {
 
     return rows
       .map((row) => ({
-        time: Date.parse(row.bucket_start),
+        time: seriesPointTime(row),
         temperature: row.temperature,
         humidity: row.humidity,
         soil: adcToPercent(row.soil_moisture),
@@ -62,7 +62,7 @@ export function NodeEnvironmentTrendsCard({ deviceId }: { deviceId: string }) {
 
   return (
     <NodeTrendCard
-      title="Tren Lingkungan"
+      title="Lingkungan"
       range={range}
       onRangeChange={setRange}
       isLoading={query.isLoading}

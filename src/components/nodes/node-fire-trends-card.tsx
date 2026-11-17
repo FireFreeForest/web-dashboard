@@ -10,7 +10,11 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart"
 import { useFireTelemetryAggregate } from "@/features/telemetry/queries"
-import { adcToInvertedPercent, adcToPercent } from "@/features/telemetry/utils"
+import {
+  adcToInvertedPercent,
+  adcToPercent,
+  seriesPointTime,
+} from "@/features/telemetry/utils"
 
 import { NodeTrendCard } from "./node-trend-card"
 import {
@@ -46,7 +50,7 @@ export function NodeFireTrendsCard({ deviceId }: { deviceId: string }) {
 
     return rows
       .map((row) => ({
-        time: Date.parse(row.bucket_start),
+        time: seriesPointTime(row),
         flame:
           row.flame_level != null
             ? adcToInvertedPercent(row.flame_level)
@@ -60,7 +64,7 @@ export function NodeFireTrendsCard({ deviceId }: { deviceId: string }) {
 
   return (
     <NodeTrendCard
-      title="Tren Deteksi Api"
+      title="Deteksi Api"
       range={range}
       onRangeChange={setRange}
       isLoading={query.isLoading}

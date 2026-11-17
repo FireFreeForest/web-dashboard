@@ -10,6 +10,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart"
 import { useFireTelemetryAggregate } from "@/features/telemetry/queries"
+import { seriesPointTime, seriesPumpRatio } from "@/features/telemetry/utils"
 
 import { NodeTrendCard } from "./node-trend-card"
 import {
@@ -41,8 +42,8 @@ export function NodeWaterPumpTrendsCard({ deviceId }: { deviceId: string }) {
 
     return rows
       .map((row) => ({
-        time: Date.parse(row.bucket_start),
-        pump: Math.round(row.pump_on_ratio * 100),
+        time: seriesPointTime(row),
+        pump: Math.round(seriesPumpRatio(row) * 100),
       }))
       .filter((point) => Number.isFinite(point.time))
   }, [query.data])
@@ -51,7 +52,7 @@ export function NodeWaterPumpTrendsCard({ deviceId }: { deviceId: string }) {
 
   return (
     <NodeTrendCard
-      title="Tren Pompa Air"
+      title="Pompa Air"
       range={range}
       onRangeChange={setRange}
       isLoading={query.isLoading}

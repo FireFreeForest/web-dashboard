@@ -33,6 +33,13 @@ const shortTimeFormatter = new Intl.DateTimeFormat("id-ID", {
   hour12: false,
 })
 
+const shortTimeWithSecondsFormatter = new Intl.DateTimeFormat("id-ID", {
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+})
+
 export function formatDate(value: DateInput): string {
   const date = toDate(value)
   return date ? dateFormatter.format(date) : "—"
@@ -58,6 +65,11 @@ export function formatShortDate(value: DateInput): string {
 export function formatShortTime(value: DateInput): string {
   const date = toDate(value)
   return date ? shortTimeFormatter.format(date) : "—"
+}
+
+export function formatShortTimeWithSeconds(value: DateInput): string {
+  const date = toDate(value)
+  return date ? shortTimeWithSecondsFormatter.format(date) : "—"
 }
 
 const relativeTimeFormatter = new Intl.RelativeTimeFormat("id-ID", {

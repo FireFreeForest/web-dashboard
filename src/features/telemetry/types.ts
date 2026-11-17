@@ -31,6 +31,8 @@ export type LatestTelemetry = {
   risk_level: RiskLevel
 }
 
+export type TelemetrySeriesMode = "raw" | "decimated" | "aggregate"
+
 export type EnvironmentAggregatePoint = {
   bucket_start: string
   temperature: number | null
@@ -55,7 +57,11 @@ export type EnvironmentAggregate = {
   to: string
   interval_minutes: number
   bucket_timezone: "Asia/Jakarta"
-  points: EnvironmentAggregatePoint[]
+  mode?: TelemetrySeriesMode
+  decimated?: boolean
+  source_points?: number
+  returned_points?: number
+  points: Array<EnvironmentAggregatePoint | EnvironmentTelemetry>
 }
 
 export type FireAggregate = {
@@ -64,7 +70,11 @@ export type FireAggregate = {
   to: string
   interval_minutes: number
   bucket_timezone: "Asia/Jakarta"
-  points: FireAggregatePoint[]
+  mode?: TelemetrySeriesMode
+  decimated?: boolean
+  source_points?: number
+  returned_points?: number
+  points: Array<FireAggregatePoint | FireTelemetry>
 }
 
 export type TelemetryListParams = {
