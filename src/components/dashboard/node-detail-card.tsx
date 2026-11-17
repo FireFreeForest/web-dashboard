@@ -9,16 +9,17 @@ import {
   RadioTowerIcon,
   TemperatureIcon,
 } from "@hugeicons/core-free-icons"
+import { Link } from "@tanstack/react-router"
 
 import { MetricTile } from "@/components/telemetry/metric-tile"
 import { Button } from "@/components/ui/button"
 import {
   getNodeStatus,
   nodeStatusMeta,
-  type ForestNode,
+  type MapNode,
   type PumpState,
 } from "@/lib/nodes"
-import { cn } from "@/lib/utils"
+import { cn, formatRelativeTime } from "@/lib/utils"
 
 function IntensityBar({
   label,
@@ -26,9 +27,11 @@ function IntensityBar({
   barClassName,
 }: {
   label: string
-  value: number
+  value: number | null
   barClassName: string
 }) {
+  const normalized = value === null ? null : Math.min(Math.max(value, 0), 100)
+
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-xs text-muted-foreground">{label}</span>
@@ -36,18 +39,18 @@ function IntensityBar({
         <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
           <div
             className={cn("h-full rounded-full transition-all", barClassName)}
-            style={{ width: `${Math.min(Math.max(value, 0), 100)}%` }}
+            style={{ width: `${normalized ?? 0}%` }}
           />
         </div>
         <span className="w-9 text-right text-xs font-medium tabular-nums">
-          {value}%
+          {normalized === null ? "—" : `${Math.round(normalized)}%`}
         </span>
       </div>
     </div>
   )
 }
 
-function PumpPill({ state }: { state: PumpState }) {
+function PumpPill({ state }: { state: PumpState | null }) {
   const isOn = state === "on"
 
   return (
@@ -58,12 +61,12 @@ function PumpPill({ state }: { state: PumpState }) {
       )}
     >
       <HugeiconsIcon icon={PowerIcon} strokeWidth={2} className="size-3" />
-      {isOn ? "On" : "Off"}
+      {state === null ? "—" : isOn ? "On" : "Off"}
     </span>
   )
 }
 
-export function NodeDetailCard({ node }: { node: ForestNode }) {
+export function NodeDetailCard({ node }: { node: MapNode }) {
   const status = getNodeStatus(node)
   const meta = nodeStatusMeta[status]
 
@@ -101,13 +104,13 @@ export function NodeDetailCard({ node }: { node: ForestNode }) {
       </div>
 
       <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-        <span className="inline-flex items-center gap-1">
+        <span className="inline-flex min-w-0 items-center gap-1">
           <HugeiconsIcon
             icon={Location01Icon}
             strokeWidth={2}
-            className="size-3"
+            className="size-3 shrink-0"
           />
-          {node.region}
+          <span className="truncate">{node.region}</span>
         </span>
         <span className="inline-flex items-center gap-1">
           <HugeiconsIcon
@@ -115,7 +118,7 @@ export function NodeDetailCard({ node }: { node: ForestNode }) {
             strokeWidth={2}
             className="size-3"
           />
-          {node.lastSeen}
+          {formatRelativeTime(node.lastSeen)}
         </span>
       </div>
 
@@ -124,7 +127,11 @@ export function NodeDetailCard({ node }: { node: ForestNode }) {
           size="sm"
           icon={TemperatureIcon}
           label="Temp"
-          value={`${node.environment.temperatureC.toFixed(1)}°C`}
+          value={
+            node.environment.temperatureC !== null
+              ? `${node.environment.temperatureC.toFixed(1)}°C`
+              : "—"
+          }
           className="bg-orange-500/10"
           iconClassName="text-orange-600 dark:text-orange-400"
         />
@@ -132,7 +139,11 @@ export function NodeDetailCard({ node }: { node: ForestNode }) {
           size="sm"
           icon={HumidityIcon}
           label="Humidity"
-          value={`${node.environment.humidityPct}%`}
+          value={
+            node.environment.humidityPct !== null
+              ? `${Math.round(node.environment.humidityPct)}%`
+              : "—"
+          }
           className="bg-sky-500/10"
           iconClassName="text-sky-600 dark:text-sky-400"
         />
@@ -140,7 +151,11 @@ export function NodeDetailCard({ node }: { node: ForestNode }) {
           size="sm"
           icon={Plant01Icon}
           label="Soil Moisture"
-          value={`${node.environment.soilMoisturePct}%`}
+          value={
+            node.environment.soilMoisturePct !== null
+              ? `${node.environment.soilMoisturePct}%`
+              : "—"
+          }
           className="bg-emerald-500/10"
           iconClassName="text-emerald-600 dark:text-emerald-400"
         />
@@ -164,7 +179,12 @@ export function NodeDetailCard({ node }: { node: ForestNode }) {
         <PumpPill state={node.actuator.pumpState} />
       </div>
 
-      <Button size="sm" variant="outline" className="w-full">
+      <Button
+        size="sm"
+        variant="outline"
+        className="w-full"
+        render={<Link to="/nodes/$deviceId" params={{ deviceId: node.id }} />}
+      >
         Detail
         <HugeiconsIcon icon={ExternalLinkIcon} data-icon="inline-end" />
       </Button>

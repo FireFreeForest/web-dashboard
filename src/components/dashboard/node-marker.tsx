@@ -1,12 +1,8 @@
 import { HugeiconsIcon } from "@hugeicons/react"
 import { RadioTowerIcon } from "@hugeicons/core-free-icons"
 
-import {
-  MapMarker,
-  MarkerContent,
-  MarkerTooltip,
-} from "@/components/ui/map"
-import { getNodeStatus, nodeStatusMeta, type ForestNode } from "@/lib/nodes"
+import { MapMarker, MarkerContent, MarkerTooltip } from "@/components/ui/map"
+import { getNodeStatus, nodeStatusMeta, type MapNode } from "@/lib/nodes"
 import { cn } from "@/lib/utils"
 
 export function NodeMarker({
@@ -14,7 +10,7 @@ export function NodeMarker({
   active,
   onSelect,
 }: {
-  node: ForestNode
+  node: MapNode
   active: boolean
   onSelect: () => void
 }) {

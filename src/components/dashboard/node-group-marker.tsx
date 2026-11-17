@@ -11,7 +11,7 @@ import {
   getGroupStatus,
   getNodeStatus,
   nodeStatusMeta,
-  type ForestNode,
+  type MapNode,
   type NodeGroup,
 } from "@/lib/nodes"
 import { cn } from "@/lib/utils"
@@ -21,7 +21,7 @@ export function NodeGroupMarker({
   onSelect,
 }: {
   group: NodeGroup
-  onSelect: (node: ForestNode) => void
+  onSelect: (node: MapNode) => void
 }) {
   const { map } = useMap()
   const [lead] = group.nodes

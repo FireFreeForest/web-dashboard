@@ -1,25 +1,21 @@
 import { useEffect, useMemo, useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { ChartHistogramIcon } from "@hugeicons/core-free-icons"
+import { Alert02Icon, RefreshIcon } from "@hugeicons/core-free-icons"
 
-import { DashboardOverview } from "@/components/dashboard/dashboard-summary"
+import {
+  DashboardMobileSummary,
+  DashboardOverview,
+} from "@/components/dashboard/dashboard-summary"
 import { NodeGroupMarker } from "@/components/dashboard/node-group-marker"
 import { NodeMarker } from "@/components/dashboard/node-marker"
 import { NodePopup } from "@/components/dashboard/node-popup"
 import { useMapMode } from "@/components/providers/map-mode-provider"
 import { Button } from "@/components/ui/button"
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
 import { Map, MapControls, useMap, type MapViewport } from "@/components/ui/map"
 import { useSidebar } from "@/components/ui/sidebar"
-import { forestNodes, groupForestNodes, type ForestNode } from "@/lib/nodes"
+import { useMapNodes } from "@/features/dashboard/map-nodes"
+import { groupMapNodes, type MapNode } from "@/lib/nodes"
 import { cn } from "@/lib/utils"
 
 export const Route = createFileRoute("/_app/")({
@@ -28,72 +24,95 @@ export const Route = createFileRoute("/_app/")({
 })
 
 const MAP_CENTER: [number, number] = [113.9, 0.5]
+const NODE_FOCUS_ZOOM = 14
 
-function FlyToNode({ node }: { node?: ForestNode }) {
+function FlyToNode({ node }: { node?: MapNode }) {
   const { map } = useMap()
+  const nodeId = node?.id
+  const longitude = node?.coordinates.longitude
+  const latitude = node?.coordinates.latitude
 
   useEffect(() => {
-    if (!map || !node) return
+    if (!map || latitude === undefined || longitude === undefined) return
+
     map.flyTo({
-      center: [node.coordinates.longitude, node.coordinates.latitude],
-      zoom: 8,
+      center: [longitude, latitude],
+      zoom: Math.max(map.getZoom(), NODE_FOCUS_ZOOM),
       duration: 800,
       essential: true,
     })
-  }, [map, node])
+  }, [map, nodeId, latitude, longitude])
 
   return null
 }
 
-function MobileDashboardSummary() {
+function MapNodesStatus({
+  isLoading,
+  errorMessage,
+  empty,
+  onRetry,
+}: {
+  isLoading: boolean
+  errorMessage: string | null
+  empty: boolean
+  onRetry: () => void
+}) {
+  if (!isLoading && !errorMessage && !empty) {
+    return null
+  }
+
   return (
-    <Drawer showSwipeHandle>
-      <DrawerTrigger
-        render={
-          <Button
-            size="lg"
-            className="absolute bottom-4 left-4 z-10 md:hidden"
-          />
-        }
-      >
-        <HugeiconsIcon
-          icon={ChartHistogramIcon}
-          strokeWidth={2}
-          data-icon="inline-start"
-        />
-        Ringkasan
-      </DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader className="sr-only">
-          <DrawerTitle>Ringkasan dashboard</DrawerTitle>
-          <DrawerDescription>
-            Ringkasan sistem dan event terbaru.
-          </DrawerDescription>
-        </DrawerHeader>
-        <div className="min-h-0 flex-1 overflow-y-auto p-3">
-          <DashboardOverview fluid />
-        </div>
-      </DrawerContent>
-    </Drawer>
+    <div className="pointer-events-none absolute inset-x-0 bottom-4 z-10 flex justify-center px-4">
+      <div className="pointer-events-auto flex items-center gap-2 rounded-full border bg-background/95 px-4 py-2 text-sm shadow-lg backdrop-blur">
+        {isLoading ? (
+          <span className="text-muted-foreground">Memuat node...</span>
+        ) : errorMessage ? (
+          <>
+            <HugeiconsIcon
+              icon={Alert02Icon}
+              strokeWidth={2}
+              className="size-4 text-destructive"
+            />
+            <span className="max-w-80 truncate text-muted-foreground">
+              {errorMessage}
+            </span>
+            <Button
+              size="xs"
+              variant="outline"
+              onClick={onRetry}
+              className="shrink-0"
+            >
+              <HugeiconsIcon icon={RefreshIcon} data-icon="inline-start" />
+              Coba lagi
+            </Button>
+          </>
+        ) : (
+          <span className="text-muted-foreground">
+            Belum ada node dengan koordinat.
+          </span>
+        )}
+      </div>
+    </div>
   )
 }
 
 function DashboardPage() {
   const { mapMode } = useMapMode()
   const { state: sidebarState } = useSidebar()
+  const { nodes, isLoading, isError, error, refetch } = useMapNodes()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [zoom, setZoom] = useState(6)
 
-  const selected = forestNodes.find((node) => node.id === selectedId)
+  const selected = nodes.find((node) => node.id === selectedId)
 
-  const groups = useMemo(() => groupForestNodes(forestNodes, zoom), [zoom])
+  const groups = useMemo(() => groupMapNodes(nodes, zoom), [nodes, zoom])
 
   const selectedGroup = selectedId
     ? groups.find((group) => group.nodes.some((node) => node.id === selectedId))
     : undefined
   const showPopup = selectedGroup?.nodes.length === 1
 
-  const handleSelect = (node: ForestNode) => setSelectedId(node.id)
+  const handleSelect = (node: MapNode) => setSelectedId(node.id)
 
   const handleViewportChange = (viewport: MapViewport) => {
     const nextZoom = Math.round(viewport.zoom * 2) / 2
@@ -101,13 +120,20 @@ function DashboardPage() {
 
     if (!selectedId) return
 
-    const group = groupForestNodes(forestNodes, nextZoom).find((entry) =>
+    const group = groupMapNodes(nodes, nextZoom).find((entry) =>
       entry.nodes.some((node) => node.id === selectedId)
     )
     if (group && group.nodes.length > 1) {
       setSelectedId(null)
     }
   }
+
+  const nodesError =
+    isError && error instanceof Error
+      ? error.message
+      : isError
+        ? "Gagal memuat node."
+        : null
 
   return (
     <div className="relative flex-1 overflow-hidden">
@@ -152,15 +178,25 @@ function DashboardPage() {
       </div>
       <div
         className={cn(
-          "pointer-events-none absolute top-4 right-4 left-4 z-10 hidden max-h-[calc(100%-2rem)] overflow-y-auto sm:top-6 sm:right-6 md:block",
+          "pointer-events-none absolute top-1 right-1 left-1 z-10 hidden max-h-[calc(100%-2rem)] overflow-y-auto p-3 pb-6 sm:top-3 sm:right-3 md:block",
           sidebarState === "collapsed"
-            ? "md:left-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px+(--spacing(6)))]"
-            : "md:left-[calc(var(--sidebar-width)+(--spacing(6)))]"
+            ? "md:left-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px+(--spacing(3)))]"
+            : "md:left-[calc(var(--sidebar-width)+(--spacing(3)))]"
         )}
       >
         <DashboardOverview />
       </div>
-      <MobileDashboardSummary />
+      <div className="pointer-events-none absolute top-3 left-3 z-10 md:hidden">
+        <div className="pointer-events-auto">
+          <DashboardMobileSummary />
+        </div>
+      </div>
+      <MapNodesStatus
+        isLoading={isLoading}
+        errorMessage={nodesError}
+        empty={nodes.length === 0}
+        onRetry={() => void refetch()}
+      />
     </div>
   )
 }

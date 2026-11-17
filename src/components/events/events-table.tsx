@@ -99,8 +99,8 @@ function EventFilterFields({
             <SelectGroup>
               <SelectItem value="all">Semua severity</SelectItem>
               <SelectItem value="error">Error</SelectItem>
-              <SelectItem value="warning">Warning</SelectItem>
-              <SelectItem value="critical">Critical</SelectItem>
+              <SelectItem value="warning">Peringatan</SelectItem>
+              <SelectItem value="critical">Kritis</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>

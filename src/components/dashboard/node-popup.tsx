@@ -1,12 +1,12 @@
 import { MapPopup } from "@/components/ui/map"
 import { NodeDetailCard } from "@/components/dashboard/node-detail-card"
-import type { ForestNode } from "@/lib/nodes"
+import type { MapNode } from "@/lib/nodes"
 
 export function NodePopup({
   node,
   onClose,
 }: {
-  node: ForestNode
+  node: MapNode
   onClose: () => void
 }) {
   return (

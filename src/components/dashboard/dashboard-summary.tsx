@@ -3,25 +3,31 @@ import {
   Alert02Icon,
   ArrowRight01Icon,
   RefreshIcon,
+  ServerStackIcon,
+  Wifi01Icon,
+  WifiDisconnected01Icon,
 } from "@hugeicons/core-free-icons"
 import { Link } from "@tanstack/react-router"
 
-import {
-  EVENT_TYPE_LABEL,
-  formatTimestamp,
-  SeverityBadge,
-  StatusBadge,
-} from "@/components/events/event-ui"
+import { EventItem } from "@/components/events/event-item"
+import { SeverityBadge } from "@/components/events/event-ui"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
   CardAction,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerFooter,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
 import {
   Empty,
   EmptyContent,
@@ -33,43 +39,39 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { useDashboardSummary } from "@/features/dashboard/queries"
 import type { DashboardSummary } from "@/features/dashboard/types"
-import type { Event, Severity } from "@/features/events/types"
-import type { RiskLevel } from "@/features/telemetry/types"
+import { useDeviceMap } from "@/features/devices/queries"
+import type { Severity } from "@/features/events/types"
 import { cn } from "@/lib/utils"
 
 const SEVERITIES: Severity[] = ["critical", "warning", "error"]
 
-const RISK_LEVELS: RiskLevel[] = [
-  "NORMAL",
-  "WASPADA",
-  "BAHAYA",
-  "DARURAT",
-  "UNKNOWN",
-]
-
-const RISK_META: Record<RiskLevel, { label: string; dotClassName: string }> = {
-  NORMAL: { label: "Normal", dotClassName: "bg-emerald-500" },
-  WASPADA: { label: "Waspada", dotClassName: "bg-amber-500" },
-  BAHAYA: { label: "Bahaya", dotClassName: "bg-orange-500" },
-  DARURAT: { label: "Darurat", dotClassName: "bg-destructive" },
-  UNKNOWN: { label: "Unknown", dotClassName: "bg-muted-foreground" },
-}
-
-function StatCell({
-  label,
+function DeviceStat({
+  icon,
   value,
-  tone,
+  label,
+  iconClassName,
+  valueClassName,
 }: {
-  label: string
+  icon: typeof ServerStackIcon
   value: number
-  tone?: string
+  label: string
+  iconClassName?: string
+  valueClassName?: string
 }) {
   return (
-    <div className="flex flex-col gap-0.5 rounded-lg bg-muted/50 p-2.5">
+    <div className="flex flex-col items-center gap-1.5 text-center">
       <span
         className={cn(
-          "font-heading text-xl leading-none font-semibold tabular-nums",
-          tone
+          "flex size-9 items-center justify-center rounded-full bg-muted/60 text-muted-foreground",
+          iconClassName
+        )}
+      >
+        <HugeiconsIcon icon={icon} strokeWidth={2} className="size-4.5" />
+      </span>
+      <span
+        className={cn(
+          "font-heading text-2xl leading-none font-semibold tabular-nums",
+          valueClassName
         )}
       >
         {value}
@@ -79,132 +81,138 @@ function StatCell({
   )
 }
 
-function RiskChip({ level, count }: { level: RiskLevel; count: number }) {
-  const meta = RISK_META[level]
-
+function DevicesSummary({ devices }: { devices: DashboardSummary["devices"] }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-muted/60 px-2.5 py-1 text-xs">
-      <span className={cn("size-1.5 rounded-full", meta.dotClassName)} />
-      <span className="text-muted-foreground">{meta.label}</span>
-      <span className="font-medium tabular-nums">{count}</span>
-    </span>
+    <div className="grid grid-cols-3 gap-3">
+      <DeviceStat
+        icon={ServerStackIcon}
+        value={devices.total}
+        label="Total Devices"
+      />
+      <DeviceStat
+        icon={Wifi01Icon}
+        value={devices.online}
+        label="Aktif"
+        iconClassName="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+        valueClassName="text-emerald-600 dark:text-emerald-400"
+      />
+      <DeviceStat
+        icon={WifiDisconnected01Icon}
+        value={devices.offline}
+        label="Offline"
+        iconClassName="bg-destructive/10 text-destructive"
+        valueClassName="text-muted-foreground"
+      />
+    </div>
   )
 }
 
-function SummaryCard({ summary }: { summary: DashboardSummary }) {
-  const { devices, active_events: activeEvents, risk } = summary
-
+function DevicesCard({ devices }: { devices: DashboardSummary["devices"] }) {
   return (
-    <Card size="sm" className="shadow-lg">
-      <CardHeader>
-        <CardTitle>Ringkasan Sistem</CardTitle>
-        <CardDescription>Kondisi terkini seluruh perangkat.</CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <div className="grid grid-cols-3 gap-2">
-          <StatCell label="Total device" value={devices.total} />
-          <StatCell
-            label="Online"
-            value={devices.online}
-            tone="text-emerald-600 dark:text-emerald-400"
-          />
-          <StatCell
-            label="Offline"
-            value={devices.offline}
-            tone="text-muted-foreground"
-          />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-muted-foreground">
-              Event aktif
-            </span>
-            <Badge variant="secondary" className="tabular-nums">
-              {activeEvents.total}
-            </Badge>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {SEVERITIES.map((severity) => (
-              <span key={severity} className="inline-flex items-center gap-1.5">
-                <SeverityBadge severity={severity} />
-                <span className="text-xs font-medium tabular-nums">
-                  {activeEvents.by_severity[severity]}
-                </span>
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <span className="text-xs font-medium text-muted-foreground">
-            Risiko device
-          </span>
-          <div className="flex flex-wrap gap-1.5">
-            {RISK_LEVELS.map((level) => (
-              <RiskChip key={level} level={level} count={risk.counts[level]} />
-            ))}
-          </div>
-        </div>
+    <Card size="sm">
+      <CardContent>
+        <h2 className="sr-only">Ringkasan device</h2>
+        <DevicesSummary devices={devices} />
       </CardContent>
     </Card>
   )
 }
 
-function RecentEventItem({ event }: { event: Event }) {
+function AllEventsButton() {
   return (
-    <li className="flex flex-col gap-1 py-2 first:pt-0 last:pb-0">
-      <div className="flex items-center justify-between gap-2">
-        <span className="truncate text-sm font-medium">
-          {EVENT_TYPE_LABEL[event.event_type]}
-        </span>
-        <SeverityBadge severity={event.severity} />
-      </div>
-      <p className="line-clamp-1 text-xs text-muted-foreground">
-        {event.message}
-      </p>
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] text-muted-foreground">
-          {formatTimestamp(event.triggered_at)}
-        </span>
-        <StatusBadge status={event.status} />
-      </div>
-    </li>
+    <Button size="xs" variant="ghost" render={<Link to="/events" />}>
+      Semua event
+      <HugeiconsIcon icon={ArrowRight01Icon} data-icon="inline-end" />
+    </Button>
   )
 }
 
-function RecentEventsCard({ events }: { events: Event[] }) {
+function EventSummaryBody({ summary }: { summary: DashboardSummary }) {
+  const { active_events: activeEvents, recent_events: recentEvents } = summary
+  const devices = useDeviceMap()
+
+  const hasStats =
+    activeEvents.total > 0 ||
+    SEVERITIES.some((severity) => activeEvents.by_severity[severity] > 0)
+
   return (
-    <Card size="sm" className="shadow-lg">
+    <>
+      {hasStats ? (
+        <div className="flex flex-wrap items-center gap-2">
+          {activeEvents.total > 0 ? (
+            <Badge variant="secondary" className="tabular-nums">
+              {activeEvents.total} Event Aktif
+            </Badge>
+          ) : null}
+          {SEVERITIES.map((severity) => {
+            const count = activeEvents.by_severity[severity]
+            if (count === 0) return null
+            return (
+              <SeverityBadge key={severity} severity={severity} count={count} />
+            )
+          })}
+        </div>
+      ) : null}
+
+      {recentEvents.length === 0 ? (
+        <p className="py-2 text-sm text-muted-foreground">Belum ada event.</p>
+      ) : (
+        <ul className="flex flex-col divide-y divide-border">
+          {recentEvents.map((event) => (
+            <EventItem
+              key={event.id}
+              event={event}
+              deviceLabel={devices.data?.get(event.device_id)?.device_id}
+            />
+          ))}
+        </ul>
+      )}
+    </>
+  )
+}
+
+function EventSummaryCard({ summary }: { summary: DashboardSummary }) {
+  return (
+    <Card size="sm">
       <CardHeader>
-        <CardTitle>Event Terbaru</CardTitle>
+        <CardTitle>Ringkasan Event</CardTitle>
         <CardAction>
-          <Button size="xs" variant="ghost" render={<Link to="/events" />}>
-            Semua event
-            <HugeiconsIcon icon={ArrowRight01Icon} data-icon="inline-end" />
-          </Button>
+          <AllEventsButton />
         </CardAction>
       </CardHeader>
-      <CardContent>
-        {events.length === 0 ? (
-          <p className="py-2 text-sm text-muted-foreground">Belum ada event.</p>
-        ) : (
-          <ul className="flex flex-col divide-y divide-border">
-            {events.map((event) => (
-              <RecentEventItem key={event.id} event={event} />
-            ))}
-          </ul>
-        )}
+      <CardContent className="flex flex-col gap-3">
+        <EventSummaryBody summary={summary} />
       </CardContent>
     </Card>
+  )
+}
+
+function EventSummarySection({ summary }: { summary: DashboardSummary }) {
+  return (
+    <section className="flex flex-col gap-3">
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="font-heading text-base font-medium">Ringkasan Event</h2>
+        <AllEventsButton />
+      </div>
+      <EventSummaryBody summary={summary} />
+    </section>
+  )
+}
+
+function SummaryCards({ summary }: { summary: DashboardSummary }) {
+  return (
+    <>
+      <DevicesCard devices={summary.devices} />
+      <EventSummaryCard summary={summary} />
+    </>
   )
 }
 
 function SummarySkeleton() {
   return (
-    <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-      <Skeleton className="h-64 w-full rounded-2xl xl:max-w-md" />
-      <Skeleton className="h-52 w-full rounded-2xl xl:max-w-sm" />
+    <div className="flex w-full max-w-sm flex-col gap-3">
+      <Skeleton className="h-28 rounded-2xl" />
+      <Skeleton className="h-72 rounded-2xl" />
     </div>
   )
 }
@@ -217,7 +225,7 @@ function SummaryError({
   onRetry: () => void
 }) {
   return (
-    <Card size="sm" className="shadow-lg">
+    <Card size="sm">
       <Empty className="p-6">
         <EmptyHeader>
           <EmptyMedia variant="icon">
@@ -237,7 +245,7 @@ function SummaryError({
   )
 }
 
-export function DashboardOverview({ fluid = false }: { fluid?: boolean }) {
+export function DashboardOverview() {
   const { data, isPending, isError, error, refetch } = useDashboardSummary()
 
   if (isPending) {
@@ -245,27 +253,66 @@ export function DashboardOverview({ fluid = false }: { fluid?: boolean }) {
   }
 
   if (isError || !data) {
-    return <SummaryError message={error?.message} onRetry={() => refetch()} />
+    return (
+      <div className="pointer-events-auto w-full max-w-sm">
+        <SummaryError message={error?.message} onRetry={() => refetch()} />
+      </div>
+    )
   }
 
   return (
-    <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-      <div
-        className={cn(
-          "pointer-events-auto w-full",
-          fluid ? "max-w-none" : "max-w-md"
-        )}
-      >
-        <SummaryCard summary={data} />
-      </div>
-      <div
-        className={cn(
-          "pointer-events-auto w-full",
-          fluid ? "max-w-none" : "max-w-sm"
-        )}
-      >
-        <RecentEventsCard events={data.recent_events} />
-      </div>
+    <div className="pointer-events-auto flex w-full max-w-sm flex-col gap-3">
+      <SummaryCards summary={data} />
     </div>
+  )
+}
+
+export function DashboardMobileSummary() {
+  const { data, isPending, isError, error, refetch } = useDashboardSummary()
+
+  return (
+    <Drawer showSwipeHandle>
+      <DrawerTrigger
+        render={
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="rounded-full bg-background/95 shadow-lg backdrop-blur"
+          />
+        }
+      >
+        <HugeiconsIcon
+          icon={ServerStackIcon}
+          strokeWidth={2}
+          data-icon="inline-start"
+        />
+        Ringkasan
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerTitle className="sr-only">Ringkasan dashboard</DrawerTitle>
+        <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-4">
+          {isPending ? (
+            <SummarySkeleton />
+          ) : isError || !data ? (
+            <SummaryError message={error?.message} onRetry={() => refetch()} />
+          ) : (
+            <>
+              <DevicesSummary devices={data.devices} />
+              <EventSummarySection summary={data} />
+            </>
+          )}
+        </div>
+        <DrawerFooter>
+          <DrawerClose
+            render={
+              <Button type="button" variant="outline" className="w-full" />
+            }
+          >
+            Tutup
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   )
 }

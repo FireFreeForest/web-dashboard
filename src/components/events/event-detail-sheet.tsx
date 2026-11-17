@@ -26,6 +26,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
+import { useDeviceMap } from "@/features/devices/queries"
 import {
   useAcknowledgeEvent,
   useResolveEvent,
@@ -54,6 +55,9 @@ function EventDetailContent({
 }) {
   const acknowledge = useAcknowledgeEvent()
   const resolve = useResolveEvent()
+  const devices = useDeviceMap()
+
+  const deviceCode = devices.data?.get(event.device_id)?.device_id ?? "—"
 
   const handleAcknowledge = async () => {
     try {
@@ -106,7 +110,7 @@ function EventDetailContent({
         <div className="flex flex-col gap-3">
           <DetailRow label="Pesan" value={event.message} />
           <DetailRow label="Source" value={event.source || "—"} />
-          <DetailRow label="Device" value={event.device_id} />
+          <DetailRow label="Device" value={deviceCode} />
           <DetailRow label="Dibuat" value={formatTimestamp(event.created_at)} />
         </div>
 
