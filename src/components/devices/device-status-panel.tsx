@@ -70,7 +70,7 @@ export function DeviceStatusPanel({ deviceId }: { deviceId: string }) {
               value={
                 data.environment.humidity != null
                   ? `${data.environment.humidity}%`
-                  : "—"
+                  : "-"
               }
             />
             <Metric
@@ -96,7 +96,7 @@ export function DeviceStatusPanel({ deviceId }: { deviceId: string }) {
               value={
                 data.fire.flame_level != null
                   ? String(data.fire.flame_level)
-                  : "—"
+                  : "-"
               }
             />
             <Metric

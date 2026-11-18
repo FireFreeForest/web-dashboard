@@ -3,12 +3,7 @@ import { WaterPumpIcon } from "@hugeicons/core-free-icons"
 
 import { IssueCommandDialog } from "@/components/commands/issue-command-dialog"
 import { Badge } from "@/components/ui/badge"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useMe } from "@/features/auth/queries"
 
 export function NodeCommandCard({
@@ -37,11 +32,8 @@ export function NodeCommandCard({
           </span>
           <div className="flex flex-col gap-0.5">
             <span className="text-sm font-medium">Pompa Air</span>
-            <Badge
-              variant={pump ? "secondary" : "outline"}
-              className="w-fit"
-            >
-              {pump == null ? "—" : pump ? "ON" : "OFF"}
+            <Badge variant={pump ? "secondary" : "outline"} className="w-fit">
+              {pump == null ? "-" : pump ? "ON" : "OFF"}
             </Badge>
           </div>
         </div>

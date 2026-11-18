@@ -18,6 +18,7 @@ export type Device = {
   status: DeviceStatus
   firmware_version: string
   last_seen_at: string | null
+  uptime_seconds?: number
   created_at: string
   updated_at: string
 }
@@ -26,6 +27,8 @@ export type DeviceStatusDetail = {
   device: Device
   status: DeviceStatus
   last_seen_at: string | null
+  online_since: string | null
+  uptime_seconds: number
   environment: EnvironmentTelemetry | null
   fire: FireTelemetry | null
   risk_level: RiskLevel

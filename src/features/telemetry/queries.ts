@@ -31,8 +31,8 @@ export const telemetryKeys = {
     [
       ...telemetryKeys.all,
       "environment",
-      "aggregate",
       deviceId,
+      "aggregate",
       params.from,
       params.to,
       params.interval,
@@ -51,8 +51,8 @@ export const telemetryKeys = {
     [
       ...telemetryKeys.all,
       "fire",
-      "aggregate",
       deviceId,
+      "aggregate",
       params.from,
       params.to,
       params.interval,

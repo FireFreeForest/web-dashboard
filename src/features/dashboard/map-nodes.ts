@@ -39,7 +39,7 @@ export function toMapNode(
   return {
     id: device.device_id,
     name: device.name || device.device_id,
-    region: device.location_name || "—",
+    region: device.location_name || "-",
     coordinates: {
       longitude: device.longitude,
       latitude: device.latitude,

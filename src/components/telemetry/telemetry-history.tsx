@@ -50,7 +50,7 @@ const environmentColumns: Array<
       const value = row.original.humidity
       return (
         <span className="tabular-nums">
-          {value != null ? `${value}%` : "—"}
+          {value != null ? `${value}%` : "-"}
         </span>
       )
     },
@@ -92,7 +92,7 @@ const fireColumns: Array<
     header: "Tingkat Api",
     cell: ({ row }) => (
       <span className="tabular-nums">
-        {row.original.flame_level != null ? row.original.flame_level : "—"}
+        {row.original.flame_level != null ? row.original.flame_level : "-"}
       </span>
     ),
   },

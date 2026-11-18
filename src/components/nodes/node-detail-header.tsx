@@ -79,7 +79,9 @@ export function NodeDetailHeader({
               <h1 className="truncate font-heading text-2xl font-semibold tracking-tight">
                 {device.name}
               </h1>
-              <RiskLevelPill level={riskLevel} />
+              {riskLevel !== "UNKNOWN" ? (
+                <RiskLevelPill level={riskLevel} />
+              ) : null}
             </div>
             <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground lg:flex-nowrap">
               <span className="font-mono text-xs tracking-wide whitespace-nowrap">
@@ -91,7 +93,7 @@ export function NodeDetailHeader({
                   strokeWidth={2}
                   className="size-3.5 shrink-0"
                 />
-                <span className="truncate">{device.location_name || "—"}</span>
+                <span className="truncate">{device.location_name || "-"}</span>
               </span>
               <span className="inline-flex items-center gap-1 whitespace-nowrap">
                 <HugeiconsIcon

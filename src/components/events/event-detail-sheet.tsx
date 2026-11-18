@@ -57,7 +57,7 @@ function EventDetailContent({
   const resolve = useResolveEvent()
   const devices = useDeviceMap()
 
-  const deviceCode = devices.data?.get(event.device_id)?.device_id ?? "—"
+  const deviceCode = devices.data?.get(event.device_id)?.device_id ?? "-"
 
   const handleAcknowledge = async () => {
     try {
@@ -109,7 +109,7 @@ function EventDetailContent({
 
         <div className="flex flex-col gap-3">
           <DetailRow label="Pesan" value={event.message} />
-          <DetailRow label="Sumber" value={event.source || "—"} />
+          <DetailRow label="Sumber" value={event.source || "-"} />
           <DetailRow label="Device" value={deviceCode} />
           <DetailRow label="Dibuat" value={formatDateTime(event.created_at)} />
         </div>
@@ -125,12 +125,12 @@ function EventDetailContent({
             value={
               event.acknowledged_at
                 ? formatDateTime(event.acknowledged_at)
-                : "—"
+                : "-"
             }
           />
           <DetailRow
             label="Diselesaikan"
-            value={event.resolved_at ? formatDateTime(event.resolved_at) : "—"}
+            value={event.resolved_at ? formatDateTime(event.resolved_at) : "-"}
           />
         </div>
 

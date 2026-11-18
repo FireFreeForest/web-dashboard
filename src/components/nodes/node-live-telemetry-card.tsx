@@ -31,7 +31,7 @@ export function NodeLiveTelemetryCard({
       ? `${adcToInvertedPercent(fire.flame_level)}%`
       : fire?.flame_detected
         ? "Terdeteksi"
-        : "—"
+        : "-"
 
   return (
     <Card>
@@ -55,7 +55,7 @@ export function NodeLiveTelemetryCard({
           icon={HumidityIcon}
           label="Kelembapan"
           value={
-            environment?.humidity != null ? `${environment.humidity}%` : "—"
+            environment?.humidity != null ? `${environment.humidity}%` : "-"
           }
           className="bg-sky-500/10 lg:col-span-1 lg:col-start-2 lg:row-start-2"
           iconClassName="text-sky-600 dark:text-sky-400"
@@ -64,7 +64,7 @@ export function NodeLiveTelemetryCard({
           icon={Plant01Icon}
           label="Kelembapan Tanah"
           value={
-            environment ? `${adcToPercent(environment.soil_moisture)}%` : "—"
+            environment ? `${adcToPercent(environment.soil_moisture)}%` : "-"
           }
           className="bg-emerald-500/10 lg:col-span-1 lg:col-start-3 lg:row-start-2"
           iconClassName="text-emerald-600 dark:text-emerald-400"
@@ -88,7 +88,7 @@ export function NodeLiveTelemetryCard({
         <MetricTile
           icon={CloudFogIcon}
           label="Intensitas Asap"
-          value={fire ? `${adcToPercent(fire.smoke_level)}%` : "—"}
+          value={fire ? `${adcToPercent(fire.smoke_level)}%` : "-"}
           className="bg-amber-500/10 lg:col-span-1 lg:col-start-5 lg:row-start-2"
           iconClassName="text-amber-600 dark:text-amber-400"
         />
@@ -104,7 +104,7 @@ export function NodeLiveTelemetryCard({
         <MetricTile
           icon={PowerIcon}
           label="Pompa Air"
-          value={fire ? (fire.pump ? "ON" : "OFF") : "—"}
+          value={fire ? (fire.pump ? "ON" : "OFF") : "-"}
           className={cn(
             "lg:col-span-1 lg:col-start-6 lg:row-start-2",
             fire?.pump ? "bg-primary/10" : "bg-muted"

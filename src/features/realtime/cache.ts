@@ -61,14 +61,31 @@ function patchDevicePresence(
   )
 }
 
-function invalidateTelemetryList(
+const TELEMETRY_INVALIDATION_THROTTLE_MS = 3_000
+
+const telemetryInvalidationTimers = new Map<string, number>()
+
+function invalidateTelemetrySeries(
   queryClient: QueryClient,
   deviceId: string,
   kind: "environment" | "fire"
 ): void {
-  void queryClient.invalidateQueries({
-    queryKey: [...telemetryKeys.all, kind, deviceId],
-  })
+  const invalidationKey = `${kind}:${deviceId}`
+
+  if (telemetryInvalidationTimers.has(invalidationKey)) {
+    return
+  }
+
+  const timer = window.setTimeout(() => {
+    telemetryInvalidationTimers.delete(invalidationKey)
+
+    void queryClient.invalidateQueries({
+      queryKey: [...telemetryKeys.all, kind, deviceId],
+      predicate: (query) => !query.queryKey.includes("aggregate"),
+    })
+  }, TELEMETRY_INVALIDATION_THROTTLE_MS)
+
+  telemetryInvalidationTimers.set(invalidationKey, timer)
 }
 
 function updateEnvironmentTelemetry(
@@ -99,7 +116,7 @@ function updateEnvironmentTelemetry(
         : current
   )
 
-  invalidateTelemetryList(queryClient, deviceId, "environment")
+  invalidateTelemetrySeries(queryClient, deviceId, "environment")
 }
 
 function updateFireTelemetry(
@@ -130,7 +147,7 @@ function updateFireTelemetry(
         : current
   )
 
-  invalidateTelemetryList(queryClient, deviceId, "fire")
+  invalidateTelemetrySeries(queryClient, deviceId, "fire")
 }
 
 function updateEvent(queryClient: QueryClient, event: Event): void {

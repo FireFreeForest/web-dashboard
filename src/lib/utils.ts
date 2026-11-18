@@ -42,34 +42,34 @@ const shortTimeWithSecondsFormatter = new Intl.DateTimeFormat("id-ID", {
 
 export function formatDate(value: DateInput): string {
   const date = toDate(value)
-  return date ? dateFormatter.format(date) : "—"
+  return date ? dateFormatter.format(date) : "-"
 }
 
 export function formatTime(value: DateInput): string {
   const date = toDate(value)
-  return date ? timeFormatter.format(date) : "—"
+  return date ? timeFormatter.format(date) : "-"
 }
 
 export function formatDateTime(value: DateInput): string {
   const date = toDate(value)
-  if (!date) return "—"
+  if (!date) return "-"
 
   return `${dateFormatter.format(date)} ${timeFormatter.format(date)}`
 }
 
 export function formatShortDate(value: DateInput): string {
   const date = toDate(value)
-  return date ? shortDateFormatter.format(date) : "—"
+  return date ? shortDateFormatter.format(date) : "-"
 }
 
 export function formatShortTime(value: DateInput): string {
   const date = toDate(value)
-  return date ? shortTimeFormatter.format(date) : "—"
+  return date ? shortTimeFormatter.format(date) : "-"
 }
 
 export function formatShortTimeWithSeconds(value: DateInput): string {
   const date = toDate(value)
-  return date ? shortTimeWithSecondsFormatter.format(date) : "—"
+  return date ? shortTimeWithSecondsFormatter.format(date) : "-"
 }
 
 const relativeTimeFormatter = new Intl.RelativeTimeFormat("id-ID", {
@@ -78,7 +78,7 @@ const relativeTimeFormatter = new Intl.RelativeTimeFormat("id-ID", {
 
 export function formatRelativeTime(value: DateInput): string {
   const date = toDate(value)
-  if (!date) return "—"
+  if (!date) return "-"
 
   const diffMs = date.getTime() - Date.now()
   const absMs = Math.abs(diffMs)
@@ -100,16 +100,41 @@ export function formatRelativeTime(value: DateInput): string {
 const numberFormatter = new Intl.NumberFormat("id-ID")
 
 export function formatNumber(value: number | null | undefined): string {
-  if (value == null || Number.isNaN(value)) return "—"
+  if (value == null || Number.isNaN(value)) return "-"
   return numberFormatter.format(value)
 }
 
 export function formatTemperature(value: number | null | undefined): string {
-  if (value == null || Number.isNaN(value)) return "—"
+  if (value == null || Number.isNaN(value)) return "-"
   return `${value.toFixed(1)}°C`
 }
 
 export function formatVoltage(value: number | null | undefined): string {
-  if (value == null || Number.isNaN(value)) return "—"
+  if (value == null || Number.isNaN(value)) return "-"
   return `${value.toFixed(2)} V`
+}
+
+export function formatUptime(seconds: number | null | undefined): string {
+  if (seconds == null || Number.isNaN(seconds) || seconds < 0) return "-"
+
+  const total = Math.floor(seconds)
+  if (total === 0) return "-"
+  if (total < 60) return `${total} detik`
+
+  const days = Math.floor(total / 86_400)
+  const hours = Math.floor((total % 86_400) / 3_600)
+  const minutes = Math.floor((total % 3_600) / 60)
+  const remainingSeconds = total % 60
+
+  if (days > 0) {
+    return hours > 0 ? `${days} hari ${hours} jam` : `${days} hari`
+  }
+
+  if (hours > 0) {
+    return minutes > 0 ? `${hours} jam ${minutes} menit` : `${hours} jam`
+  }
+
+  return remainingSeconds > 0
+    ? `${minutes} menit ${remainingSeconds} detik`
+    : `${minutes} menit`
 }

@@ -43,7 +43,7 @@ function IntensityBar({
           />
         </div>
         <span className="w-9 text-right text-xs font-medium tabular-nums">
-          {normalized === null ? "—" : `${Math.round(normalized)}%`}
+          {normalized === null ? "-" : `${Math.round(normalized)}%`}
         </span>
       </div>
     </div>
@@ -61,7 +61,7 @@ function PumpPill({ state }: { state: PumpState | null }) {
       )}
     >
       <HugeiconsIcon icon={PowerIcon} strokeWidth={2} className="size-3" />
-      {state === null ? "—" : isOn ? "ON" : "OFF"}
+      {state === null ? "-" : isOn ? "ON" : "OFF"}
     </span>
   )
 }
@@ -138,7 +138,7 @@ export function NodeDetailCard({ node }: { node: MapNode }) {
           value={
             node.environment.humidityPct !== null
               ? `${Math.round(node.environment.humidityPct)}%`
-              : "—"
+              : "-"
           }
           className="bg-sky-500/10"
           iconClassName="text-sky-600 dark:text-sky-400"
@@ -150,7 +150,7 @@ export function NodeDetailCard({ node }: { node: MapNode }) {
           value={
             node.environment.soilMoisturePct !== null
               ? `${node.environment.soilMoisturePct}%`
-              : "—"
+              : "-"
           }
           className="bg-emerald-500/10"
           iconClassName="text-emerald-600 dark:text-emerald-400"

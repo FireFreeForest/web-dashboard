@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 import {
@@ -13,13 +13,8 @@ import { useFireTelemetryAggregate } from "@/features/telemetry/queries"
 import { seriesPointTime, seriesPumpRatio } from "@/features/telemetry/utils"
 
 import { NodeTrendCard } from "./node-trend-card"
-import {
-  formatTrendTime,
-  formatTrendTooltipLabel,
-  getTrendWindow,
-  RANGE_INTERVAL_MINUTES,
-  type TrendRange,
-} from "./node-trends-data"
+import { formatTrendTime, formatTrendTooltipLabel } from "./node-trends-data"
+import { useTrendRange } from "./use-trend-range"
 
 const chartConfig = {
   pump: {
@@ -28,13 +23,18 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function NodeWaterPumpTrendsCard({ deviceId }: { deviceId: string }) {
-  const [range, setRange] = useState<TrendRange>("1H")
-  const window = useMemo(() => getTrendWindow(range), [range])
+export function NodeWaterPumpTrendsCard({
+  deviceId,
+  now,
+}: {
+  deviceId: string
+  now: number
+}) {
+  const trend = useTrendRange(now)
   const query = useFireTelemetryAggregate(deviceId, {
-    from: window.from,
-    to: window.to,
-    interval: RANGE_INTERVAL_MINUTES[range],
+    from: trend.rangeWindow.from,
+    to: trend.rangeWindow.to,
+    interval: trend.interval,
   })
 
   const points = useMemo(() => {
@@ -53,8 +53,9 @@ export function NodeWaterPumpTrendsCard({ deviceId }: { deviceId: string }) {
   return (
     <NodeTrendCard
       title="Pompa Air"
-      range={range}
-      onRangeChange={setRange}
+      selection={trend.selection}
+      onPresetChange={trend.setPreset}
+      onCustomChange={trend.setCustom}
       isLoading={query.isLoading}
       isError={query.isError}
       errorMessage={query.error?.message}
@@ -72,7 +73,9 @@ export function NodeWaterPumpTrendsCard({ deviceId }: { deviceId: string }) {
             tickLine={false}
             axisLine={false}
             minTickGap={24}
-            tickFormatter={(value: number) => formatTrendTime(value, range)}
+            tickFormatter={(value: number) =>
+              formatTrendTime(value, trend.selection)
+            }
           />
           <YAxis
             tickLine={false}
@@ -85,7 +88,7 @@ export function NodeWaterPumpTrendsCard({ deviceId }: { deviceId: string }) {
             content={
               <ChartTooltipContent
                 labelFormatter={(_, payload) =>
-                  formatTrendTooltipLabel(payload, range)
+                  formatTrendTooltipLabel(payload, trend.selection)
                 }
               />
             }

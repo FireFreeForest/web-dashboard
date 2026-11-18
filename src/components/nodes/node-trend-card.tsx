@@ -1,5 +1,10 @@
+import { useMemo, useState } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { RefreshIcon, TimelineEventIcon } from "@hugeicons/core-free-icons"
+import {
+  Calendar03Icon,
+  RefreshIcon,
+  TimelineEventIcon,
+} from "@hugeicons/core-free-icons"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -23,13 +28,20 @@ import {
   ToggleGroupItem,
 } from "@/components/ui/toggle-group"
 
-import { TREND_RANGES, type TrendRange } from "./node-trends-data"
+import { NodeCustomRangeDialog } from "./node-custom-range-dialog"
+import {
+  TREND_RANGES,
+  type CustomTrendRange,
+  type TrendRange,
+  type TrendSelection,
+} from "./node-trends-data"
 
 export function NodeTrendCard({
   title,
   description,
-  range,
-  onRangeChange,
+  selection,
+  onPresetChange,
+  onCustomChange,
   isLoading,
   isError,
   errorMessage,
@@ -39,8 +51,9 @@ export function NodeTrendCard({
 }: {
   title: string
   description?: string
-  range: TrendRange
-  onRangeChange: (range: TrendRange) => void
+  selection: TrendSelection
+  onPresetChange: (range: TrendRange) => void
+  onCustomChange: (range: CustomTrendRange) => void
   isLoading: boolean
   isError: boolean
   errorMessage?: string
@@ -48,6 +61,16 @@ export function NodeTrendCard({
   isEmpty: boolean
   children: React.ReactNode
 }) {
+  const [customOpen, setCustomOpen] = useState(false)
+
+  const customValue = useMemo(
+    () =>
+      selection.kind === "custom"
+        ? { from: selection.from, to: selection.to }
+        : null,
+    [selection]
+  )
+
   return (
     <Card>
       <CardHeader>
@@ -57,10 +80,20 @@ export function NodeTrendCard({
         ) : null}
         <CardAction>
           <ToggleGroup
-            value={[range]}
+            value={[selection.kind === "custom" ? "CUSTOM" : selection.range]}
             onValueChange={(next) => {
-              const value = next[0] as TrendRange | undefined
-              if (value) onRangeChange(value)
+              const value = next[0]
+              if (!value) {
+                if (selection.kind === "custom") setCustomOpen(true)
+                return
+              }
+
+              if (value === "CUSTOM") {
+                setCustomOpen(true)
+                return
+              }
+
+              onPresetChange(value as TrendRange)
             }}
             variant="outline"
             size="sm"
@@ -71,6 +104,12 @@ export function NodeTrendCard({
                 {option.label}
               </ToggleGroupItem>
             ))}
+            <ToggleGroupItem
+              value="CUSTOM"
+              aria-label="Rentang waktu kustom"
+            >
+              <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} />
+            </ToggleGroupItem>
           </ToggleGroup>
         </CardAction>
       </CardHeader>
@@ -103,6 +142,12 @@ export function NodeTrendCard({
           children
         )}
       </CardContent>
+      <NodeCustomRangeDialog
+        open={customOpen}
+        onOpenChange={setCustomOpen}
+        value={customValue}
+        onApply={onCustomChange}
+      />
     </Card>
   )
 }

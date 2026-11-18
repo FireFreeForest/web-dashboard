@@ -99,7 +99,7 @@ export function DevicesTable({
         header: "Lokasi",
         cell: ({ row }) => (
           <span className="text-muted-foreground">
-            {row.original.location_name || "—"}
+            {row.original.location_name || "-"}
           </span>
         ),
       },

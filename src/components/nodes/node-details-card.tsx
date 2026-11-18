@@ -3,15 +3,17 @@ import {
   BatteryIcon,
   BoltIcon,
   CpuIcon,
+  RadioTowerIcon,
   SignalFull01Icon,
   Timer01Icon,
 } from "@hugeicons/core-free-icons"
 
+import { DeviceStatusPill } from "@/components/devices/device-ui"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import type { Device } from "@/features/devices/types"
-import { cn, formatVoltage } from "@/lib/utils"
+import type { Device, DeviceStatus } from "@/features/devices/types"
+import { cn, formatUptime, formatVoltage } from "@/lib/utils"
 
 import { nodeHardwarePlaceholder } from "./node-detail-placeholders"
 
@@ -64,7 +66,15 @@ function DetailRow({
   )
 }
 
-export function NodeDetailsCard({ device }: { device: Device }) {
+export function NodeDetailsCard({
+  device,
+  status,
+  uptimeSeconds,
+}: {
+  device: Device
+  status: DeviceStatus
+  uptimeSeconds: number | null
+}) {
   const hardware = nodeHardwarePlaceholder
 
   return (
@@ -73,9 +83,13 @@ export function NodeDetailsCard({ device }: { device: Device }) {
         <CardTitle>Detail Device</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
+        <DetailRow icon={RadioTowerIcon} label="Status">
+          <DeviceStatusPill status={status} />
+        </DetailRow>
+        <Separator />
         <DetailRow icon={CpuIcon} label="Versi Firmware">
           <span className="font-mono text-xs">
-            {device.firmware_version || "—"}
+            {device.firmware_version || "-"}
           </span>
         </DetailRow>
         <Separator />
@@ -96,7 +110,7 @@ export function NodeDetailsCard({ device }: { device: Device }) {
         </DetailRow>
         <Separator />
         <DetailRow icon={Timer01Icon} label="Waktu Aktif">
-          <span>{hardware.uptime}</span>
+          <span>{formatUptime(uptimeSeconds)}</span>
         </DetailRow>
       </CardContent>
     </Card>

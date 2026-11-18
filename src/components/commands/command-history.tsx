@@ -60,7 +60,7 @@ const commandColumns: Array<
     cell: ({ row }) => {
       const { state, duration } = row.original.payload
       return (
-        <span className="tabular-nums">{state ? `${duration}s` : "—"}</span>
+        <span className="tabular-nums">{state ? `${duration}s` : "-"}</span>
       )
     },
   },
