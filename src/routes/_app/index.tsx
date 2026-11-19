@@ -16,10 +16,14 @@ import { Map, MapControls, useMap, type MapViewport } from "@/components/ui/map"
 import { useSidebar } from "@/components/ui/sidebar"
 import { useMapNodes } from "@/features/dashboard/map-nodes"
 import { groupMapNodes, type MapNode } from "@/lib/nodes"
+import { pageTitle } from "@/lib/site"
 import { cn } from "@/lib/utils"
 
 export const Route = createFileRoute("/_app/")({
   staticData: { crumb: "Beranda" },
+  head: () => ({
+    meta: [{ title: pageTitle("Beranda") }],
+  }),
   component: DashboardPage,
 })
 

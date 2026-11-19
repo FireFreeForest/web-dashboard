@@ -5,6 +5,7 @@ import { LoginForm } from "@/components/auth/login-form"
 import { Card, CardContent } from "@/components/ui/card"
 import { meQueryOptions } from "@/features/auth/queries"
 import { hasSession } from "@/features/auth/token-storage"
+import { SITE_URL, pageTitle } from "@/lib/site"
 
 type AuthBeforeLoadContext = {
   context: { queryClient: QueryClient }
@@ -12,6 +13,13 @@ type AuthBeforeLoadContext = {
 
 export const Route = createFileRoute("/auth")({
   staticData: { crumb: "Masuk" },
+  head: () => ({
+    meta: [
+      { title: pageTitle("Masuk") },
+      { name: "robots", content: "index, follow" },
+    ],
+    links: [{ rel: "canonical", href: `${SITE_URL}/auth` }],
+  }),
   validateSearch: (search: Record<string, unknown>) => ({
     redirect:
       typeof search.redirect === "string" &&

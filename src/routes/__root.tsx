@@ -1,5 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query"
 import {
+  HeadContent,
   Link,
   Outlet,
   createRootRouteWithContext,
@@ -9,10 +10,18 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 import { RouteError } from "@/components/feedback/route-error"
 import { RoutePending } from "@/components/feedback/route-pending"
 import { Button } from "@/components/ui/button"
+import { SITE_DESCRIPTION, SITE_TITLE } from "@/lib/site"
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
+  head: () => ({
+    meta: [
+      { title: SITE_TITLE },
+      { name: "description", content: SITE_DESCRIPTION },
+      { name: "robots", content: "index, follow" },
+    ],
+  }),
   component: RootComponent,
   pendingComponent: RoutePending,
   errorComponent: RouteError,
@@ -22,6 +31,7 @@ export const Route = createRootRouteWithContext<{
 function RootComponent() {
   return (
     <>
+      <HeadContent />
       <Outlet />
       {import.meta.env.DEV ? (
         <TanStackRouterDevtools position="bottom-right" />

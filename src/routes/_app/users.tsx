@@ -9,6 +9,7 @@ import { UsersTable } from "@/components/users/users-table"
 import { meQueryOptions, useMe } from "@/features/auth/queries"
 import { useUsers } from "@/features/users/queries"
 import { ApiError } from "@/lib/api/types"
+import { pageTitle } from "@/lib/site"
 import { useDebouncedValue } from "@/hooks/use-debounced-value"
 
 type UsersBeforeLoadContext = {
@@ -17,6 +18,9 @@ type UsersBeforeLoadContext = {
 
 export const Route = createFileRoute("/_app/users")({
   staticData: { crumb: "Users" },
+  head: () => ({
+    meta: [{ title: pageTitle("Users") }],
+  }),
   beforeLoad: async ({ context }: UsersBeforeLoadContext) => {
     const user = await context.queryClient.ensureQueryData(meQueryOptions())
 

@@ -8,10 +8,14 @@ import { DevicesTable } from "@/components/devices/devices-table"
 import { useMe } from "@/features/auth/queries"
 import { useDevices } from "@/features/devices/queries"
 import { ApiError } from "@/lib/api/types"
+import { pageTitle } from "@/lib/site"
 import { useDebouncedValue } from "@/hooks/use-debounced-value"
 
 export const Route = createFileRoute("/_app/nodes")({
   staticData: { crumb: "Device" },
+  head: () => ({
+    meta: [{ title: pageTitle("Device") }],
+  }),
   component: NodesPage,
 })
 

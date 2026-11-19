@@ -21,6 +21,9 @@ type AppBeforeLoadContext = {
 }
 
 export const Route = createFileRoute("/_app")({
+  head: () => ({
+    meta: [{ name: "robots", content: "noindex, nofollow" }],
+  }),
   beforeLoad: async ({ context, location }: AppBeforeLoadContext) => {
     if (!hasSession()) {
       throw redirect({ to: "/auth", search: { redirect: location.href } })

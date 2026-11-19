@@ -29,14 +29,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
-              tooltip="Fire-Free Forest"
+              tooltip="Fire Free Forest"
               render={<Link to="/" />}
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                 <HugeiconsIcon icon={PineTreeIcon} strokeWidth={2} />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">Fire-Free Forest</span>
+                <span className="truncate font-semibold">Fire Free Forest</span>
                 <span className="truncate text-xs text-sidebar-foreground/70">
                   Dashboard
                 </span>

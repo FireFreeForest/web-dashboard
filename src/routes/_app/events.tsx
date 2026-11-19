@@ -9,9 +9,13 @@ import { useDevices } from "@/features/devices/queries"
 import { useEvents } from "@/features/events/queries"
 import type { EventStatus, EventType, Severity } from "@/features/events/types"
 import { ApiError } from "@/lib/api/types"
+import { pageTitle } from "@/lib/site"
 
 export const Route = createFileRoute("/_app/events")({
   staticData: { crumb: "Events" },
+  head: () => ({
+    meta: [{ title: pageTitle("Events") }],
+  }),
   component: EventsPage,
 })
 

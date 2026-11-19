@@ -17,10 +17,14 @@ import { PushNotificationSettings } from "@/components/push/push-notification-se
 import { RealtimeConnectionSettings } from "@/components/realtime/realtime-connection-settings"
 import { RealtimeTicketSettings } from "@/components/realtime/realtime-ticket-settings"
 import { Button } from "@/components/ui/button"
+import { pageTitle } from "@/lib/site"
 import { cn } from "@/lib/utils"
 
 export const Route = createFileRoute("/_app/settings")({
   staticData: { crumb: "Pengaturan" },
+  head: () => ({
+    meta: [{ title: pageTitle("Pengaturan") }],
+  }),
   component: SettingsPage,
 })
 

@@ -104,7 +104,7 @@ export function LoginForm({
             <div className="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <HugeiconsIcon icon={PineTreeIcon} strokeWidth={2} />
             </div>
-            <h1 className="text-xl font-bold">Fire-Free Forest</h1>
+            <h1 className="text-xl font-bold">Fire Free Forest</h1>
             <FieldDescription>
               Masuk ke dasbor pemantauan hutan.
             </FieldDescription>
@@ -139,7 +139,11 @@ export function LoginForm({
             <FieldError>{errorMessage}</FieldError>
           </Field>
           <Field>
-            <Button type="submit" disabled={isDisabled} aria-busy={login.isPending}>
+            <Button
+              type="submit"
+              disabled={isDisabled}
+              aria-busy={login.isPending}
+            >
               {login.isPending ? "Sedang masuk..." : "Masuk"}
             </Button>
           </Field>
