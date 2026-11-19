@@ -136,7 +136,7 @@ function DashboardPage() {
         : null
 
   return (
-    <div className="relative flex-1 overflow-hidden">
+    <div className="relative flex-1 overflow-hidden md:fixed md:inset-0 md:z-0">
       <div className="absolute inset-0">
         <Map
           center={MAP_CENTER}
@@ -178,7 +178,7 @@ function DashboardPage() {
       </div>
       <div
         className={cn(
-          "pointer-events-none absolute top-1 right-1 left-1 z-10 hidden max-h-[calc(100%-2rem)] overflow-y-auto p-3 pb-6 sm:top-3 sm:right-3 md:block",
+          "pointer-events-none absolute top-1 right-1 left-1 z-10 hidden max-h-[calc(100%-2rem)] overflow-y-auto p-3 pb-6 transition-[left] duration-200 ease-linear sm:top-3 sm:right-3 md:block",
           sidebarState === "collapsed"
             ? "md:left-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px+(--spacing(3)))]"
             : "md:left-[calc(var(--sidebar-width)+(--spacing(3)))]"

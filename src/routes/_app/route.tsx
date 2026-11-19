@@ -3,7 +3,6 @@ import {
   Outlet,
   createFileRoute,
   redirect,
-  useMatchRoute,
   type ParsedLocation,
 } from "@tanstack/react-router"
 
@@ -15,7 +14,6 @@ import { meQueryOptions } from "@/features/auth/queries"
 import { clearSession } from "@/features/auth/session"
 import { hasSession } from "@/features/auth/token-storage"
 import { ApiError } from "@/lib/api/types"
-import { cn } from "@/lib/utils"
 
 type AppBeforeLoadContext = {
   context: { queryClient: QueryClient }
@@ -46,14 +44,9 @@ export const Route = createFileRoute("/_app")({
 })
 
 function AppLayout() {
-  const matchRoute = useMatchRoute()
-  const isDashboard = Boolean(matchRoute({ to: "/", fuzzy: false }))
-
   return (
     <RealtimeProvider>
-      <SidebarProvider
-        className={cn(isDashboard && "[&_[data-slot=sidebar-gap]]:w-0!")}
-      >
+      <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
