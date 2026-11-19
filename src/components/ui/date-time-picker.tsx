@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { format } from "date-fns"
+import type { Matcher } from "react-day-picker"
 import { id as localeId } from "react-day-picker/locale"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Calendar03Icon, Cancel01Icon } from "@hugeicons/core-free-icons"
@@ -24,6 +25,7 @@ export function DateTimePicker({
   placeholder = "Pilih tanggal & waktu",
   disabled,
   className,
+  disabledDates,
 }: {
   id?: string
   value?: Date
@@ -31,6 +33,7 @@ export function DateTimePicker({
   placeholder?: string
   disabled?: boolean
   className?: string
+  disabledDates?: Matcher | Matcher[]
 }) {
   const [open, setOpen] = useState(false)
 
@@ -90,6 +93,7 @@ export function DateTimePicker({
             selected={value}
             onSelect={handleDateSelect}
             locale={localeId}
+            disabled={disabledDates}
           />
           <div className="flex divide-y sm:h-[300px] sm:flex-row sm:divide-x sm:divide-y-0">
             <ScrollArea className="w-64 sm:w-auto">

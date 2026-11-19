@@ -3,7 +3,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { FilterIcon } from "@hugeicons/core-free-icons"
 import type { ColumnFiltersState } from "@tanstack/react-table"
 
-import { DateTimePicker } from "@/components/events/date-time-picker"
+import { DateTimePicker } from "@/components/ui/date-time-picker"
 import {
   EVENT_TYPE_FILTER_OPTIONS,
   SEVERITY_FILTER_OPTIONS,
