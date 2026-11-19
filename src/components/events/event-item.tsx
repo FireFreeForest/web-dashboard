@@ -1,29 +1,13 @@
 import { HugeiconsIcon } from "@hugeicons/react"
-import {
-  Activity01Icon,
-  AlarmSmokeIcon,
-  FireIcon,
-  SoilMoistureFieldIcon,
-  ThermometerSunIcon,
-  WifiDisconnected01Icon,
-} from "@hugeicons/core-free-icons"
 
 import {
+  EVENT_TYPE_ICON,
   EVENT_TYPE_LABEL,
   SEVERITY_META,
   SeverityBadge,
 } from "@/components/events/event-ui"
-import type { Event, EventType } from "@/features/events/types"
+import type { Event } from "@/features/events/types"
 import { cn, formatRelativeTime } from "@/lib/utils"
-
-const EVENT_TYPE_ICON: Record<EventType, typeof FireIcon> = {
-  FIRE_DETECTED: FireIcon,
-  SMOKE_DETECTED: AlarmSmokeIcon,
-  TEMPERATURE_HIGH: ThermometerSunIcon,
-  SOIL_DRY: SoilMoistureFieldIcon,
-  DEVICE_OFFLINE: WifiDisconnected01Icon,
-  SENSOR_ERROR: Activity01Icon,
-}
 
 export function EventItem({
   event,

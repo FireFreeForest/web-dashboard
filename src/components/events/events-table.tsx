@@ -1,271 +1,82 @@
-import { useId, useMemo, useState } from "react"
-import { useCreateAtom, useSelector } from "@tanstack/react-store"
+import { useMemo, useState } from "react"
+import type { Atom } from "@tanstack/react-store"
 import {
   useTable,
   type ColumnDef,
+  type ColumnFiltersState,
   type PaginationState,
 } from "@tanstack/react-table"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { FilterIcon } from "@hugeicons/core-free-icons"
+import { TimelineEventIcon } from "@hugeicons/core-free-icons"
 
 import { DataTable } from "@/components/data-table/data-table"
 import { TablePagination } from "@/components/data-table/table-pagination"
+import { TableToolbar } from "@/components/data-table/table-toolbar"
 import { EventDetailSheet } from "@/components/events/event-detail-sheet"
 import {
+  EventFilterSheet,
+  type EventFilterValues,
+} from "@/components/events/event-filters"
+import {
+  EVENT_TYPE_ICON,
   EVENT_TYPE_LABEL,
-  EVENT_TYPE_OPTIONS,
   SeverityBadge,
   StatusBadge,
 } from "@/components/events/event-ui"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useMe } from "@/features/auth/queries"
-import { useDevices } from "@/features/devices/queries"
 import type { Device } from "@/features/devices/types"
-import { useEvents } from "@/features/events/queries"
 import type {
   Event,
   EventStatus,
   EventType,
   Severity,
 } from "@/features/events/types"
-import { paginationTableFeatures } from "@/lib/data-table/features"
+import { ApiError } from "@/lib/api/types"
+import { searchPaginationTableFeatures } from "@/lib/data-table/features"
 import { formatDateTime } from "@/lib/utils"
 
-type EventFiltersProps = {
-  severity: Severity | "all"
-  status: EventStatus | "all"
-  eventType: EventType | "all"
-  deviceId: string
-  devices: Device[]
-  onSeverityChange: (value: Severity | "all") => void
-  onStatusChange: (value: EventStatus | "all") => void
-  onEventTypeChange: (value: EventType | "all") => void
-  onDeviceIdChange: (value: string) => void
-}
-
-function EventFilterFields({
-  severity,
-  status,
-  eventType,
-  deviceId,
+export function EventsTable({
+  events,
+  total,
   devices,
-  onSeverityChange,
-  onStatusChange,
-  onEventTypeChange,
-  onDeviceIdChange,
-  className,
-}: EventFiltersProps & { className?: string }) {
-  const filterId = useId()
-  const severityId = `${filterId}-severity`
-  const statusId = `${filterId}-status`
-  const eventTypeId = `${filterId}-type`
-  const deviceIdField = `${filterId}-device`
-
-  return (
-    <FieldGroup className={className}>
-      <Field className="gap-1.5">
-        <FieldLabel htmlFor={severityId}>Keparahan</FieldLabel>
-        <Select
-          value={severity}
-          onValueChange={(value) =>
-            onSeverityChange((value ?? "all") as Severity | "all")
-          }
-        >
-          <SelectTrigger id={severityId} size="sm" className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="all">Semua Keparahan</SelectItem>
-              <SelectItem value="error">Galat</SelectItem>
-              <SelectItem value="warning">Peringatan</SelectItem>
-              <SelectItem value="critical">Kritis</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </Field>
-
-      <Field className="gap-1.5">
-        <FieldLabel htmlFor={statusId}>Status</FieldLabel>
-        <Select
-          value={status}
-          onValueChange={(value) =>
-            onStatusChange((value ?? "all") as EventStatus | "all")
-          }
-        >
-          <SelectTrigger id={statusId} size="sm" className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="all">Semua Status</SelectItem>
-              <SelectItem value="active">Aktif</SelectItem>
-              <SelectItem value="acknowledged">Dikonfirmasi</SelectItem>
-              <SelectItem value="resolved">Selesai</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </Field>
-
-      <Field className="gap-1.5">
-        <FieldLabel htmlFor={eventTypeId}>Tipe</FieldLabel>
-        <Select
-          value={eventType}
-          onValueChange={(value) =>
-            onEventTypeChange((value ?? "all") as EventType | "all")
-          }
-        >
-          <SelectTrigger id={eventTypeId} size="sm" className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="all">Semua Tipe</SelectItem>
-              {EVENT_TYPE_OPTIONS.map(([value, label]) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </Field>
-
-      <Field className="gap-1.5">
-        <FieldLabel htmlFor={deviceIdField}>Device</FieldLabel>
-        <Select
-          value={deviceId}
-          onValueChange={(value) => onDeviceIdChange(value ?? "all")}
-        >
-          <SelectTrigger id={deviceIdField} size="sm" className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="all">Semua Device</SelectItem>
-              {devices.map((device) => (
-                <SelectItem key={device.id} value={device.device_id}>
-                  {device.device_id}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </Field>
-    </FieldGroup>
-  )
-}
-
-function MobileEventFilters({
-  activeCount,
-  onReset,
-  ...filters
-}: EventFiltersProps & {
-  activeCount: number
-  onReset: () => void
+  paginationAtom,
+  columnFiltersAtom,
+  isLoading,
+  isFetching,
+  error,
+  onRetry,
+  canAcknowledge,
+  canResolve,
+}: {
+  events: Event[]
+  total: number
+  devices: Device[]
+  paginationAtom: Atom<PaginationState>
+  columnFiltersAtom: Atom<ColumnFiltersState>
+  isLoading: boolean
+  isFetching: boolean
+  error: ApiError | null
+  onRetry: () => void
+  canAcknowledge: boolean
+  canResolve: boolean
 }) {
-  return (
-    <Drawer showSwipeHandle>
-      <DrawerTrigger
-        render={
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="md:hidden"
-          />
-        }
-      >
-        <HugeiconsIcon
-          icon={FilterIcon}
-          strokeWidth={2}
-          data-icon="inline-start"
-        />
-        Filter
-        {activeCount > 0 ? (
-          <Badge variant="secondary">{activeCount}</Badge>
-        ) : null}
-      </DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerTitle>Filter Event</DrawerTitle>
-          <DrawerDescription>
-            Pilih filter untuk mempersempit daftar Event.
-          </DrawerDescription>
-        </DrawerHeader>
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
-          <EventFilterFields {...filters} className="gap-3" />
-        </div>
-        <DrawerFooter className="flex-row">
-          <Button
-            type="button"
-            variant="outline"
-            className="flex-1"
-            onClick={onReset}
-            disabled={activeCount === 0}
-          >
-            Atur Ulang
-          </Button>
-          <DrawerClose render={<Button type="button" className="flex-1" />}>
-            Terapkan
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
-  )
-}
-
-export function EventsTable() {
-  const { data: user } = useMe()
-  const { data: devicesData } = useDevices({ per_page: 100 })
-  const paginationAtom = useCreateAtom<PaginationState>({
-    pageIndex: 0,
-    pageSize: 20,
-  })
-  const pagination = useSelector(paginationAtom)
-  const [severity, setSeverity] = useState<Severity | "all">("all")
-  const [status, setStatus] = useState<EventStatus | "all">("all")
-  const [eventType, setEventType] = useState<EventType | "all">("all")
-  const [deviceId, setDeviceId] = useState<string>("all")
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
 
-  const devices = devicesData?.data ?? []
-
-  const query = useEvents({
-    page: pagination.pageIndex + 1,
-    per_page: pagination.pageSize,
-    severity: severity === "all" ? undefined : severity,
-    status: status === "all" ? undefined : status,
-    event_type: eventType === "all" ? undefined : eventType,
-    device_id: deviceId === "all" ? undefined : deviceId,
-  })
-
-  const data = query.data?.data ?? []
-  const total = query.data?.meta.total ?? 0
+  const deviceMap = useMemo(
+    () => new Map(devices.map((device) => [device.id, device])),
+    [devices]
+  )
 
   const columns = useMemo<
-    Array<ColumnDef<typeof paginationTableFeatures, Event>>
+    Array<ColumnDef<typeof searchPaginationTableFeatures, Event>>
   >(
     () => [
       {
@@ -281,7 +92,12 @@ export function EventsTable() {
         accessorKey: "event_type",
         header: "Tipe",
         cell: ({ row }) => (
-          <span className="font-medium">
+          <span className="flex items-center gap-2 font-medium">
+            <HugeiconsIcon
+              icon={EVENT_TYPE_ICON[row.original.event_type]}
+              strokeWidth={2}
+              className="size-4 text-muted-foreground"
+            />
             {EVENT_TYPE_LABEL[row.original.event_type]}
           </span>
         ),
@@ -295,6 +111,14 @@ export function EventsTable() {
         accessorKey: "status",
         header: "Status",
         cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      },
+      {
+        id: "device_id",
+        header: "Device",
+        accessorFn: (event) => deviceMap.get(event.device_id)?.device_id ?? "-",
+        cell: ({ getValue }) => (
+          <span className="text-muted-foreground">{String(getValue())}</span>
+        ),
       },
       {
         accessorKey: "message",
@@ -321,130 +145,95 @@ export function EventsTable() {
         ),
       },
     ],
-    []
+    [deviceMap]
   )
 
   const table = useTable(
     {
-      features: paginationTableFeatures,
+      features: searchPaginationTableFeatures,
       columns,
-      data,
-      getRowId: (row) => row.id,
+      data: events,
+      getRowId: (event) => event.id,
       rowCount: total,
       manualPagination: true,
+      manualFiltering: true,
       atoms: {
         pagination: paginationAtom,
+        columnFilters: columnFiltersAtom,
       },
     },
     (state) => ({
       pagination: state.pagination,
+      columnFilters: state.columnFilters,
     })
   )
 
-  const resetPage = () => {
-    paginationAtom.set((state) => ({ ...state, pageIndex: 0 }))
+  const getFilterValue = (id: string) =>
+    table.state.columnFilters.find((filter) => filter.id === id)?.value
+
+  const filterValues: EventFilterValues = {
+    severity: (getFilterValue("severity") ?? "all") as Severity | "all",
+    status: (getFilterValue("status") ?? "all") as EventStatus | "all",
+    eventType: (getFilterValue("event_type") ?? "all") as EventType | "all",
+    deviceId: (getFilterValue("device_id") as string | undefined) ?? "all",
+    from: (getFilterValue("from") as string | undefined) ?? "",
+    to: (getFilterValue("to") as string | undefined) ?? "",
   }
+  const activeFilterCount = table.state.columnFilters.length
 
-  const activeFilterCount = [severity, status, eventType, deviceId].filter(
-    (value) => value !== "all"
-  ).length
-
-  const resetFilters = () => {
-    setSeverity("all")
-    setStatus("all")
-    setEventType("all")
-    setDeviceId("all")
-    resetPage()
-  }
-
-  const handleSeverityChange = (value: Severity | "all") => {
-    setSeverity(value)
-    resetPage()
-  }
-
-  const handleStatusChange = (value: EventStatus | "all") => {
-    setStatus(value)
-    resetPage()
-  }
-
-  const handleEventTypeChange = (value: EventType | "all") => {
-    setEventType(value)
-    resetPage()
-  }
-
-  const handleDeviceIdChange = (value: string) => {
-    setDeviceId(value)
-    resetPage()
+  const handleApplyFilters = (next: ColumnFiltersState) => {
+    columnFiltersAtom.set(next)
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-xs font-medium text-muted-foreground">
-            Filter Event
-          </p>
-          <MobileEventFilters
-            severity={severity}
-            status={status}
-            eventType={eventType}
-            deviceId={deviceId}
-            devices={devices}
-            onSeverityChange={handleSeverityChange}
-            onStatusChange={handleStatusChange}
-            onEventTypeChange={handleEventTypeChange}
-            onDeviceIdChange={handleDeviceIdChange}
+      <TableToolbar
+        actions={
+          <EventFilterSheet
+            values={filterValues}
             activeCount={activeFilterCount}
-            onReset={resetFilters}
+            onApply={handleApplyFilters}
           />
-        </div>
-        <div className="hidden md:block">
-          <EventFilterFields
-            severity={severity}
-            status={status}
-            eventType={eventType}
-            deviceId={deviceId}
-            devices={devices}
-            onSeverityChange={handleSeverityChange}
-            onStatusChange={handleStatusChange}
-            onEventTypeChange={handleEventTypeChange}
-            onDeviceIdChange={handleDeviceIdChange}
-            className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4"
-          />
-        </div>
-      </div>
+        }
+      />
 
-      {query.isLoading ? (
+      {isLoading ? (
         <Skeleton className="h-64 w-full rounded-2xl" />
-      ) : query.error ? (
-        <div className="flex flex-col items-center gap-2 rounded-2xl p-6 text-center ring-1 ring-foreground/10">
-          <p className="text-sm text-muted-foreground">{query.error.message}</p>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => void query.refetch()}
-          >
+      ) : error ? (
+        <Empty className="rounded-2xl ring-1 ring-foreground/10">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <HugeiconsIcon icon={TimelineEventIcon} strokeWidth={2} />
+            </EmptyMedia>
+            <EmptyTitle>Gagal memuat Event</EmptyTitle>
+            <EmptyDescription>
+              {error.code === "forbidden"
+                ? "Anda tidak memiliki akses ke halaman ini."
+                : error.message}
+            </EmptyDescription>
+          </EmptyHeader>
+          <Button variant="outline" onClick={onRetry}>
             Coba lagi
           </Button>
-        </div>
+        </Empty>
       ) : (
         <div className="flex flex-col gap-4">
           <div
-            className={
-              query.isFetching ? "opacity-60 transition-opacity" : undefined
-            }
+            className={isFetching ? "opacity-60 transition-opacity" : undefined}
           >
             <DataTable
               table={table}
               caption="Events"
               emptyMessage="Belum ada Event."
-              className="min-w-[44rem]"
+              className="min-w-[52rem]"
             />
           </div>
           <TablePagination
             paginationAtom={paginationAtom}
             total={total}
-            isFetching={query.isFetching}
+            isFetching={isFetching}
+            variant="full"
+            itemLabel="Event"
           />
         </div>
       )}
@@ -452,8 +241,8 @@ export function EventsTable() {
       <EventDetailSheet
         eventId={selectedEventId}
         open={selectedEventId !== null}
-        canAcknowledge={user?.role === "admin" || user?.role === "petugas"}
-        canResolve={user?.role === "petugas"}
+        canAcknowledge={canAcknowledge}
+        canResolve={canResolve}
         onOpenChange={(open) => {
           if (!open) {
             setSelectedEventId(null)

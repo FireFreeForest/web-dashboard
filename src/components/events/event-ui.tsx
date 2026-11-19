@@ -1,4 +1,12 @@
 import type { ComponentProps } from "react"
+import {
+  Activity01Icon,
+  AlarmSmokeIcon,
+  FireIcon,
+  SoilMoistureFieldIcon,
+  ThermometerSunIcon,
+  WifiDisconnected01Icon,
+} from "@hugeicons/core-free-icons"
 
 import { Badge } from "@/components/ui/badge"
 import type { EventStatus, EventType, Severity } from "@/features/events/types"
@@ -18,6 +26,15 @@ export const EVENT_TYPE_LABEL: Record<EventType, string> = {
 export const EVENT_TYPE_OPTIONS = Object.entries(EVENT_TYPE_LABEL) as Array<
   [EventType, string]
 >
+
+export const EVENT_TYPE_ICON: Record<EventType, typeof FireIcon> = {
+  FIRE_DETECTED: FireIcon,
+  SMOKE_DETECTED: AlarmSmokeIcon,
+  TEMPERATURE_HIGH: ThermometerSunIcon,
+  SOIL_DRY: SoilMoistureFieldIcon,
+  DEVICE_OFFLINE: WifiDisconnected01Icon,
+  SENSOR_ERROR: Activity01Icon,
+}
 
 type SeverityMeta = {
   label: string
@@ -49,7 +66,7 @@ export const SEVERITY_META: Record<Severity, SeverityMeta> = {
   },
 }
 
-const statusMeta: Record<
+const STATUS_META: Record<
   EventStatus,
   { label: string; variant: BadgeVariant }
 > = {
@@ -57,6 +74,34 @@ const statusMeta: Record<
   acknowledged: { label: "Dikonfirmasi", variant: "secondary" },
   resolved: { label: "Selesai", variant: "outline" },
 }
+
+export const SEVERITY_FILTER_OPTIONS: Array<{
+  value: Severity | "all"
+  label: string
+}> = [
+  { value: "all", label: "Semua Keparahan" },
+  { value: "error", label: SEVERITY_META.error.label },
+  { value: "warning", label: SEVERITY_META.warning.label },
+  { value: "critical", label: SEVERITY_META.critical.label },
+]
+
+export const STATUS_FILTER_OPTIONS: Array<{
+  value: EventStatus | "all"
+  label: string
+}> = [
+  { value: "all", label: "Semua Status" },
+  { value: "active", label: STATUS_META.active.label },
+  { value: "acknowledged", label: STATUS_META.acknowledged.label },
+  { value: "resolved", label: STATUS_META.resolved.label },
+]
+
+export const EVENT_TYPE_FILTER_OPTIONS: Array<{
+  value: EventType | "all"
+  label: string
+}> = [
+  { value: "all", label: "Semua Tipe" },
+  ...EVENT_TYPE_OPTIONS.map(([value, label]) => ({ value, label })),
+]
 
 export function SeverityBadge({
   severity,
@@ -83,6 +128,6 @@ export function SeverityBadge({
 }
 
 export function StatusBadge({ status }: { status: EventStatus }) {
-  const meta = statusMeta[status]
+  const meta = STATUS_META[status]
   return <Badge variant={meta.variant}>{meta.label}</Badge>
 }
