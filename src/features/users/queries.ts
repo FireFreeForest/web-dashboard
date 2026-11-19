@@ -7,7 +7,7 @@ import type { ListUsersParams, ListUsersResult } from "./types"
 export const userKeys = {
   all: ["users"] as const,
   list: (params: ListUsersParams) =>
-    [...userKeys.all, "list", params.page, params.perPage] as const,
+    [...userKeys.all, "list", params.page, params.perPage, params.q] as const,
 }
 
 export function getUsers(params: ListUsersParams): Promise<ListUsersResult> {
@@ -17,6 +17,7 @@ export function getUsers(params: ListUsersParams): Promise<ListUsersResult> {
     params: {
       page: params.page,
       per_page: params.perPage,
+      q: params.q || undefined,
     },
   })
 }

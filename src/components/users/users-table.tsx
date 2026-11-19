@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner"
 
 import { DataTable } from "@/components/data-table/data-table"
+import { TableToolbar } from "@/components/data-table/table-toolbar"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -56,20 +57,28 @@ export function UsersTable({
   users,
   total,
   paginationAtom,
+  search,
+  onSearchChange,
+  isSearching,
   isLoading,
   isFetching,
   error,
   onRetry,
   currentUserId,
+  actions,
 }: {
   users: User[]
   total: number
   paginationAtom: Atom<PaginationState>
+  search: string
+  onSearchChange: (value: string) => void
+  isSearching: boolean
   isLoading: boolean
   isFetching: boolean
   error: ApiError | null
   onRetry: () => void
   currentUserId?: string
+  actions?: React.ReactNode
 }) {
   const pagination = useSelector(paginationAtom)
   const updateUser = useUpdateUser()
@@ -250,6 +259,12 @@ export function UsersTable({
 
   return (
     <div className="flex flex-col gap-4">
+      <TableToolbar
+        search={search}
+        onSearchChange={onSearchChange}
+        placeholder="Cari nama atau email..."
+        actions={actions}
+      />
       {isLoading ? (
         <Skeleton className="h-64 w-full rounded-2xl" />
       ) : error ? (
@@ -276,7 +291,11 @@ export function UsersTable({
           <DataTable
             table={table}
             caption="Users"
-            emptyMessage="Belum ada User."
+            emptyMessage={
+              isSearching
+                ? "Tidak ada User yang cocok dengan pencarian."
+                : "Belum ada User."
+            }
           />
         </div>
       )}

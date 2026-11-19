@@ -24,7 +24,10 @@ export function listDevices(
 ): Promise<ApiListEnvelope<Device>> {
   return apiFetchList<Device>({
     url: "/devices",
-    params,
+    params: {
+      ...params,
+      q: params.q || undefined,
+    },
   })
 }
 

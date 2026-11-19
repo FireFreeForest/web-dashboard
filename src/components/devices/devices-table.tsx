@@ -16,6 +16,7 @@ import {
 } from "@tanstack/react-table"
 
 import { DataTable } from "@/components/data-table/data-table"
+import { TableToolbar } from "@/components/data-table/table-toolbar"
 import { DeleteDeviceDialog } from "@/components/devices/delete-device-dialog"
 import { DeviceStatusPill } from "@/components/devices/device-ui"
 import { EditDeviceDialog } from "@/components/devices/edit-device-dialog"
@@ -53,20 +54,28 @@ export function DevicesTable({
   devices,
   total,
   paginationAtom,
+  search,
+  onSearchChange,
+  isSearching,
   isLoading,
   isFetching,
   error,
   onRetry,
   canEdit,
+  actions,
 }: {
   devices: Device[]
   total: number
   paginationAtom: Atom<PaginationState>
+  search: string
+  onSearchChange: (value: string) => void
+  isSearching: boolean
   isLoading: boolean
   isFetching: boolean
   error: ApiError | null
   onRetry: () => void
   canEdit: boolean
+  actions?: React.ReactNode
 }) {
   const pagination = useSelector(paginationAtom)
   const [editingDevice, setEditingDevice] = React.useState<Device | null>(null)
@@ -216,6 +225,12 @@ export function DevicesTable({
 
   return (
     <div className="flex flex-col gap-4">
+      <TableToolbar
+        search={search}
+        onSearchChange={onSearchChange}
+        placeholder="Cari nama atau lokasi..."
+        actions={canEdit ? actions : null}
+      />
       {isLoading ? (
         <Skeleton className="h-64 w-full rounded-2xl" />
       ) : error ? (
@@ -242,7 +257,11 @@ export function DevicesTable({
           <DataTable
             table={table}
             caption="Device"
-            emptyMessage="Belum ada Device."
+            emptyMessage={
+              isSearching
+                ? "Tidak ada Device yang cocok dengan pencarian."
+                : "Belum ada Device."
+            }
           />
         </div>
       )}

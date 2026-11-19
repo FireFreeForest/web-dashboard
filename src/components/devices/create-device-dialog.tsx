@@ -145,7 +145,7 @@ export function CreateDeviceDialog() {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <Button size="sm" onClick={() => setOpen(true)}>
+      <Button onClick={() => setOpen(true)}>
         <HugeiconsIcon
           icon={PlusSignIcon}
           strokeWidth={2}

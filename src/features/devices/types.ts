@@ -38,6 +38,7 @@ export type DeviceStatusDetail = {
 export type DeviceListParams = {
   page?: number
   per_page?: number
+  q?: string
 }
 
 export type CreateDeviceInput = CreateDeviceFormValues

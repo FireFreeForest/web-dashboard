@@ -5,6 +5,7 @@ export const USER_ROLES: UserRole[] = ["admin", "petugas", "viewer"]
 export type ListUsersParams = {
   page: number
   perPage: number
+  q?: string
 }
 
 export type ListUsersResult = {
