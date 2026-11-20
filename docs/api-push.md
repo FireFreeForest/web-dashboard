@@ -1,35 +1,30 @@
 # API Contract - Push Notification (FCM)
 
-Dokumen ini adalah kontrak API untuk kebutuhan frontend terkait registrasi token Firebase Cloud Messaging (FCM). Semua endpoint berada di bawah base URL:
+Dokumen ini adalah kontrak API untuk kebutuhan frontend: registrasi dan penghapusan token Firebase Cloud Messaging (FCM) agar perangkat menerima push notification event. Semua endpoint berada di bawah base URL:
 
 ```
 /api/v1
 ```
 
-Seluruh endpoint pada dokumen ini dapat diakses oleh semua role (`admin`, `petugas`, `viewer`) selama memiliki Bearer access token.
-
-Fitur push terdiri dari **2 endpoint**:
-
-| Method | Path | Keterangan |
-| --- | --- | --- |
-| `POST` | `/push/tokens` | Daftarkan/perbarui token FCM milik user yang login |
-| `DELETE` | `/push/tokens/{token}` | Hapus token FCM milik user yang login |
-
-Endpoint ini hanya mengelola token. Pengiriman notifikasi dilakukan otomatis oleh worker backend saat event dibuat (lihat bagian [Payload Notifikasi](#payload-notifikasi)).
+Seluruh endpoint pada dokumen ini dapat diakses oleh semua role: `admin`, `petugas`, dan `viewer`.
 
 ## Konvensi
 
 ### Header
 
-| Header                                 | Wajib                      | Keterangan                                    |
-| -------------------------------------- | -------------------------- | --------------------------------------------- |
-| `Content-Type: application/json`       | Ya, untuk request ber-body |                                               |
-| `Authorization: Bearer <access_token>` | Ya                         | Wajib memakai access token user yang valid    |
+| Header                                 | Wajib                      | Keterangan                                         |
+| -------------------------------------- | -------------------------- | -------------------------------------------------- |
+| `Content-Type: application/json`       | Ya, untuk request ber-body |                                                    |
+| `Authorization: Bearer <access_token>` | Ya                         | Access token user yang sedang login                |
 | `X-Request-ID`                         | Tidak                      | Jika dikirim, akan dikembalikan di response header |
 
 ### Format Response
 
-Kedua endpoint mengembalikan `204 No Content` tanpa body. Tidak ada envelope `data`.
+Endpoint pada dokumen ini tidak mengembalikan body pada response sukses:
+
+```
+204 No Content
+```
 
 Response error selalu berbentuk:
 
@@ -42,27 +37,17 @@ Response error selalu berbentuk:
 }
 ```
 
-Format waktu memakai RFC 3339 / ISO 8601 dalam UTC, contoh `2026-11-15T03:20:00Z`.
+Format waktu memakai RFC 3339 / ISO 8601 dalam UTC, contoh `2026-11-20T03:20:00Z`.
 
 ## Tipe Data
 
 ```ts
-interface RegisterPushTokenInput {
-  token: string; // token FCM dari Firebase SDK, bukan access token JWT
-  platform?: string; // default "android"; disimpan sebagai metadata
-}
+// Nilai bebas; disimpan dalam huruf kecil. Default "android" bila kosong.
+type PushPlatform = "android" | "ios" | "web" | string;
 
-type NotificationType = "fire_reminder" | "fire_escalation";
-
-// Semua nilai FCM data berupa string.
-interface EventPushData {
-  event_id: string; // UUID event
-  device_id: string; // kode unik device, contoh FFF-KTG-001
-  device_name: string;
-  event_type: EventType; // lihat api-events.md
-  severity: Severity; // "error" | "warning" | "critical"
-  triggered_at: string; // RFC3339 UTC
-  notification_type?: NotificationType; // hanya untuk push pengingat/eskalasi
+interface RegisterPushTokenRequest {
+  token: string;      // token FCM dari Firebase, BUKAN access token JWT
+  platform?: PushPlatform;
 }
 
 interface ErrorResponse {
@@ -73,6 +58,8 @@ interface ErrorResponse {
 }
 ```
 
+`token` di sini adalah FCM registration token yang diperoleh dari SDK Firebase, bukan access token JWT dan bukan refresh token. Token ini hanya bisa didapat dari aplikasi yang terhubung ke project Firebase yang sama dengan backend.
+
 ## Endpoint
 
 ### 1. Daftarkan Token FCM
@@ -81,28 +68,20 @@ interface ErrorResponse {
 POST /push/tokens
 ```
 
-Autentikasi: Bearer access token (semua role).
+Autentikasi: Bearer access token, semua role.
 
-Token di-`upsert` berdasarkan nilai `token` (kolom `token` unik secara global). Jika token yang sama didaftarkan lagi:
-
-- `user_id` dan `platform` diperbarui menjadi nilai dari request terbaru.
-- `last_used_at` diperbarui ke waktu request.
-- `created_at` tetap.
-
-Artinya satu token perangkat hanya boleh dimiliki satu user pada satu waktu. Jika user lain login di perangkat yang sama lalu mendaftarkan token yang sama, kepemilikan token berpindah ke user tersebut.
-
-Panggil endpoint ini setiap kali aplikasi mendapat token FCM baru (termasuk saat token di-refresh oleh Firebase) atau setelah login berhasil.
+Token bersifat unik secara global. Mendaftarkan token yang sudah ada akan memperbarui data (upsert), bukan membuat duplikat: `user_id`, `platform`, dan `last_used_at` milik token tersebut akan diperbarui ke user yang sedang login.
 
 #### Request Body
 
-| Field      | Tipe   | Wajib | Keterangan                                                            |
-| ---------- | ------ | ----- | --------------------------------------------------------------------- |
-| `token`    | string | Ya    | Token FCM. Di-trim oleh backend; string kosong ditolak               |
-| `platform` | string | Tidak | Default `android`; di-trim dan di-lowercase. Tidak ada validasi enum   |
+| Field      | Tipe   | Wajib | Keterangan                                                         |
+| ---------- | ------ | ----- | ------------------------------------------------------------------ |
+| `token`    | string | Ya    | Token FCM; di-trim; tidak boleh kosong                             |
+| `platform` | string | Tidak | Nama platform, disimpan huruf kecil; default `android` bila kosong |
 
 ```json
 {
-  "token": "dGhpcy1pcy1hbi1leGFtcGxlLWZjbS10b2tlbjphcGE5MS1hYmNkZWY",
+  "token": "fcm_registration_token_dari_firebase",
   "platform": "android"
 }
 ```
@@ -113,12 +92,12 @@ Tanpa body.
 
 #### Error
 
-| Status | Code             | Keterangan                                             |
-| ------ | ---------------- | ------------------------------------------------------ |
-| `400`  | `invalid_request` | Body bukan JSON valid atau `token` kosong/tidak dikirim |
-| `401`  | `unauthorized`   | Header `Authorization` tidak ada                       |
-| `401`  | `invalid_token`  | Access token tidak valid atau kedaluwarsa              |
-| `500`  | `internal_error` | Kesalahan server                                       |
+| Status | Code              | Keterangan                                |
+| ------ | ----------------- | ----------------------------------------- |
+| `400`  | `invalid_request` | Body tidak valid atau `token` kosong      |
+| `401`  | `unauthorized`    | Header `Authorization` tidak ada          |
+| `401`  | `invalid_token`   | Access token tidak valid atau kedaluwarsa |
+| `500`  | `internal_error`  | Kesalahan server                          |
 
 ---
 
@@ -128,22 +107,21 @@ Tanpa body.
 DELETE /push/tokens/{token}
 ```
 
-Autentikasi: Bearer access token (semua role).
+Autentikasi: Bearer access token, semua role.
 
-Menghapus token milik user yang sedang login. Jika token tidak ada atau dimiliki user lain, backend tetap mengembalikan `204` (operasi bersifat idempoten, tidak membocorkan kepemilikan token).
-
-Panggil endpoint ini saat logout, saat Firebase memberi token baru, atau saat user menonaktifkan notifikasi.
+Menghapus token milik user yang sedang login. Operasi bersifat idempotent: endpoint tetap mengembalikan `204` meskipun token tidak ditemukan atau sudah terhapus.
 
 #### Path Parameter
 
-| Field   | Tipe   | Wajib | Keterangan                                            |
-| ------- | ------ | ----- | ----------------------------------------------------- |
-| `token` | string | Ya    | Token FCM yang ingin dihapus. URL-encode bila perlu   |
+| Field   | Tipe   | Wajib | Keterangan                                |
+| ------- | ------ | ----- | ----------------------------------------- |
+| `token` | string | Ya    | Token FCM yang ingin dihapus (bukan UUID) |
 
-Contoh:
+Nilai `token` pada path harus di-URL-encode karena umumnya berisi karakter seperti `:` dan `-`. Contoh:
 
 ```
-DELETE /push/tokens/dGhpcy1pcy1hbi1leGFtcGxlLWZjbS10b2tlbjphcGE5MS1hYmNkZWY
+DELETE /api/v1/push/tokens/fcm_registration_token_dari_firebase
+DELETE /api/v1/push/tokens/fcm%3Aregistration%3Atoken
 ```
 
 #### Response `204 No Content`
@@ -152,82 +130,21 @@ Tanpa body.
 
 #### Error
 
-| Status | Code             | Keterangan                          |
-| ------ | ---------------- | ----------------------------------- |
-| `400`  | `invalid_request` | `token` pada path kosong            |
-| `401`  | `unauthorized`   | Header `Authorization` tidak ada    |
-| `401`  | `invalid_token`  | Access token tidak valid atau kedaluwarsa |
-| `500`  | `internal_error` | Kesalahan server                    |
-
-## Payload Notifikasi
-
-Notifikasi dikirim worker ke semua token milik user aktif dengan role `admin` dan `petugas`. Token milik `viewer` tidak menerima push. `platform` tidak dipakai untuk memfilter penerima.
-
-Pesan FCM berisi `notification` (title + body) dan `data`:
-
-```json
-{
-  "notification": {
-    "title": "DARURAT: Kebakaran terdeteksi",
-    "body": "Api terdeteksi di Ketapang Ridge Station (FFF-KTG-001). Pompa air diaktifkan otomatis."
-  },
-  "data": {
-    "event_id": "5b1f0f0e-7a1c-4d6e-8b2a-9c3d4e5f6071",
-    "device_id": "FFF-KTG-001",
-    "device_name": "Ketapang Ridge Station",
-    "event_type": "FIRE_DETECTED",
-    "severity": "critical",
-    "triggered_at": "2026-11-15T03:20:00Z"
-  }
-}
-```
-
-Push pengingat/eskalasi kebakaran yang belum diakui menambahkan `notification_type`:
-
-```json
-{
-  "notification_type": "fire_escalation"
-}
-```
-
-Nilai yang mungkin: `fire_reminder` (belum diakui 2 menit) dan `fire_escalation` (belum ditangani 5 menit).
-
-### Channel dan Sound Android
-
-| Event                                                        | Channel                | Sound               |
-| ------------------------------------------------------------ | ---------------------- | ------------------- |
-| `FIRE_DETECTED`                                              | `fire_alerts_fire`     | `notif_fire`        |
-| `SMOKE_DETECTED`, `TEMPERATURE_HIGH`, `SOIL_DRY`             | `fire_alerts_warning`  | `notif_smoke`       |
-| `SENSOR_ERROR`, `DEVICE_OFFLINE`                             | `fire_alerts_error`    | `notif_sensor_error`|
-
-Prioritas Android: `high`.
-
-### Filter Pengiriman di Backend
-
-Notifikasi hanya dikirim jika FCM aktif di server (kredensial service account tersedia). Event juga difilter oleh:
-
-- `FCM_MIN_SEVERITY` (`error` < `warning` < `critical`).
-- `FCM_EVENT_TYPES` (allowlist tipe event; kosong berarti semua event valid).
-
-Token yang ditolak FCM sebagai tidak valid (`UNREGISTERED`, `INVALID_ARGUMENT`, atau HTTP `404`) otomatis dihapus backend. Frontend tidak perlu menghapus manual.
-
-## Matriks Permission
-
-| Aksi                        | admin | petugas | viewer |
-| --------------------------- | :---: | :-----: | :----: |
-| Daftarkan token FCM         |  Ya   |   Ya    |   Ya   |
-| Hapus token FCM             |  Ya   |   Ya    |   Ya   |
-| Menerima push event         |  Ya   |   Ya    | Tidak  |
+| Status | Code              | Keterangan                                |
+| ------ | ----------------- | ----------------------------------------- |
+| `400`  | `invalid_request` | Parameter `token` kosong                  |
+| `401`  | `unauthorized`    | Header `Authorization` tidak ada          |
+| `401`  | `invalid_token`   | Access token tidak valid atau kedaluwarsa |
+| `500`  | `internal_error`  | Kesalahan server                          |
 
 ## Catatan untuk Frontend
 
-- `token` di sini adalah token FCM dari Firebase SDK (`FirebaseMessaging.getInstance().getToken()` di Android atau `getToken(messaging, { vapidKey })` di web), bukan access token JWT backend.
-- Daftarkan token setelah login berhasil dan setiap kali token Firebase berubah. Hapus token saat logout.
-- Registrasi bersifat idempoten/upsert; aman dipanggil berulang dengan token yang sama.
-- Satu token hanya terikat ke satu user. Pastikan token dihapus atau didaftarkan ulang saat berganti akun di perangkat yang sama.
-- Respons sukses tidak berisi body (`204`); jangan mencoba parse JSON pada respons sukses.
-- `device_id` pada `data` notifikasi adalah kode unik device (contoh `FFF-KTG-001`), bukan UUID internal.
-- `event_id` adalah UUID; gunakan untuk membuka detail event lewat `GET /events/{eventID}`.
-- Push bersifat best-effort. Jadikan daftar event (`GET /events`) sebagai sumber kebenaran, bukan notifikasi.
-- Jika notifikasi tidak diterima, penyebab umum: FCM belum dikonfigurasi di backend, token belum terdaftar, role user `viewer`, event di bawah `FCM_MIN_SEVERITY`, atau event tidak ada di `FCM_EVENT_TYPES`.
-- Role yang tersedia: `admin`, `petugas`, `viewer`.
+- Peroleh token dari SDK Firebase:
+  - Android: `FirebaseMessaging.getInstance().getToken()`.
+  - Web: `getToken(messaging, { vapidKey: "..." })`.
+- Panggil `POST /push/tokens` setelah user login dan setiap kali token FCM berubah (FCM dapat merotasi token). Backend memperbarui data token yang sudah ada, jadi aman memanggil ulang.
+- Panggil `DELETE /push/tokens/{token}` saat user logout atau mematikan notifikasi pada perangkat tersebut, agar push event tidak dikirim ke perangkat yang bukan lagi milik user.
+- Token yang sudah tidak valid di sisi Firebase akan dibersihkan otomatis oleh backend ketika pengiriman push gagal.
+- Token yang terdaftar untuk user `viewer` saat ini tidak menerima push event; notifikasi hanya dikirim ke user `admin` dan `petugas` yang aktif.
+- Push event hanya dikirim untuk tipe event yang diizinkan konfigurasi backend (`FCM_EVENT_TYPES`) dan memenuhi minimal severity (`FCM_MIN_SEVERITY`).
+- Backend hanya mengirim notifikasi jika integrasi FCM aktif (service account terpasang). Tanpa itu, registrasi token tetap berhasil, tetapi tidak ada push yang dikirim.

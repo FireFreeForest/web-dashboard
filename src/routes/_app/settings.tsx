@@ -14,8 +14,6 @@ import {
 } from "@/components/providers/map-mode-provider"
 import { useTheme } from "@/components/providers/theme-provider"
 import { PushNotificationSettings } from "@/components/push/push-notification-settings"
-import { RealtimeConnectionSettings } from "@/components/realtime/realtime-connection-settings"
-import { RealtimeTicketSettings } from "@/components/realtime/realtime-ticket-settings"
 import { Button } from "@/components/ui/button"
 import { pageTitle } from "@/lib/site"
 import { cn } from "@/lib/utils"
@@ -196,20 +194,6 @@ function SettingsPage() {
 
         <div className="flex flex-col gap-8 md:col-span-2">
           <PushNotificationSettings />
-        </div>
-      </div>
-
-      <div className="grid gap-8 md:grid-cols-3">
-        <div className="flex flex-col gap-1">
-          <h2 className="font-heading text-lg font-medium">Waktu Nyata</h2>
-          <p className="text-sm text-muted-foreground">
-            Pantau koneksi WebSocket dan periksa tiket koneksi.
-          </p>
-        </div>
-
-        <div className="flex flex-col gap-8 md:col-span-2">
-          <RealtimeConnectionSettings />
-          <RealtimeTicketSettings />
         </div>
       </div>
     </div>

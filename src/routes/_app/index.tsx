@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Alert02Icon, RefreshIcon } from "@hugeicons/core-free-icons"
@@ -28,7 +28,62 @@ export const Route = createFileRoute("/_app/")({
 })
 
 const MAP_CENTER: [number, number] = [113.9, 0.5]
+const MAP_DEFAULT_ZOOM = 6
+const AUTO_FIT_MAX_ZOOM = 12
+const AUTO_FIT_PADDING = 64
 const NODE_FOCUS_ZOOM = 14
+
+function AutoFitNodes({ nodes }: { nodes: MapNode[] }) {
+  const { map } = useMap()
+  const fittedRef = useRef(false)
+
+  useEffect(() => {
+    fittedRef.current = false
+  }, [map])
+
+  useEffect(() => {
+    if (!map || fittedRef.current || nodes.length === 0) return
+
+    fittedRef.current = true
+    const [first] = nodes
+
+    if (nodes.length === 1) {
+      map.flyTo({
+        center: [first.coordinates.longitude, first.coordinates.latitude],
+        zoom: MAP_DEFAULT_ZOOM,
+        duration: 800,
+        essential: true,
+      })
+      return
+    }
+
+    let minLng = first.coordinates.longitude
+    let maxLng = minLng
+    let minLat = first.coordinates.latitude
+    let maxLat = minLat
+
+    for (const { coordinates } of nodes) {
+      minLng = Math.min(minLng, coordinates.longitude)
+      maxLng = Math.max(maxLng, coordinates.longitude)
+      minLat = Math.min(minLat, coordinates.latitude)
+      maxLat = Math.max(maxLat, coordinates.latitude)
+    }
+
+    map.fitBounds(
+      [
+        [minLng, minLat],
+        [maxLng, maxLat],
+      ],
+      {
+        padding: AUTO_FIT_PADDING,
+        maxZoom: AUTO_FIT_MAX_ZOOM,
+        duration: 800,
+      }
+    )
+  }, [map, nodes])
+
+  return null
+}
 
 function FlyToNode({ node }: { node?: MapNode }) {
   const { map } = useMap()
@@ -144,7 +199,7 @@ function DashboardPage() {
       <div className="absolute inset-0">
         <Map
           center={MAP_CENTER}
-          zoom={6}
+          zoom={MAP_DEFAULT_ZOOM}
           minZoom={mapMode === "globe" ? 3 : 4}
           maxZoom={18}
           className="h-full w-full"
@@ -153,6 +208,7 @@ function DashboardPage() {
           }
           onViewportChange={handleViewportChange}
         >
+          <AutoFitNodes nodes={nodes} />
           <FlyToNode node={selected} />
           {groups.map((group) =>
             group.nodes.length > 1 ? (

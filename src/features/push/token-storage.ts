@@ -1,6 +1,7 @@
 import type { RegisterPushTokenInput } from "./types"
 
 const STORAGE_KEY = "fff.push.token"
+const DISABLED_KEY = "fff.push.disabled"
 
 export function getStoredPushToken(): RegisterPushTokenInput | null {
   try {
@@ -37,5 +38,26 @@ export function clearStoredPushToken(token?: string): void {
 
   if (getStoredPushToken()?.token === token) {
     localStorage.removeItem(STORAGE_KEY)
+  }
+}
+
+export function isPushDisabled(): boolean {
+  try {
+    return localStorage.getItem(DISABLED_KEY) === "true"
+  } catch {
+    return false
+  }
+}
+
+export function setPushDisabled(disabled: boolean): void {
+  try {
+    if (disabled) {
+      localStorage.setItem(DISABLED_KEY, "true")
+      return
+    }
+
+    localStorage.removeItem(DISABLED_KEY)
+  } catch {
+    // Ignore storage failures; disabling is best-effort.
   }
 }

@@ -8,6 +8,7 @@ import {
 
 import { AppHeader } from "@/components/layout/app-header"
 import { AppSidebar } from "@/components/layout/app-sidebar"
+import { PushProvider } from "@/components/providers/push-provider"
 import { RealtimeProvider } from "@/components/providers/realtime-provider"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { meQueryOptions } from "@/features/auth/queries"
@@ -48,16 +49,18 @@ export const Route = createFileRoute("/_app")({
 
 function AppLayout() {
   return (
-    <RealtimeProvider>
-      <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset>
-          <AppHeader />
-          <div className="flex min-h-0 flex-1 flex-col">
-            <Outlet />
-          </div>
-        </SidebarInset>
-      </SidebarProvider>
-    </RealtimeProvider>
+    <PushProvider>
+      <RealtimeProvider>
+        <SidebarProvider>
+          <AppSidebar />
+          <SidebarInset>
+            <AppHeader />
+            <div className="flex min-h-0 flex-1 flex-col">
+              <Outlet />
+            </div>
+          </SidebarInset>
+        </SidebarProvider>
+      </RealtimeProvider>
+    </PushProvider>
   )
 }

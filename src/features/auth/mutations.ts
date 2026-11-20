@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
+import { removePushToken } from "@/features/push/registration"
 import { apiFetch } from "@/lib/api/client"
 import type { ApiError } from "@/lib/api/types"
 
@@ -35,6 +36,12 @@ export function useLogout() {
   return useMutation({
     mutationFn: async () => {
       const tokens = getTokens()
+
+      try {
+        await removePushToken({ persistDisabled: false })
+      } catch (error) {
+        console.error("Gagal menghapus token notifikasi push:", error)
+      }
 
       clearTokens()
       queryClient.removeQueries()
