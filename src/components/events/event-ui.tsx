@@ -13,8 +13,8 @@ import {
   Tick02Icon,
   TimelineEventIcon,
   WifiDisconnected01Icon,
-  type IconSvgElement,
 } from "@hugeicons/core-free-icons"
+import type { IconSvgElement } from "@hugeicons/react"
 
 import { Badge } from "@/components/ui/badge"
 import type {
