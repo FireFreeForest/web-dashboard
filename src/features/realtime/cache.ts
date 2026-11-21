@@ -9,7 +9,7 @@ import type {
   DeviceStatusDetail,
 } from "@/features/devices/types"
 import { eventKeys } from "@/features/events/queries"
-import type { Event } from "@/features/events/types"
+import type { Event, EventDetail } from "@/features/events/types"
 import { telemetryKeys } from "@/features/telemetry/queries"
 import type {
   EnvironmentTelemetry,
@@ -151,8 +151,14 @@ function updateFireTelemetry(
 }
 
 function updateEvent(queryClient: QueryClient, event: Event): void {
-  queryClient.setQueryData(eventKeys.detail(event.id), event)
+  queryClient.setQueryData<EventDetail>(
+    eventKeys.detail(event.id),
+    (current) => (current ? { ...current, ...event } : current)
+  )
   void queryClient.invalidateQueries({ queryKey: eventKeys.lists() })
+  void queryClient.invalidateQueries({
+    queryKey: eventKeys.timelines(event.id),
+  })
   void queryClient.invalidateQueries({ queryKey: dashboardKeys.all })
 }
 

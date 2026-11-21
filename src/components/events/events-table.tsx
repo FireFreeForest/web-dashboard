@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import type { Atom } from "@tanstack/react-store"
 import {
   useTable,
@@ -8,11 +8,11 @@ import {
 } from "@tanstack/react-table"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { TimelineEventIcon } from "@hugeicons/core-free-icons"
+import { Link } from "@tanstack/react-router"
 
 import { DataTable } from "@/components/data-table/data-table"
 import { TablePagination } from "@/components/data-table/table-pagination"
 import { TableToolbar } from "@/components/data-table/table-toolbar"
-import { EventDetailSheet } from "@/components/events/event-detail-sheet"
 import {
   EventFilterSheet,
   type EventFilterValues,
@@ -32,7 +32,6 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { Skeleton } from "@/components/ui/skeleton"
-import type { Device } from "@/features/devices/types"
 import type {
   Event,
   EventStatus,
@@ -46,35 +45,22 @@ import { formatDateTime } from "@/lib/utils"
 export function EventsTable({
   events,
   total,
-  devices,
   paginationAtom,
   columnFiltersAtom,
   isLoading,
   isFetching,
   error,
   onRetry,
-  canAcknowledge,
-  canResolve,
 }: {
   events: Event[]
   total: number
-  devices: Device[]
   paginationAtom: Atom<PaginationState>
   columnFiltersAtom: Atom<ColumnFiltersState>
   isLoading: boolean
   isFetching: boolean
   error: ApiError | null
   onRetry: () => void
-  canAcknowledge: boolean
-  canResolve: boolean
 }) {
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
-
-  const deviceMap = useMemo(
-    () => new Map(devices.map((device) => [device.id, device])),
-    [devices]
-  )
-
   const columns = useMemo<
     Array<ColumnDef<typeof searchPaginationTableFeatures, Event>>
   >(
@@ -115,7 +101,10 @@ export function EventsTable({
       {
         id: "device_id",
         header: "Device",
-        accessorFn: (event) => deviceMap.get(event.device_id)?.device_id ?? "-",
+        accessorFn: (event) =>
+          event.device
+            ? event.device.name || event.device.device_id
+            : event.device_id,
         cell: ({ getValue }) => (
           <span className="text-muted-foreground">{String(getValue())}</span>
         ),
@@ -137,7 +126,12 @@ export function EventsTable({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setSelectedEventId(row.original.id)}
+              render={
+                <Link
+                  to="/events/$eventId"
+                  params={{ eventId: row.original.id }}
+                />
+              }
             >
               Detail
             </Button>
@@ -145,7 +139,7 @@ export function EventsTable({
         ),
       },
     ],
-    [deviceMap]
+    []
   )
 
   const table = useTable(
@@ -183,6 +177,7 @@ export function EventsTable({
 
   const handleApplyFilters = (next: ColumnFiltersState) => {
     columnFiltersAtom.set(next)
+    paginationAtom.set((state) => ({ ...state, pageIndex: 0 }))
   }
 
   return (
@@ -237,18 +232,6 @@ export function EventsTable({
           />
         </div>
       )}
-
-      <EventDetailSheet
-        eventId={selectedEventId}
-        open={selectedEventId !== null}
-        canAcknowledge={canAcknowledge}
-        canResolve={canResolve}
-        onOpenChange={(open) => {
-          if (!open) {
-            setSelectedEventId(null)
-          }
-        }}
-      />
     </div>
   )
 }

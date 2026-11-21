@@ -27,9 +27,9 @@ export const Route = createFileRoute("/_app/")({
   component: DashboardPage,
 })
 
-const MAP_CENTER: [number, number] = [113.9, 0.5]
+const MAP_CENTER: [number, number] = [112.1, -3.7]
 const MAP_DEFAULT_ZOOM = 6
-const AUTO_FIT_MAX_ZOOM = 12
+const AUTO_FIT_MAX_ZOOM = 8
 const AUTO_FIT_PADDING = 64
 const NODE_FOCUS_ZOOM = 14
 

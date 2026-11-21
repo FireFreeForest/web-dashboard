@@ -23,7 +23,13 @@ export function NodeActivityCard({ deviceId }: { deviceId: string }) {
       <CardHeader>
         <CardTitle>Aktivitas Terbaru</CardTitle>
         <CardAction>
-          <Button size="xs" variant="ghost" render={<Link to="/events" />}>
+          <Button
+            size="xs"
+            variant="ghost"
+            render={
+              <Link to="/events" search={{ device_id: deviceId }} />
+            }
+          >
             Lihat Semua
             <HugeiconsIcon icon={ArrowRight01Icon} data-icon="inline-end" />
           </Button>

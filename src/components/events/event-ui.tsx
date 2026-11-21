@@ -2,14 +2,28 @@ import type { ComponentProps } from "react"
 import {
   Activity01Icon,
   AlarmSmokeIcon,
+  Alert02Icon,
+  CheckmarkCircle02Icon,
+  Clock01Icon,
   FireIcon,
+  Notification01Icon,
   SoilMoistureFieldIcon,
+  TaskDone01Icon,
   ThermometerSunIcon,
+  Tick02Icon,
+  TimelineEventIcon,
   WifiDisconnected01Icon,
+  type IconSvgElement,
 } from "@hugeicons/core-free-icons"
 
 import { Badge } from "@/components/ui/badge"
-import type { EventStatus, EventType, Severity } from "@/features/events/types"
+import type {
+  EventStatus,
+  EventType,
+  Severity,
+  TimelineKind,
+  TimelineLevel,
+} from "@/features/events/types"
 import { cn } from "@/lib/utils"
 
 export type BadgeVariant = ComponentProps<typeof Badge>["variant"]
@@ -130,4 +144,38 @@ export function SeverityBadge({
 export function StatusBadge({ status }: { status: EventStatus }) {
   const meta = STATUS_META[status]
   return <Badge variant={meta.variant}>{meta.label}</Badge>
+}
+
+export const TIMELINE_KIND_ICON: Record<TimelineKind, IconSvgElement> = {
+  CREATED: TimelineEventIcon,
+  NOTIFICATION: Notification01Icon,
+  REMINDER: Clock01Icon,
+  ESCALATION: Alert02Icon,
+  ACKNOWLEDGED: Tick02Icon,
+  RESOLVED: TaskDone01Icon,
+  AUTO_RESOLVED: CheckmarkCircle02Icon,
+}
+
+export const TIMELINE_LEVEL_META: Record<
+  TimelineLevel,
+  { iconClassName: string }
+> = {
+  info: {
+    iconClassName: "bg-muted text-muted-foreground",
+  },
+  success: {
+    iconClassName: "bg-primary/10 text-primary",
+  },
+  warning: {
+    iconClassName: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  },
+  error: {
+    iconClassName: "bg-destructive/10 text-destructive",
+  },
+  critical: {
+    iconClassName: "bg-destructive/10 text-destructive",
+  },
+  muted: {
+    iconClassName: "bg-muted text-muted-foreground",
+  },
 }

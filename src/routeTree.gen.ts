@@ -16,6 +16,7 @@ import { Route as AppEventsRouteImport } from './routes/_app/events'
 import { Route as AppNodesRouteImport } from './routes/_app/nodes'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppUsersRouteImport } from './routes/_app/users'
+import { Route as AppEventsEventIdRouteImport } from './routes/_app/events_.$eventId'
 import { Route as AppNodesDeviceIdRouteImport } from './routes/_app/nodes_.$deviceId'
 
 const AppRouteRoute = AppRouteRouteImport.update({
@@ -52,6 +53,11 @@ const AppUsersRoute = AppUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppEventsEventIdRoute = AppEventsEventIdRouteImport.update({
+  id: '/events_/$eventId',
+  path: '/events/$eventId',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppNodesDeviceIdRoute = AppNodesDeviceIdRouteImport.update({
   id: '/nodes_/$deviceId',
   path: '/nodes/$deviceId',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/nodes': typeof AppNodesRoute
   '/settings': typeof AppSettingsRoute
   '/users': typeof AppUsersRoute
+  '/events/$eventId': typeof AppEventsEventIdRoute
   '/nodes/$deviceId': typeof AppNodesDeviceIdRoute
 }
 export interface FileRoutesByTo {
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AppSettingsRoute
   '/users': typeof AppUsersRoute
   '/': typeof AppIndexRoute
+  '/events/$eventId': typeof AppEventsEventIdRoute
   '/nodes/$deviceId': typeof AppNodesDeviceIdRoute
 }
 export interface FileRoutesById {
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/_app/settings': typeof AppSettingsRoute
   '/_app/users': typeof AppUsersRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/events_/$eventId': typeof AppEventsEventIdRoute
   '/_app/nodes_/$deviceId': typeof AppNodesDeviceIdRoute
 }
 export interface FileRouteTypes {
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/nodes'
     | '/settings'
     | '/users'
+    | '/events/$eventId'
     | '/nodes/$deviceId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/users'
     | '/'
+    | '/events/$eventId'
     | '/nodes/$deviceId'
   id:
     | '__root__'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '/_app/settings'
     | '/_app/users'
     | '/_app/'
+    | '/_app/events_/$eventId'
     | '/_app/nodes_/$deviceId'
   fileRoutesById: FileRoutesById
 }
@@ -174,6 +186,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppUsersRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/events_/$eventId': {
+      id: '/_app/events_/$eventId'
+      path: '/events/$eventId'
+      fullPath: '/events/$eventId'
+      preLoaderRoute: typeof AppEventsEventIdRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/nodes_/$deviceId': {
       id: '/_app/nodes_/$deviceId'
       path: '/nodes/$deviceId'
@@ -190,6 +209,7 @@ interface AppRouteRouteChildren {
   AppSettingsRoute: typeof AppSettingsRoute
   AppUsersRoute: typeof AppUsersRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppEventsEventIdRoute: typeof AppEventsEventIdRoute
   AppNodesDeviceIdRoute: typeof AppNodesDeviceIdRoute
 }
 
@@ -199,6 +219,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppSettingsRoute: AppSettingsRoute,
   AppUsersRoute: AppUsersRoute,
   AppIndexRoute: AppIndexRoute,
+  AppEventsEventIdRoute: AppEventsEventIdRoute,
   AppNodesDeviceIdRoute: AppNodesDeviceIdRoute,
 }
 
