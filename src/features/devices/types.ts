@@ -1,4 +1,5 @@
 import type {
+  DeviceTelemetry,
   EnvironmentTelemetry,
   FireTelemetry,
   RiskLevel,
@@ -18,7 +19,8 @@ export type Device = {
   status: DeviceStatus
   firmware_version: string
   last_seen_at: string | null
-  uptime_seconds?: number
+  online_since?: string | null
+  uptime_seconds: number
   created_at: string
   updated_at: string
 }
@@ -31,6 +33,7 @@ export type DeviceStatusDetail = {
   uptime_seconds: number
   environment: EnvironmentTelemetry | null
   fire: FireTelemetry | null
+  device_telemetry: DeviceTelemetry | null
   risk_level: RiskLevel
   server_time: string
 }

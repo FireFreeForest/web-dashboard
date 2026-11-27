@@ -6,6 +6,7 @@ import type {
 import type { DeviceStatus } from "@/features/devices/types"
 import type { Event } from "@/features/events/types"
 import type {
+  DeviceTelemetry,
   EnvironmentTelemetry,
   FireTelemetry,
   RiskLevel,
@@ -20,6 +21,7 @@ export type RealtimeEventType =
   | "connected"
   | "telemetry.environment"
   | "telemetry.fire"
+  | "telemetry.device"
   | "event.created"
   | "event.updated"
   | "event.resolved"
@@ -41,6 +43,11 @@ export interface TelemetryFireData {
   device_id: string
 }
 
+export interface TelemetryDeviceData {
+  telemetry: DeviceTelemetry
+  device_id: string
+}
+
 export interface EventData {
   event: Event
   device_id: string
@@ -54,6 +61,8 @@ export interface DeviceStatusData {
   status: DeviceStatus
   online: boolean
   last_seen_at?: string
+  online_since?: string | null
+  uptime_seconds?: number
 }
 
 export interface CommandIssuedData {
@@ -87,6 +96,12 @@ export type RealtimeMessage =
       type: "telemetry.fire"
       device_id: string
       data: TelemetryFireData
+      ts?: string
+    }
+  | {
+      type: "telemetry.device"
+      device_id: string
+      data: TelemetryDeviceData
       ts?: string
     }
   | {

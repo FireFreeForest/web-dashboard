@@ -1,13 +1,13 @@
-export type CommandAction = "SET_PUMP"
+export type CommandAction = "SET_PUMP" | "GET_ALL_TELEMETRY"
 
 export type CommandStatus =
   "pending" | "sent" | "success" | "failed" | "timeout"
 
-export type CommandOrigin = "manual" | "system"
+export type CommandOrigin = "manual" | "system" | "mcp"
 
 export type CommandPayload = {
-  state: boolean
-  duration: number
+  state?: boolean
+  duration?: number
 }
 
 export type Command = {
@@ -35,10 +35,15 @@ export type CommandListParams = {
 export const DEFAULT_PUMP_DURATION_SECONDS = 30
 export const MAX_PUMP_DURATION_SECONDS = 300
 
-export type IssueCommandInput = {
-  action: CommandAction
-  payload: {
-    state: boolean
-    duration?: number
-  }
-}
+export type IssueCommandInput =
+  | {
+      action: "SET_PUMP"
+      payload: {
+        state: boolean
+        duration?: number
+      }
+    }
+  | {
+      action: "GET_ALL_TELEMETRY"
+      payload?: Record<string, never>
+    }

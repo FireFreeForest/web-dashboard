@@ -7,6 +7,7 @@ export type EventType =
   | "SOIL_DRY"
   | "DEVICE_OFFLINE"
   | "SENSOR_ERROR"
+  | "LOW_BATTERY"
 
 export type Severity = "error" | "warning" | "critical"
 
@@ -20,6 +21,13 @@ export type EventMetadata = {
   flame_level?: number
   smoke_level?: number
   pump?: boolean
+  firmware_version?: string
+  wifi_rssi?: number
+  battery_voltage?: number
+  battery_percentage?: number
+  metadata_source?: "command" | "cache"
+  captured_at?: string
+  command_id?: string
 }
 
 export type Event = {

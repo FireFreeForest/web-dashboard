@@ -30,6 +30,17 @@ const statusMeta: Record<
   timeout: { label: "Waktu Habis", variant: "outline" },
 }
 
+const ACTION_LABELS: Record<Command["action"], string> = {
+  SET_PUMP: "Kontrol Pompa",
+  GET_ALL_TELEMETRY: "Minta Telemetri",
+}
+
+const ORIGIN_LABELS: Record<Command["origin"], string> = {
+  manual: "Manual",
+  system: "Sistem",
+  mcp: "MCP",
+}
+
 const commandColumns: Array<
   ColumnDef<typeof paginationTableFeatures, Command>
 > = [
@@ -43,13 +54,25 @@ const commandColumns: Array<
     ),
   },
   {
+    accessorKey: "action",
+    header: "Aksi",
+    cell: ({ row }) => (
+      <div className="flex flex-col gap-0.5">
+        <span>{ACTION_LABELS[row.original.action]}</span>
+        <span className="text-[11px] text-muted-foreground">
+          {ORIGIN_LABELS[row.original.origin]}
+        </span>
+      </div>
+    ),
+  },
+  {
     id: "pump",
     header: "Pompa",
     cell: ({ row }) => {
       const state = row.original.payload.state
       return (
         <Badge variant={state ? "secondary" : "outline"}>
-          {state ? "ON" : "OFF"}
+          {state == null ? "-" : state ? "ON" : "OFF"}
         </Badge>
       )
     },
@@ -60,7 +83,9 @@ const commandColumns: Array<
     cell: ({ row }) => {
       const { state, duration } = row.original.payload
       return (
-        <span className="tabular-nums">{state ? `${duration}s` : "-"}</span>
+        <span className="tabular-nums">
+          {state && duration != null ? `${duration}s` : "-"}
+        </span>
       )
     },
   },

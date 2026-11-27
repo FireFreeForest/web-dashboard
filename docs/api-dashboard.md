@@ -51,7 +51,8 @@ type EventType =
   | "TEMPERATURE_HIGH"
   | "SOIL_DRY"
   | "DEVICE_OFFLINE"
-  | "SENSOR_ERROR";
+  | "SENSOR_ERROR"
+  | "LOW_BATTERY";
 
 type Severity = "error" | "warning" | "critical";
 
@@ -76,17 +77,34 @@ interface DashboardSummary {
 interface Event {
   id: string; // UUID
   device_id: string; // UUID internal device, bukan kode device_id
+  device?: Device; // objek device lengkap, ikut disertakan pada recent_events
   event_type: EventType;
   severity: Severity;
   source: string;
   message: string;
   status: EventStatus;
-  metadata?: Record<string, unknown>; // object opsional, biasanya {} atau berisi detail sensor
+  metadata?: Record<string, unknown>; // object opsional, biasanya {} atau berisi detail sensor + baterai
   triggered_at: string;
   acknowledged_by?: string; // UUID user yang acknowledge, tidak muncul jika null
   acknowledged_at?: string; // tidak muncul jika null
   resolved_at?: string; // tidak muncul jika null
   created_at: string;
+}
+
+interface Device {
+  id: string;
+  device_id: string;
+  name: string;
+  location_name: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  status: "online" | "offline";
+  firmware_version: string;
+  last_seen_at?: string | null;
+  online_since?: string | null;
+  uptime_seconds: number;
+  created_at: string;
+  updated_at: string;
 }
 
 interface ErrorResponse {
@@ -149,14 +167,36 @@ Ringkasan yang dikembalikan:
       {
         "id": "4e3f2a1b-9c8d-4e7f-8a2b-3c4d5e6f7a8b",
         "device_id": "1c2d3e4f-5a6b-4c1c-9a0f-1b2c3d4e5f60",
+        "device": {
+          "id": "1c2d3e4f-5a6b-4c1c-9a0f-1b2c3d4e5f60",
+          "device_id": "FFF-KTG-001",
+          "name": "Ketapang Ridge Station",
+          "location_name": "Ketapang, Kalimantan Barat",
+          "latitude": -1.84,
+          "longitude": 109.98,
+          "status": "online",
+          "firmware_version": "1.2.0",
+          "last_seen_at": "2026-11-15T03:20:00Z",
+          "online_since": "2026-11-15T01:00:00Z",
+          "uptime_seconds": 8400,
+          "created_at": "2026-11-01T08:00:00Z",
+          "updated_at": "2026-11-15T03:20:00Z"
+        },
         "event_type": "FIRE_DETECTED",
         "severity": "critical",
         "source": "flame_sensor",
         "message": "Api terdeteksi di area pantauan",
         "status": "active",
         "metadata": {
+          "temperature": 32.5,
+          "humidity": 60,
+          "flame_detected": true,
           "flame_level": 900,
-          "smoke_level": 180
+          "smoke_level": 180,
+          "battery_percentage": 18,
+          "battery_voltage": 3.45,
+          "metadata_source": "command",
+          "captured_at": "2026-11-15T03:20:00Z"
         },
         "triggered_at": "2026-11-15T03:20:00Z",
         "created_at": "2026-11-15T03:20:00Z"
@@ -204,8 +244,10 @@ Ringkasan yang dikembalikan:
 - `risk.counts` selalu memiliki kelima key. `UNKNOWN` berarti device belum memiliki data risiko (misalnya belum pernah mengirim telemetri), bukan berarti device offline.
 - Nilai risiko dihitung dari maksimal 1000 device terlama (`created_at` menaik). Jika jumlah device melebihi 1000, total `risk.counts` bisa lebih kecil dari `devices.total`.
 - `active_events` menghitung event berstatus `active` **dan** `acknowledged`; event `resolved` tidak termasuk. Jangan menyamakan `active_events.total` dengan jumlah event berstatus `active` saja.
-- `recent_events` maksimal 5 item dan mencakup semua status. Untuk daftar lengkap, gunakan endpoint `/events` (lihat `api-events.md`).
-- `device_id` pada `recent_events` adalah UUID internal device, bukan kode unik `device_id` (contoh `FFF-KTG-001`).
+- `recent_events` maksimal 5 item dan mencakup semua status. Untuk daftar lengkap, gunakan endpoint `/events` (lihat `api-event.md`).
+- `recent_events[].device` berisi objek device lengkap (termasuk `online_since`/`uptime_seconds`) seperti response `/events`.
+- `device_id` pada `recent_events` adalah UUID internal device, bukan kode unik `device_id` (contoh `FFF-KTG-001`). Kode device ada di `device.device_id`.
+- `metadata` event dapat memuat snapshot perangkat: `firmware_version`, `wifi_rssi`, `battery_voltage`, `battery_percentage`, `metadata_source`, dan `captured_at`, sehingga dashboard dapat menampilkan indikator baterai lemah (`LOW_BATTERY`).
 - Field event yang bernilai `null` tidak disertakan pada response; gunakan pengecekan opsional saat membaca `acknowledged_by`, `acknowledged_at`, dan `resolved_at`.
 - `metadata` adalah object bebas dan bisa `{}`; isinya bergantung pada `event_type`.
 - Semua role dapat mengakses endpoint ini; tidak ada aksi tulis pada fitur dashboard.

@@ -78,6 +78,7 @@ type RealtimeEventType =
   | "connected"
   | "telemetry.environment"
   | "telemetry.fire"
+  | "telemetry.device"
   | "event.created"
   | "event.updated"
   | "event.resolved"
@@ -97,7 +98,8 @@ type EventType =
   | "TEMPERATURE_HIGH"
   | "SOIL_DRY"
   | "DEVICE_OFFLINE"
-  | "SENSOR_ERROR";
+  | "SENSOR_ERROR"
+  | "LOW_BATTERY";
 
 type EventStatus = "active" | "acknowledged" | "resolved";
 
@@ -105,16 +107,16 @@ type DeviceStatus = "online" | "offline";
 
 type CommandStatus = "pending" | "sent" | "success" | "failed" | "timeout";
 
-type CommandAction = "SET_PUMP";
+type CommandAction = "SET_PUMP" | "GET_ALL_TELEMETRY";
 
-type CommandOrigin = "manual" | "system";
+type CommandOrigin = "manual" | "system" | "mcp";
 
 interface EnvironmentTelemetry {
   id: number;
   device_id: string; // UUID internal, bukan kode device_id
   temperature: number | null;
   humidity: number | null;
-  soil_moisture: number; // 0..1023 (nilai mentah ADC)
+  soil_moisture: number; // 0..1024 (nilai mentah ADC)
   recorded_at: string;
   received_at: string;
 }
@@ -124,16 +126,44 @@ interface FireTelemetry {
   device_id: string; // UUID internal, bukan kode device_id
   flame_detected: boolean;
   flame_level: number | null;
-  smoke_level: number; // 0..1023
+  smoke_level: number; // 0..1024
   pump: boolean;
   buzzer: boolean;
   recorded_at: string;
   received_at: string;
 }
 
+interface DeviceTelemetry {
+  id: number;
+  device_id: string; // UUID internal, bukan kode device_id
+  firmware_version: string;
+  wifi_rssi: number | null; // RSSI WiFi (dBm), valid -120..0
+  battery_voltage: number | null; // tegangan baterai (volt), valid 0..6
+  battery_percentage: number | null; // persen baterai, valid 0..100
+  recorded_at: string;
+  received_at: string;
+}
+
+interface Device {
+  id: string;
+  device_id: string; // kode device, contoh FFF-KTG-001
+  name: string;
+  location_name: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  status: DeviceStatus;
+  firmware_version: string;
+  last_seen_at?: string | null;
+  online_since?: string | null;
+  uptime_seconds: number;
+  created_at: string;
+  updated_at: string;
+}
+
 interface Event {
   id: string; // UUID event
   device_id: string; // UUID internal device, bukan kode device_id
+  device?: Device; // objek device lengkap, disertakan pada event.*
   event_type: EventType;
   severity: Severity;
   source: string;
@@ -143,6 +173,7 @@ interface Event {
   triggered_at: string;
   acknowledged_by?: string;
   acknowledged_at?: string;
+  resolved_by?: string;
   resolved_at?: string;
   created_at: string;
 }
@@ -154,6 +185,11 @@ interface TelemetryEnvironmentData {
 
 interface TelemetryFireData {
   telemetry: FireTelemetry;
+  device_id: string; // kode device
+}
+
+interface TelemetryDeviceData {
+  telemetry: DeviceTelemetry;
   device_id: string; // kode device
 }
 
@@ -170,6 +206,8 @@ interface DeviceStatusData {
   status: DeviceStatus;
   online: boolean;
   last_seen_at?: string; // dikirim saat device kembali online
+  online_since?: string | null; // null saat offline
+  uptime_seconds?: number; // 0 saat offline
 }
 
 interface CommandIssuedData {
@@ -311,12 +349,13 @@ Origin browser divalidasi backend. Origin kosong (klien non-browser) diizinkan. 
 | `connected`              | Segera setelah koneksi WebSocket berhasil dibuka                     |
 | `telemetry.environment`  | Worker menerima dan menyimpan telemetri lingkungan                   |
 | `telemetry.fire`         | Worker menerima dan menyimpan telemetri api/asap                     |
+| `telemetry.device`       | Worker menerima dan menyimpan telemetri perangkat (firmware/WiFi/baterai) |
 | `event.created`          | Risk engine membuat event baru                                       |
 | `event.updated`          | Event di-`acknowledge` oleh `admin`/`petugas`                        |
 | `event.resolved`         | Event di-`resolve` manual atau otomatis saat kondisi normal kembali  |
 | `risk.updated`           | Tingkat risiko device berubah                                        |
 | `device.status`          | Device pertama kali terlihat online atau ditandai offline            |
-| `command.issued`         | Command baru dibuat (manual atau auto pump)                          |
+| `command.issued`         | Command baru dibuat (manual, auto pump, atau MCP)                    |
 | `command.ack`            | Device mengirim acknowledgement command (`success`/`failed`)         |
 | `command.timeout`        | Command `pending`/`sent` melewati batas waktu dan menjadi `timeout`  |
 
@@ -377,6 +416,33 @@ Tidak memiliki `device_id`, `data`, maupun `ts`.
   "ts": "2026-11-15T03:20:01Z"
 }
 ```
+
+### `telemetry.device`
+
+Dikirim setiap perangkat melaporkan telemetri perangkat: firmware, RSSI WiFi, serta tegangan dan persentase baterai.
+
+```json
+{
+  "type": "telemetry.device",
+  "device_id": "FFF-KTG-001",
+  "data": {
+    "telemetry": {
+      "id": 9101,
+      "device_id": "1c2d3e4f-5a6b-4c1c-9a0f-1b2c3d4e5f60",
+      "firmware_version": "1.2.0",
+      "wifi_rssi": -49,
+      "battery_voltage": 3.456729,
+      "battery_percentage": 18,
+      "recorded_at": "2026-11-15T03:20:00Z",
+      "received_at": "2026-11-15T03:20:01Z"
+    },
+    "device_id": "FFF-KTG-001"
+  },
+  "ts": "2026-11-15T03:20:01Z"
+}
+```
+
+`data.device_id` adalah kode device. `data.telemetry.device_id` adalah UUID internal. Field `wifi_rssi`, `battery_voltage`, dan `battery_percentage` bisa `null`. Firmware yang diterima juga memperbarui `device.firmware_version`, dan baterai di bawah `THRESHOLD_BATTERY_LOW_PERCENT` (default 20%) memicu event `LOW_BATTERY` yang otomatis resolved saat baterai normal kembali.
 
 ### `event.created`
 
@@ -489,7 +555,9 @@ Saat device kembali online:
   "data": {
     "status": "online",
     "online": true,
-    "last_seen_at": "2026-11-15T03:20:00Z"
+    "last_seen_at": "2026-11-15T03:20:00Z",
+    "online_since": "2026-11-15T03:20:00Z",
+    "uptime_seconds": 0
   },
   "ts": "2026-11-15T03:20:00Z"
 }
@@ -503,13 +571,15 @@ Saat device ditandai offline oleh sweeper:
   "device_id": "FFF-KTG-001",
   "data": {
     "status": "offline",
-    "online": false
+    "online": false,
+    "online_since": null,
+    "uptime_seconds": 0
   },
   "ts": "2026-11-15T03:21:00Z"
 }
 ```
 
-Pesan online hanya dikirim pada transisi offline menjadi online, bukan pada setiap telemetri. Device yang baru terdaftar otomatis dapat mengirim `online` tanpa `last_seen_at`.
+Pesan online hanya dikirim pada transisi offline menjadi online, bukan pada setiap telemetri. Device yang baru terdaftar otomatis dapat mengirim `online` tanpa `last_seen_at`. `uptime_seconds` adalah durasi sejak `online_since`; frontend dapat menghitung ulang uptime berjalan dari `online_since` bila perlu.
 
 ### `command.issued`
 
@@ -531,7 +601,7 @@ Pesan online hanya dikirim pada transisi offline menjadi online, bukan pada seti
 }
 ```
 
-`origin` bernilai `manual` (dipicu user) atau `system` (auto pump). `payload` mengikuti action, saat ini `SET_PUMP` memakai `state` (boolean) dan `duration` (detik).
+`origin` bernilai `manual` (dipicu user), `system` (auto pump), atau `mcp` (dipicu agen MCP). `payload` mengikuti action: `SET_PUMP` memakai `state` (boolean) dan `duration` (detik); `GET_ALL_TELEMETRY` memakai payload kosong `{}`.
 
 ### `command.ack`
 
@@ -602,12 +672,14 @@ Alur frontend yang disarankan:
 - Tidak ada field ID pesan atau sequence. Gunakan `event.id` untuk deduplikasi event; telemetri dapat memakai `telemetry.id`.
 - `type` memakai dot-case lowercase, sedangkan `event_type` memakai uppercase (contoh `FIRE_DETECTED`).
 - Perbedaan `device_id`: envelope dan `data.device_id` berisi **kode device** (contoh `FFF-KTG-001`), sedangkan `event.device_id` dan `telemetry.device_id` berisi **UUID internal**. Pengecualian: `command.timeout` memakai UUID internal pada envelope.
+- `data.event` pada `event.created`/`event.updated`/`event.resolved` memakai bentuk yang sama dengan response REST, termasuk objek `device` lengkap (`data.event.device`), sehingga tidak perlu lookup device terpisah.
 - `ts` adalah waktu publish event dalam UTC dan dapat memiliki fraksi detik. Parse dengan parser ISO 8601/RFC 3339.
 - `data` tidak ada pada pesan `connected`. Untuk tipe lain, `data` berisi payload sesuai tabel di atas.
 - Pesan dari klien diabaikan server. Tidak ada mekanisme subscribe/unsubscribe per topik selain query `device_id` saat handshake.
 - Filter `device_id` bersifat opsional. Untuk dashboard global, jangan kirim filter agar semua device diterima.
 - Role `viewer` tetap menerima seluruh pesan realtime. Sembunyikan aksi tulis di UI sesuai role, bukan mengandalkan filter pesan.
 - `event.updated` dikirim saat acknowledge, `event.resolved` saat resolve manual maupun otomatis. Perbarui state event berdasarkan `event.id`, bukan menambahkan baris baru.
-- `device.status` tidak dikirim pada setiap heartbeat, hanya pada perubahan status. Tetap andalkan data awal dari REST.
-- Command dapat berasal dari user (`manual`) atau backend (`system`, auto pump). Tampilkan asal command jika diperlukan.
+- `device.status` tidak dikirim pada setiap heartbeat, hanya pada perubahan status. Tetap andalkan data awal dari REST. Gunakan `online_since`/`uptime_seconds` untuk menghitung ulang uptime.
+- `telemetry.device` membawa firmware, `wifi_rssi`, `battery_voltage`, dan `battery_percentage`. Perbarui widget baterai dari pesan ini; event `LOW_BATTERY` muncul saat baterai di bawah ambang dan otomatis resolve saat normal.
+- Command dapat berasal dari user (`manual`), backend (`system`, auto pump), atau agen MCP (`mcp`). Tampilkan asal command jika diperlukan.
 - Jika tiket ditolak (`invalid_ticket`), jangan retry dengan tiket yang sama; buat tiket baru.

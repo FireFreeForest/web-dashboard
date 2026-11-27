@@ -1,10 +1,13 @@
 import {
+  BatteryIcon,
   CloudFogIcon,
+  CpuIcon,
   FireIcon,
   HumidityIcon,
   InformationCircleIcon,
   Plant01Icon,
   PowerIcon,
+  SignalFull01Icon,
   TemperatureIcon,
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
@@ -20,13 +23,16 @@ import {
 } from "@/components/ui/empty"
 import {
   formatEventAdcPercent,
+  formatEventBattery,
   formatEventFlameLevel,
   formatEventHumidity,
+  formatEventRssi,
   formatEventTemperature,
+  formatEventVoltage,
   hasEventMetadata,
 } from "@/features/events/metadata"
 import type { EventDetail } from "@/features/events/types"
-import { cn } from "@/lib/utils"
+import { cn, formatRelativeTime } from "@/lib/utils"
 
 export function EventMetadataCard({ event }: { event: EventDetail }) {
   const metadata = event.metadata
@@ -98,10 +104,52 @@ export function EventMetadataCard({ event }: { event: EventDetail }) {
                   valueClassName={metadata.pump ? "text-primary" : undefined}
                 />
               ) : null}
+              {metadata?.battery_percentage != null ? (
+                <MetricTile
+                  icon={BatteryIcon}
+                  label="Baterai"
+                  value={formatEventBattery(metadata.battery_percentage)}
+                  className="bg-muted"
+                  iconClassName="text-muted-foreground"
+                />
+              ) : null}
+              {metadata?.battery_voltage != null ? (
+                <MetricTile
+                  icon={BatteryIcon}
+                  label="Tegangan"
+                  value={formatEventVoltage(metadata.battery_voltage)}
+                  className="bg-muted"
+                  iconClassName="text-muted-foreground"
+                />
+              ) : null}
+              {metadata?.wifi_rssi != null ? (
+                <MetricTile
+                  icon={SignalFull01Icon}
+                  label="Sinyal"
+                  value={formatEventRssi(metadata.wifi_rssi)}
+                  className="bg-muted"
+                  iconClassName="text-muted-foreground"
+                />
+              ) : null}
+              {metadata?.firmware_version ? (
+                <MetricTile
+                  icon={CpuIcon}
+                  label="Firmware"
+                  value={metadata.firmware_version}
+                  className="bg-muted"
+                  iconClassName="text-muted-foreground"
+                />
+              ) : null}
             </div>
             <p className="text-xs text-muted-foreground">
               Snapshot terakhir yang diketahui saat event dibuat, bukan nilai
               pemicu.
+              {metadata?.metadata_source
+                ? ` Sumber: ${metadata.metadata_source}.`
+                : null}
+              {metadata?.captured_at
+                ? ` Diambil ${formatRelativeTime(metadata.captured_at)}.`
+                : null}
             </p>
           </div>
         ) : (

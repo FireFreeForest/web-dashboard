@@ -146,5 +146,5 @@ Tanpa body.
 - Panggil `DELETE /push/tokens/{token}` saat user logout atau mematikan notifikasi pada perangkat tersebut, agar push event tidak dikirim ke perangkat yang bukan lagi milik user.
 - Token yang sudah tidak valid di sisi Firebase akan dibersihkan otomatis oleh backend ketika pengiriman push gagal.
 - Token yang terdaftar untuk user `viewer` saat ini tidak menerima push event; notifikasi hanya dikirim ke user `admin` dan `petugas` yang aktif.
-- Push event hanya dikirim untuk tipe event yang diizinkan konfigurasi backend (`FCM_EVENT_TYPES`) dan memenuhi minimal severity (`FCM_MIN_SEVERITY`).
+- Push event hanya dikirim untuk tipe event yang diizinkan konfigurasi backend (`FCM_EVENT_TYPES`, default mencakup `FIRE_DETECTED`, `SMOKE_DETECTED`, `TEMPERATURE_HIGH`, `SOIL_DRY`, `DEVICE_OFFLINE`, `SENSOR_ERROR`, `LOW_BATTERY`) dan memenuhi minimal severity (`FCM_MIN_SEVERITY`).
 - Backend hanya mengirim notifikasi jika integrasi FCM aktif (service account terpasang). Tanpa itu, registrasi token tetap berhasil, tetapi tidak ada push yang dikirim.

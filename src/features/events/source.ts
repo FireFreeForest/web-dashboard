@@ -11,6 +11,7 @@ const SOURCE_SENSOR_LABEL: Record<string, string> = {
   mq2_sensor: "Sensor Asap",
   dht11: "Sensor Suhu",
   soil_sensor: "Sensor Tanah",
+  device_battery: "Baterai Perangkat",
   heartbeat: "Heartbeat Perangkat",
 }
 

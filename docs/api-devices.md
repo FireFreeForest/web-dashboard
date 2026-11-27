@@ -66,6 +66,8 @@ interface Device {
   status: DeviceStatus;
   firmware_version: string;
   last_seen_at: string | null;
+  online_since?: string | null; // waktu device mulai online; hilang/null saat offline
+  uptime_seconds: number; // durasi sejak online_since; 0 saat offline
   created_at: string;
   updated_at: string;
 }
@@ -75,7 +77,7 @@ interface EnvironmentTelemetry {
   device_id: string; // UUID internal, bukan kode device_id
   temperature: number | null; // 0..60, hilang saat sensor DHT11 error
   humidity: number | null; // 0..100, hilang saat sensor DHT11 error
-  soil_moisture: number; // 0..1023 (nilai mentah ADC)
+  soil_moisture: number; // 0..1024 (nilai mentah ADC)
   recorded_at: string;
   received_at: string;
 }
@@ -84,10 +86,21 @@ interface FireTelemetry {
   id: number;
   device_id: string; // UUID internal, bukan kode device_id
   flame_detected: boolean;
-  flame_level: number | null; // 0..1023 (nilai mentah ADC, opsional)
-  smoke_level: number; // 0..1023 (nilai mentah sensor MQ-2)
+  flame_level: number | null; // 0..1024 (nilai mentah ADC, opsional)
+  smoke_level: number; // 0..1024 (nilai mentah sensor MQ-2)
   pump: boolean;
   buzzer: boolean;
+  recorded_at: string;
+  received_at: string;
+}
+
+interface DeviceTelemetry {
+  id: number;
+  device_id: string; // UUID internal, bukan kode device_id
+  firmware_version: string;
+  wifi_rssi: number | null; // RSSI WiFi (dBm), valid -120..0
+  battery_voltage: number | null; // tegangan baterai (volt), valid 0..6
+  battery_percentage: number | null; // persen baterai, valid 0..100
   recorded_at: string;
   received_at: string;
 }
@@ -98,8 +111,11 @@ interface DeviceStatusDetail {
   device: Device;
   status: DeviceStatus;
   last_seen_at: string | null;
+  online_since: string | null;
+  uptime_seconds: number;
   environment: EnvironmentTelemetry | null;
   fire: FireTelemetry | null;
+  device_telemetry: DeviceTelemetry | null; // firmware, WiFi, baterai
   risk_level: RiskLevel;
   server_time: string;
 }
@@ -126,8 +142,11 @@ Autentikasi: Bearer access token (semua role).
 
 | Field | Tipe | Wajib | Keterangan |
 | --- | --- | --- | --- |
+| `q` | string | Tidak | Pencarian substring case-insensitive pada `name`, `location_name`, atau `device_id`. Di-trim, maksimal 100 karakter |
 | `page` | integer | Tidak | Halaman (default `1`) |
 | `per_page` | integer | Tidak | Jumlah per halaman (default `20`, maksimal `100`) |
+
+`meta.total` mengikuti hasil filter `q`.
 
 #### Response `200 OK`
 
@@ -144,6 +163,8 @@ Autentikasi: Bearer access token (semua role).
       "status": "online",
       "firmware_version": "1.2.0",
       "last_seen_at": "2026-11-15T03:20:00Z",
+      "online_since": "2026-11-15T01:00:00Z",
+      "uptime_seconds": 8400,
       "created_at": "2026-11-01T08:00:00Z",
       "updated_at": "2026-11-01T08:00:00Z"
     }
@@ -162,6 +183,7 @@ Autentikasi: Bearer access token (semua role).
 | --- | --- | --- |
 | `401` | `unauthorized` | Header `Authorization` tidak ada |
 | `401` | `invalid_token` | Access token tidak valid atau kedaluwarsa |
+| `422` | `validation_error` | `q` lebih dari 100 karakter |
 | `500` | `internal_error` | Kesalahan server |
 
 ---
@@ -210,6 +232,8 @@ Autentikasi: Bearer access token (khusus `admin`).
     "status": "offline",
     "firmware_version": "1.2.0",
     "last_seen_at": null,
+    "online_since": null,
+    "uptime_seconds": 0,
     "created_at": "2026-11-15T08:00:00Z",
     "updated_at": "2026-11-15T08:00:00Z"
   }
@@ -254,6 +278,8 @@ Autentikasi: Bearer access token (semua role).
     "status": "online",
     "firmware_version": "1.2.0",
     "last_seen_at": "2026-11-15T03:20:00Z",
+    "online_since": "2026-11-15T01:00:00Z",
+    "uptime_seconds": 8400,
     "created_at": "2026-11-01T08:00:00Z",
     "updated_at": "2026-11-01T08:00:00Z"
   }
@@ -314,6 +340,8 @@ Semua field opsional, minimal satu field terisi.
     "status": "online",
     "firmware_version": "1.3.0",
     "last_seen_at": "2026-11-15T03:20:00Z",
+    "online_since": "2026-11-15T01:00:00Z",
+    "uptime_seconds": 8400,
     "created_at": "2026-11-01T08:00:00Z",
     "updated_at": "2026-11-15T08:30:00Z"
   }
@@ -370,7 +398,7 @@ Autentikasi: Bearer access token (semua role).
 
 `deviceID` adalah kode unik device (contoh `FFF-KTG-001`).
 
-Mengembalikan status device beserta telemetri lingkungan dan api/asap terbaru, serta tingkat risiko yang dihitung.
+Mengembalikan status device beserta telemetri lingkungan, api/asap, dan perangkat (firmware/WiFi/baterai) terbaru, serta tingkat risiko yang dihitung.
 
 #### Response `200 OK`
 
@@ -387,11 +415,15 @@ Mengembalikan status device beserta telemetri lingkungan dan api/asap terbaru, s
       "status": "online",
       "firmware_version": "1.2.0",
       "last_seen_at": "2026-11-15T03:20:00Z",
+      "online_since": "2026-11-15T01:00:00Z",
+      "uptime_seconds": 8400,
       "created_at": "2026-11-01T08:00:00Z",
       "updated_at": "2026-11-01T08:00:00Z"
     },
     "status": "online",
     "last_seen_at": "2026-11-15T03:20:00Z",
+    "online_since": "2026-11-15T01:00:00Z",
+    "uptime_seconds": 8400,
     "environment": {
       "id": 12345,
       "device_id": "1c2d3e4f-5a6b-4c1c-9a0f-1b2c3d4e5f60",
@@ -412,13 +444,23 @@ Mengembalikan status device beserta telemetri lingkungan dan api/asap terbaru, s
       "recorded_at": "2026-11-15T03:20:00Z",
       "received_at": "2026-11-15T03:20:01Z"
     },
+    "device_telemetry": {
+      "id": 9101,
+      "device_id": "1c2d3e4f-5a6b-4c1c-9a0f-1b2c3d4e5f60",
+      "firmware_version": "1.2.0",
+      "wifi_rssi": -49,
+      "battery_voltage": 3.456729,
+      "battery_percentage": 18,
+      "recorded_at": "2026-11-15T03:20:00Z",
+      "received_at": "2026-11-15T03:20:01Z"
+    },
     "risk_level": "NORMAL",
     "server_time": "2026-11-15T03:20:05Z"
   }
 }
 ```
 
-`environment` dan `fire` bisa `null` jika belum ada telemetri.
+`environment`, `fire`, dan `device_telemetry` bisa `null` jika belum ada telemetri terkait.
 
 #### Error
 
@@ -433,8 +475,10 @@ Mengembalikan status device beserta telemetri lingkungan dan api/asap terbaru, s
 
 - `device_id` (kode unik, misal `FFF-KTG-001`) berbeda dengan `id` (UUID internal). Endpoint CRUD memakai `deviceID` = kode unik sebagai path parameter.
 - `latitude`, `longitude`, dan `last_seen_at` bernilai `null` atau bisa tidak muncul pada response (field nullable).
+- `online_since` kosong (`null`) dan `uptime_seconds` bernilai `0` saat device offline. Backend menandai device offline bila tidak mengirim data melebihi `DEVICE_OFFLINE_AFTER` (default 30 detik). Saat reconnect setelah offline, `online_since` diisi ulang sehingga uptime mereset; reconnect dalam batas offline tidak mereset uptime.
 - Pada telemetri, `device_id` merujuk ke UUID internal device, bukan kode `device_id`.
 - `temperature` dan `humidity` bisa `null` saat sensor DHT11 error.
+- `device_telemetry` berisi firmware, RSSI WiFi, serta tegangan dan persentase baterai terakhir (`null` bila belum pernah dilaporkan). Baterai di bawah `THRESHOLD_BATTERY_LOW_PERCENT` (default 20%) memicu event `LOW_BATTERY` yang otomatis resolved saat baterai kembali normal.
 - `risk_level` bernilai `UNKNOWN` saat data risiko belum tersedia (belum ada telemetri).
-- List device ter-paginasi: gunakan `page` dan `per_page`; baca `meta.total` untuk total data.
+- List device ter-paginasi: gunakan `page` dan `per_page`; baca `meta.total` untuk total data. Filter `q` mencari `name`, `location_name`, dan `device_id` (case-insensitive, maksimal 100 karakter).
 - Role yang tersedia: `admin`, `petugas`, `viewer`. Endpoint tulis device (POST/PATCH/DELETE) hanya untuk `admin`.

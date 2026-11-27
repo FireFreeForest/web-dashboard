@@ -130,7 +130,6 @@ function AllEventsButton() {
 function EventSummaryBody({ summary }: { summary: DashboardSummary }) {
   const { active_events: activeEvents, recent_events: recentEvents } = summary
   const devices = useDeviceMap()
-
   const hasStats =
     activeEvents.total > 0 ||
     SEVERITIES.some((severity) => activeEvents.by_severity[severity] > 0)
@@ -162,7 +161,10 @@ function EventSummaryBody({ summary }: { summary: DashboardSummary }) {
             <EventItem
               key={event.id}
               event={event}
-              deviceLabel={devices.data?.get(event.device_id)?.device_id}
+              deviceLabel={
+                event.device?.device_id ??
+                devices.data?.get(event.device_id)?.device_id
+              }
             />
           ))}
         </ul>

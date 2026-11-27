@@ -14,6 +14,7 @@ import { NodeLiveTelemetryCard } from "@/components/nodes/node-live-telemetry-ca
 import { NodeLocationCard } from "@/components/nodes/node-location-card"
 import { NodeWaterPumpTrendsCard } from "@/components/nodes/node-waterpump-trends-card"
 import { useLiveNow } from "@/components/nodes/use-live-now"
+import { useLiveUptime } from "@/components/nodes/use-live-uptime"
 import { Button } from "@/components/ui/button"
 import {
   Empty,
@@ -33,6 +34,10 @@ export function NodeDetailPage({ deviceId }: { deviceId: string }) {
   })
   const environmentNow = useLiveNow(deviceId, "environment")
   const fireNow = useLiveNow(deviceId, "fire")
+  const uptimeSeconds = useLiveUptime(
+    query.data?.online_since,
+    query.data?.uptime_seconds
+  )
 
   if (query.isPending) {
     return <NodeDetailSkeleton />
@@ -76,10 +81,10 @@ export function NodeDetailPage({ deviceId }: { deviceId: string }) {
     device,
     environment,
     fire,
+    device_telemetry,
     risk_level,
     last_seen_at,
     status,
-    uptime_seconds,
   } = query.data
 
   return (
@@ -101,7 +106,8 @@ export function NodeDetailPage({ deviceId }: { deviceId: string }) {
           <NodeDetailsCard
             device={device}
             status={status}
-            uptimeSeconds={uptime_seconds ?? device.uptime_seconds ?? null}
+            uptimeSeconds={uptimeSeconds}
+            deviceTelemetry={device_telemetry}
           />
           <NodeLocationCard device={device} />
           <NodeCommandCard deviceId={deviceId} pump={fire?.pump ?? null} />

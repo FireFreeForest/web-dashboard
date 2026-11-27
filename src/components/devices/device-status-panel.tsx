@@ -1,7 +1,7 @@
 import { RiskLevelPill } from "@/components/telemetry/risk-level-pill"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useDeviceStatus } from "@/features/devices/queries"
-import { cn, formatTemperature } from "@/lib/utils"
+import { cn, formatTemperature, formatVoltage } from "@/lib/utils"
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
@@ -76,6 +76,36 @@ export function DeviceStatusPanel({ deviceId }: { deviceId: string }) {
             <Metric
               label="Kelembapan Tanah"
               value={String(data.environment.soil_moisture)}
+            />
+          </div>
+        </div>
+      ) : null}
+
+      {data.device_telemetry ? (
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-medium text-muted-foreground">
+            Perangkat
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            <Metric
+              label="Baterai"
+              value={
+                data.device_telemetry.battery_percentage != null
+                  ? `${data.device_telemetry.battery_percentage}%`
+                  : "-"
+              }
+            />
+            <Metric
+              label="Tegangan"
+              value={formatVoltage(data.device_telemetry.battery_voltage)}
+            />
+            <Metric
+              label="Sinyal"
+              value={
+                data.device_telemetry.wifi_rssi != null
+                  ? `${data.device_telemetry.wifi_rssi} dBm`
+                  : "-"
+              }
             />
           </div>
         </div>

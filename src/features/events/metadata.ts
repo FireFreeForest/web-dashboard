@@ -32,3 +32,15 @@ export function formatEventFlameLevel(metadata: EventMetadata): string {
 
   return metadata.flame_detected ? "Terdeteksi" : "-"
 }
+
+export function formatEventBattery(value: unknown): string {
+  return isNumber(value) ? `${Math.round(value)}%` : "-"
+}
+
+export function formatEventRssi(value: unknown): string {
+  return isNumber(value) ? `${Math.round(value)} dBm` : "-"
+}
+
+export function formatEventVoltage(value: unknown): string {
+  return isNumber(value) ? `${value.toFixed(2)} V` : "-"
+}

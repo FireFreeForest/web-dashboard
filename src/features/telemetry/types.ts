@@ -24,14 +24,26 @@ export type FireTelemetry = {
   received_at: string
 }
 
+export type DeviceTelemetry = {
+  id: number
+  device_id: string
+  firmware_version: string
+  wifi_rssi: number | null
+  battery_voltage: number | null
+  battery_percentage: number | null
+  recorded_at: string
+  received_at: string
+}
+
 export type LatestTelemetry = {
   device: Device
   environment: EnvironmentTelemetry | null
   fire: FireTelemetry | null
+  device_telemetry: DeviceTelemetry | null
   risk_level: RiskLevel
 }
 
-export type TelemetrySeriesMode = "raw" | "decimated" | "aggregate"
+export type TelemetrySeriesMode = "raw" | "raw_decimated" | "aggregate"
 
 export type EnvironmentAggregatePoint = {
   bucket_start: string

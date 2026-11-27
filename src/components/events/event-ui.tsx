@@ -3,6 +3,7 @@ import {
   Activity01Icon,
   AlarmSmokeIcon,
   Alert02Icon,
+  BatteryIcon,
   CheckmarkCircle02Icon,
   Clock01Icon,
   FireIcon,
@@ -35,6 +36,7 @@ export const EVENT_TYPE_LABEL: Record<EventType, string> = {
   SOIL_DRY: "Tanah Kering",
   DEVICE_OFFLINE: "Device Offline",
   SENSOR_ERROR: "Galat Sensor",
+  LOW_BATTERY: "Baterai Lemah",
 }
 
 export const EVENT_TYPE_OPTIONS = Object.entries(EVENT_TYPE_LABEL) as Array<
@@ -48,6 +50,7 @@ export const EVENT_TYPE_ICON: Record<EventType, typeof FireIcon> = {
   SOIL_DRY: SoilMoistureFieldIcon,
   DEVICE_OFFLINE: WifiDisconnected01Icon,
   SENSOR_ERROR: Activity01Icon,
+  LOW_BATTERY: BatteryIcon,
 }
 
 type SeverityMeta = {

@@ -126,6 +126,7 @@ Autentikasi: Bearer access token, role `admin`.
 
 | Field      | Tipe    | Wajib | Default | Keterangan                                  |
 | ---------- | ------- | ----- | ------- | ------------------------------------------- |
+| `q`        | string  | Tidak | -       | Pencarian substring case-insensitive pada `name` atau `email`. Di-trim, maksimal 100 karakter |
 | `page`     | integer | Tidak | `1`     | Halaman, minimal 1                          |
 | `per_page` | integer | Tidak | `20`    | Jumlah per halaman, minimal 1, maksimal 100 |
 
@@ -163,7 +164,7 @@ Nilai di luar batas akan dinormalkan: `page < 1` menjadi 1, `per_page < 1` menja
 }
 ```
 
-Data diurutkan `created_at` menaik. Belum ada filter berdasarkan role, status, atau pencarian.
+Data diurutkan `created_at` menaik. Filter `q` mencari `name` atau `email` (case-insensitive, maksimal 100 karakter); `meta.total` mengikuti hasil filter. Belum ada filter berdasarkan role atau status.
 
 #### Error
 
@@ -172,6 +173,7 @@ Data diurutkan `created_at` menaik. Belum ada filter berdasarkan role, status, a
 | `401`  | `unauthorized`   | Header `Authorization` tidak ada          |
 | `401`  | `invalid_token`  | Access token tidak valid atau kedaluwarsa |
 | `403`  | `forbidden`      | Role bukan `admin`                        |
+| `422`  | `validation_error` | `q` lebih dari 100 karakter             |
 | `500`  | `internal_error` | Kesalahan server                          |
 
 ---

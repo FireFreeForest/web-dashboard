@@ -72,7 +72,7 @@ Daftar event, diurutkan `triggered_at` **descending** (terbaru dulu).
 | `page` | integer | `1` | Minimal `1`. Nilai tidak valid diabaikan. |
 | `per_page` | integer | `20` | Maksimal `100`. Nilai tidak valid diabaikan. |
 
-Enum `event_type`: `FIRE_DETECTED`, `SMOKE_DETECTED`, `TEMPERATURE_HIGH`, `SOIL_DRY`, `DEVICE_OFFLINE`, `SENSOR_ERROR`.
+Enum `event_type`: `FIRE_DETECTED`, `SMOKE_DETECTED`, `TEMPERATURE_HIGH`, `SOIL_DRY`, `DEVICE_OFFLINE`, `SENSOR_ERROR`, `LOW_BATTERY`.
 
 ### Contoh Request
 
@@ -116,7 +116,11 @@ Authorization: Bearer <access_token>
         "flame_detected": true,
         "flame_level": 120,
         "smoke_level": 180,
-        "pump": false
+        "pump": false,
+        "battery_percentage": 18,
+        "battery_voltage": 3.45,
+        "metadata_source": "command",
+        "captured_at": "2026-11-21T08:30:00Z"
       },
       "triggered_at": "2026-11-21T08:30:00Z",
       "acknowledged_by": null,
@@ -467,6 +471,7 @@ Selain lewat API, event juga bisa ditutup oleh sistem (tanpa aksi pengguna):
 
 - **Auto-resolve kondisi normal** → entri `AUTO_RESOLVED`, `reason: "condition_normal"`, aktor `system`, `resolved_by = null`.
 - **Device kembali online** (untuk `DEVICE_OFFLINE`) → juga auto-resolve.
+- **Baterai kembali normal** (untuk `LOW_BATTERY`, persentase ≥ ambang) → juga auto-resolve.
 
 ---
 
@@ -479,7 +484,7 @@ Selain lewat API, event juga bisa ditutup oleh sistem (tanpa aksi pengguna):
 | `id` | string (uuid) | tidak | UUID internal event |
 | `device_id` | string (uuid) | tidak | **UUID internal device**. Kode perangkat ada di `device.device_id`. |
 | `device` | object `Device` | ya (di list/detail selalu disertakan) | Data device lengkap |
-| `event_type` | string enum | tidak | `FIRE_DETECTED`, `SMOKE_DETECTED`, `TEMPERATURE_HIGH`, `SOIL_DRY`, `DEVICE_OFFLINE`, `SENSOR_ERROR` |
+| `event_type` | string enum | tidak | `FIRE_DETECTED`, `SMOKE_DETECTED`, `TEMPERATURE_HIGH`, `SOIL_DRY`, `DEVICE_OFFLINE`, `SENSOR_ERROR`, `LOW_BATTERY` |
 | `severity` | string enum | tidak | `error`, `warning`, `critical` |
 | `source` | string | tidak | Sumber/pemicu event. **Bukan enum** — bisa berisi nilai bebas dari device. Lihat [Referensi nilai `source`](#referensi-nilai-source). |
 | `message` | string | tidak | Deskripsi singkat event |
@@ -563,6 +568,7 @@ Field `source` disimpan sebagai `text` bebas di database (tanpa constraint). Nil
 | `mq2_sensor` | `SMOKE_DETECTED` | Risk engine, sensor asap/gas | Sensor Asap (MQ-2) |
 | `dht11` | `TEMPERATURE_HIGH` | Risk engine, sensor suhu | Sensor Suhu (DHT11) |
 | `soil_sensor` | `SOIL_DRY` | Risk engine, sensor tanah | Sensor Kelembapan Tanah |
+| `device_battery` | `LOW_BATTERY` | Risk engine, telemetri perangkat | Baterai Perangkat |
 | `heartbeat` | `DEVICE_OFFLINE` | Sweeper heartbeat | Heartbeat Perangkat |
 
 ### 2. `SENSOR_ERROR` dari validasi payload backend (kode penyebab, bukan nama sensor)
@@ -593,6 +599,7 @@ const SOURCE_LABELS: Record<string, string> = {
   mq2_sensor: "Sensor Asap (MQ-2)",
   dht11: "Sensor Suhu (DHT11)",
   soil_sensor: "Sensor Kelembapan Tanah",
+  device_battery: "Baterai Perangkat",
   heartbeat: "Heartbeat Perangkat",
   payload_decode: "Payload Tidak Valid",
   device_id_mismatch: "ID Perangkat Tidak Cocok",
@@ -609,6 +616,7 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
   SOIL_DRY: "Tanah Kering",
   DEVICE_OFFLINE: "Perangkat Offline",
   SENSOR_ERROR: "Error Sensor",
+  LOW_BATTERY: "Baterai Lemah",
 };
 
 export function sourceLabel(event: {
@@ -631,17 +639,24 @@ Ada **dua metadata terpisah**: `event.metadata` dan `timeline[].metadata`. Isi d
 
 ### A. `event.metadata` — snapshot telemetri saat event dipicu
 
-Hanya berisi subset dari 7 key berikut (union). Key yang tidak tersedia akan dihilangkan.
+Berisi snapshot gabungan dari telemetri lingkungan, api/asap, dan perangkat (baterai/WiFi). Key yang tidak tersedia akan dihilangkan.
 
 | Key | Tipe | Syarat muncul |
 |---|---|---|
 | `temperature` | number | Ada data environment dan `temperature` tidak `null` |
 | `humidity` | number | Ada data environment dan `humidity` tidak `null` |
-| `soil_moisture` | number | Ada data environment. **ADC mentah `0–1023`**, bukan persen |
+| `soil_moisture` | number | Ada data environment. **ADC mentah `0–1024`**, bukan persen |
 | `flame_detected` | boolean | Ada data fire |
 | `flame_level` | number | Ada data fire dan `flame_level` tidak `null` |
-| `smoke_level` | number | Ada data fire. **ADC mentah `0–1023`**, bukan persen |
+| `smoke_level` | number | Ada data fire. **ADC mentah `0–1024`**, bukan persen |
 | `pump` | boolean | Ada data fire |
+| `firmware_version` | string | Ada data perangkat dan tidak kosong |
+| `wifi_rssi` | number | Ada data perangkat dan `wifi_rssi` tidak `null` |
+| `battery_voltage` | number | Ada data perangkat dan `battery_voltage` tidak `null` |
+| `battery_percentage` | number | Ada data perangkat dan `battery_percentage` tidak `null` |
+| `metadata_source` | string | Selalu ada. `command` bila snapshot didahului `GET_ALL_TELEMETRY` yang di-ack, `cache` bila memakai cache terakhir |
+| `captured_at` | string (date-time) | Selalu ada. Waktu snapshot diambil |
+| `command_id` | string | Ada bila refresh telemetri (`GET_ALL_TELEMETRY`) dikirim |
 
 Field telemetri yang **tidak** masuk metadata: `buzzer`, `id`, `device_id`, `recorded_at`, `received_at`, `sample_count`.
 
@@ -649,15 +664,16 @@ Kapan berisi vs `{}`:
 
 | Sumber event | `event.metadata` |
 |---|---|
-| `FIRE_DETECTED`, `SMOKE_DETECTED`, `TEMPERATURE_HIGH`, `SOIL_DRY` (evaluasi kondisi backend) | Berisi snapshot 7 key di atas (subset sesuai ketersediaan) |
-| `DEVICE_OFFLINE` (sweeper heartbeat) | `{}` |
-| `SENSOR_ERROR` (validasi payload backend) | `{}` |
-| Event kiriman device via MQTT `/event` | `{}` |
+| `FIRE_DETECTED`, `SMOKE_DETECTED`, `TEMPERATURE_HIGH`, `SOIL_DRY`, `LOW_BATTERY` (evaluasi kondisi backend) | Berisi snapshot di atas (subset sesuai ketersediaan) |
+| `DEVICE_OFFLINE` (sweeper heartbeat) | `{ "metadata_source": "cache", "captured_at": ... }` (perangkat offline tidak bisa ditanya) |
+| `SENSOR_ERROR` (validasi payload backend) | Snapshot dengan `metadata_source` `command`/`cache` |
+| Event kiriman device via MQTT `/event` | Snapshot dengan `metadata_source` `command`/`cache` |
 
 Catatan penting:
 - Metadata bersifat **immutable** — tidak berubah setelah event dibuat.
-- Nilainya adalah **"state terakhir yang diketahui"** dari cache (`ff:latest:<device>`, TTL 48 jam), bukan payload pemicu. Bisa saja `temperature` berasal dari pembacaan sebelumnya saat event fire terpicu. Gunakan sebagai konteks indikatif, bukan bukti nilai saat trigger.
-- Metadata selalu ada sebagai objek (`{}` bila kosong), bukan `null`.
+- Sebelum membuat event, backend mengirim `GET_ALL_TELEMETRY` dan menunggu ack perangkat (maksimal `TELEMETRY_REFRESH_TIMEOUT`, default 5 detik) agar snapshot segar; bila ack tidak datang, metadata memakai cache terakhir dan `metadata_source` bernilai `cache`. Refresh dibatasi per device (`TELEMETRY_REFRESH_THROTTLE`, default 30 detik).
+- Nilainya adalah **"state terakhir yang diketahui"** dari cache (`ff:latest:<device>`, TTL 48 jam). Gunakan sebagai konteks indikatif, bukan bukti nilai saat trigger.
+- Metadata selalu ada sebagai objek, bukan `null`. Minimal berisi `metadata_source` dan `captured_at`; key telemetri lain muncul bila datanya tersedia.
 
 ### B. `timeline[].metadata` — konteks per entri linimasa
 
@@ -704,6 +720,13 @@ type EventMetadata = {
   flame_level?: number;
   smoke_level?: number;
   pump?: boolean;
+  firmware_version?: string;
+  wifi_rssi?: number;
+  battery_voltage?: number;
+  battery_percentage?: number;
+  metadata_source?: "command" | "cache";
+  captured_at?: string;
+  command_id?: string;
 };
 
 export function hasTelemetry(meta: EventMetadata | null | undefined): boolean {
@@ -716,7 +739,11 @@ export function formatTemperature(meta: EventMetadata | null | undefined): strin
 
 export function adcToPercent(raw: number | undefined): string {
   if (raw == null) return "-";
-  return `${Math.round((raw / 1023) * 100)}%`;
+  return `${Math.round((raw / 1024) * 100)}%`;
+}
+
+export function formatBattery(meta: EventMetadata | null | undefined): string {
+  return meta?.battery_percentage != null ? `${meta.battery_percentage}%` : "-";
 }
 ```
 

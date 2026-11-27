@@ -12,6 +12,7 @@ import { eventKeys } from "@/features/events/queries"
 import type { Event, EventDetail } from "@/features/events/types"
 import { telemetryKeys } from "@/features/telemetry/queries"
 import type {
+  DeviceTelemetry,
   EnvironmentTelemetry,
   FireTelemetry,
   LatestTelemetry,
@@ -22,6 +23,8 @@ import type { RealtimeMessage } from "./types"
 type DevicePresencePatch = {
   status?: DeviceStatus
   last_seen_at?: string | null
+  online_since?: string | null
+  uptime_seconds?: number
 }
 
 function patchDevicePresence(
@@ -55,6 +58,14 @@ function patchDevicePresence(
               patch.last_seen_at !== undefined
                 ? patch.last_seen_at
                 : current.last_seen_at,
+            online_since:
+              patch.online_since !== undefined
+                ? patch.online_since
+                : current.online_since,
+            uptime_seconds:
+              patch.uptime_seconds !== undefined
+                ? patch.uptime_seconds
+                : current.uptime_seconds,
             device: { ...current.device, ...patch },
           }
         : current
@@ -150,6 +161,51 @@ function updateFireTelemetry(
   invalidateTelemetrySeries(queryClient, deviceId, "fire")
 }
 
+function updateDeviceTelemetry(
+  queryClient: QueryClient,
+  deviceId: string,
+  telemetry: DeviceTelemetry
+): void {
+  patchDevicePresence(queryClient, deviceId, {
+    status: "online",
+    last_seen_at: telemetry.received_at,
+  })
+
+  queryClient.setQueryData<LatestTelemetry>(
+    telemetryKeys.latest(deviceId),
+    (current) =>
+      current
+        ? {
+            ...current,
+            device_telemetry: telemetry,
+            device: {
+              ...current.device,
+              firmware_version: telemetry.firmware_version,
+            },
+          }
+        : current
+  )
+
+  queryClient.setQueryData<DeviceStatusDetail>(
+    deviceKeys.status(deviceId),
+    (current) =>
+      current
+        ? {
+            ...current,
+            device_telemetry: telemetry,
+            status: "online",
+            last_seen_at: telemetry.received_at,
+            device: {
+              ...current.device,
+              firmware_version: telemetry.firmware_version,
+            },
+          }
+        : current
+  )
+
+  void queryClient.invalidateQueries({ queryKey: deviceKeys.lists() })
+}
+
 function updateEvent(queryClient: QueryClient, event: Event): void {
   queryClient.setQueryData<EventDetail>(
     eventKeys.detail(event.id),
@@ -183,6 +239,13 @@ export function applyRealtimeMessage(
         message.data.telemetry
       )
       return
+    case "telemetry.device":
+      updateDeviceTelemetry(
+        queryClient,
+        message.device_id,
+        message.data.telemetry
+      )
+      return
     case "event.created":
     case "event.updated":
     case "event.resolved":
@@ -205,6 +268,8 @@ export function applyRealtimeMessage(
     case "device.status": {
       const patch: DevicePresencePatch = {
         status: message.data.status,
+        online_since: message.data.online_since ?? null,
+        uptime_seconds: message.data.uptime_seconds,
       }
 
       if (message.data.last_seen_at) {

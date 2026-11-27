@@ -11,6 +11,7 @@ const REALTIME_EVENT_TYPES: ReadonlySet<string> = new Set<RealtimeEventType>([
   "connected",
   "telemetry.environment",
   "telemetry.fire",
+  "telemetry.device",
   "event.created",
   "event.updated",
   "event.resolved",

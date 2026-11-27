@@ -46,7 +46,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import type { Device } from "@/features/devices/types"
 import { paginationTableFeatures } from "@/lib/data-table/features"
 import { ApiError } from "@/lib/api/types"
-import { formatDateTime } from "@/lib/utils"
+import { formatDateTime, formatUptime } from "@/lib/utils"
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
 
@@ -123,6 +123,17 @@ export function DevicesTable({
         cell: ({ row }) => (
           <span className="whitespace-nowrap text-muted-foreground">
             {formatDateTime(row.original.last_seen_at)}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "uptime_seconds",
+        header: "Uptime",
+        cell: ({ row }) => (
+          <span className="whitespace-nowrap text-muted-foreground">
+            {row.original.status === "online"
+              ? formatUptime(row.original.uptime_seconds)
+              : "-"}
           </span>
         ),
       },
@@ -228,7 +239,7 @@ export function DevicesTable({
       <TableToolbar
         search={search}
         onSearchChange={onSearchChange}
-        placeholder="Cari nama atau lokasi..."
+        placeholder="Cari nama, lokasi, atau Device ID..."
         actions={canEdit ? actions : null}
       />
       {isLoading ? (
