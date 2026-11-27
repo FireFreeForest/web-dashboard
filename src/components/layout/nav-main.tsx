@@ -1,5 +1,6 @@
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
 import {
+  AiChat01Icon,
   DashboardSquare01Icon,
   RadioTowerIcon,
   TimelineEventIcon,
@@ -19,7 +20,7 @@ import { useMe } from "@/features/auth/queries"
 
 type NavItem = {
   title: string
-  to: "/" | "/nodes" | "/events" | "/users"
+  to: "/" | "/nodes" | "/events" | "/users" | "/assistant"
   icon: IconSvgElement
   exact: boolean
 }
@@ -28,6 +29,7 @@ const platformItems: NavItem[] = [
   { title: "Beranda", to: "/", icon: DashboardSquare01Icon, exact: true },
   { title: "Device", to: "/nodes", icon: RadioTowerIcon, exact: false },
   { title: "Events", to: "/events", icon: TimelineEventIcon, exact: false },
+  { title: "Assistant", to: "/assistant", icon: AiChat01Icon, exact: true },
 ]
 
 const adminItems: NavItem[] = [

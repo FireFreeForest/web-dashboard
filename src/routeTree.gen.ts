@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as AppAssistantRouteImport } from './routes/_app/assistant'
 import { Route as AppEventsRouteImport } from './routes/_app/events'
 import { Route as AppNodesRouteImport } from './routes/_app/nodes'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
@@ -31,6 +32,11 @@ const AuthRoute = AuthRouteImport.update({
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppAssistantRoute = AppAssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppEventsRoute = AppEventsRouteImport.update({
@@ -67,6 +73,7 @@ const AppNodesDeviceIdRoute = AppNodesDeviceIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/auth': typeof AuthRoute
+  '/assistant': typeof AppAssistantRoute
   '/events': typeof AppEventsRoute
   '/nodes': typeof AppNodesRoute
   '/settings': typeof AppSettingsRoute
@@ -76,6 +83,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
+  '/assistant': typeof AppAssistantRoute
   '/events': typeof AppEventsRoute
   '/nodes': typeof AppNodesRoute
   '/settings': typeof AppSettingsRoute
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_app/assistant': typeof AppAssistantRoute
   '/_app/events': typeof AppEventsRoute
   '/_app/nodes': typeof AppNodesRoute
   '/_app/settings': typeof AppSettingsRoute
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/assistant'
     | '/events'
     | '/nodes'
     | '/settings'
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
+    | '/assistant'
     | '/events'
     | '/nodes'
     | '/settings'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_app'
     | '/auth'
+    | '/_app/assistant'
     | '/_app/events'
     | '/_app/nodes'
     | '/_app/settings'
@@ -156,6 +168,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/assistant': {
+      id: '/_app/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AppAssistantRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/events': {
@@ -204,6 +223,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteRouteChildren {
+  AppAssistantRoute: typeof AppAssistantRoute
   AppEventsRoute: typeof AppEventsRoute
   AppNodesRoute: typeof AppNodesRoute
   AppSettingsRoute: typeof AppSettingsRoute
@@ -214,6 +234,7 @@ interface AppRouteRouteChildren {
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppAssistantRoute: AppAssistantRoute,
   AppEventsRoute: AppEventsRoute,
   AppNodesRoute: AppNodesRoute,
   AppSettingsRoute: AppSettingsRoute,
